@@ -1,3 +1,4 @@
+from pathlib import Path
 import pandas as pd
 from d3census import (
     variable,
@@ -9,7 +10,7 @@ from d3census import (
 
 import pandas as pd
 
-
+WORKING_DIR = Path(__file__).resolve().parent
 YEAR = 2023
 
 
@@ -561,7 +562,7 @@ def pull_tract_level(logger):
     )
 
     logger.info("Number of tracks in dataset (should be ~70): ", len(profile))
-    profile.to_parquet(f"../output/nvi_tracts_{YEAR}.parquet.gzip")
+    profile.to_parquet(WORKING_DIR / "output" / f"nvi_tracts_{YEAR}.parquet.gzip")
 
 
 # City-wide:
@@ -689,7 +690,7 @@ def pull_city_wide(logger):
     )
 
     logger.info("Number of cities in dataset (should be 1): ", len(profile))
-    profile.to_parquet(f"../output/nvi_citywide_{YEAR}.parquet.gzip")
+    profile.to_parquet(WORKING_DIR / "output" / f"nvi_citywide_{YEAR}.parquet.gzip")
 
 
 def extract(logger):
