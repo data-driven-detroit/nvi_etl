@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "nvi-etl"
+version = "0.1.0"
+description = "The package for loading all NVI survey questions and secondary data into the database."
+authors = ["mikevatd3 <mike@datadrivendetroit.org>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10, <3.13"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
