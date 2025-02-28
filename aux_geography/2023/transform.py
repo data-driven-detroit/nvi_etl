@@ -45,7 +45,9 @@ def transform_neighborhood_zones(logger):
     cds.to_file(WORKING_DIR / "output" / "neighborhood_zones_2016.geojson")
 
 
+def transform_2020_tracts_to_2014_council_districts(logger):
+    logger.info("No transform required for tracts to districts.")
 
 
-def transform_tracts_to_council_districts(logger):
-    pass
+def transform_2010_tracts_to_2014_council_districts(logger):
+    logger.info("No transform required for tracts to districts.")
