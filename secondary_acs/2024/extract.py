@@ -694,9 +694,27 @@ def pull_city_wide(logger):
 
 
 def extract(logger):
-    logger.info("Pulling the tract level ACS data")
-    pull_tract_level(logger)
+    """
+    This data doesn't change frequently (if ever), so 'extract' checks 
+    to see if there are files from previous extracts available to avoid
+    hitting the API unnecessairily.
+    """
 
-    logger.info("Pulling the city-wide ACS data")
-    pull_city_wide(logger)
+    if (WORKING_DIR / "output" / f"nvi_tracts_{YEAR}.parquet.gzip").exists():
+        logger.info(
+            "Tract-level file has already been pulled--remove file from 'output' " 
+            "to pull again."
+        )
+    else:
+        logger.info("Pulling the tract level ACS data")
+        pull_tract_level(logger)
+
+    if (WORKING_DIR / "output" / f"nvi_citywide_{YEAR}.parquet.gzip").exists():
+        logger.info(
+            "City-wide file has already been pulled-- remove file from 'output' "
+            "to pull again."
+        )
+    else:
+        logger.info("Pulling the city-wide ACS data")
+        pull_city_wide(logger)
 
