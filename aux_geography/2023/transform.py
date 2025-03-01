@@ -7,7 +7,7 @@ import geopandas as gpd
 WORKING_DIR = Path(__file__).resolve().parent
 
 field_reference = json.loads(
-    (WORKING_DIR / "conf" / "field_reference.json").read_text()
+    (WORKING_DIR / "conf" / "field_reference_council_districts.json").read_text()
 )
 
 
