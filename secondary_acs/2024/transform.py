@@ -1,8 +1,9 @@
+import json
 from pathlib import Path
 import pandas as pd
 from sqlalchemy import text
 
-from nvi_etl import db_engine
+from nvi_etl import db_engine, liquefy
 
 
 WORKING_DIR = Path(__file__).resolve().parent
@@ -94,80 +95,61 @@ def pct_children_below_pov(df):
     )
 
 
-def pull_tracts_to_new_council_districts():
-    ref_q = text("""
-    SELECT *
-    FROM blah.blah;
-    """)
+def pull_tracts_to_council_districts():
+    cw_q = text(
+        """
+    SELECT tract_geoid, district_number
+    FROM nvi.tracts_to_council_districts
+    WHERE tract_start_date = DATE '2020-01-01'
+    AND district_start_date = DATE '2026-01-01';
+    """
+    )
 
-    with 
+    return pd.read_sql(cw_q, db_engine)
 
 
 def transform(logger):
+    logger.info("Aggregating tract-level ACS data to 2026 Council Districts")
 
-    # TODO: This file is going to actually be from the database.
-    districts = pd.read_parquet(WORKING_DIR / f"tracts_to_council_districts_{YEAR}.csv")[
-        ["geoid", "district"]
-    ]
+    FIELD_DEFAULTS = {
+        "year": 2024, 
+        "survey_id": pd.NA, 
+        "survey_question_id": pd.NA, 
+        "survey_question_option_id": pd.NA
+    }
+
+    aggregations = json.loads(
+        (WORKING_DIR / "conf" / "aggregations.json").read_text()
+    )
+
+    instructions = json.loads(
+        (WORKING_DIR / "conf" / "liquefy_instructions.json").read_text()
+    )
+
+    districts = pull_tracts_to_council_districts()
 
     city_wide = pd.read_parquet(
-        f"../input/nvi_citywide_{YEAR}.parquet.gzip"
+        WORKING_DIR / "output" / f"nvi_citywide_{YEAR}.parquet.gzip"
     ).reset_index()
     tract_level = pd.read_parquet(
-        f"../input/nvi_tracts_{YEAR}.parquet.gzip"
+        WORKING_DIR / "output" / f"nvi_tracts_{YEAR}.parquet.gzip"
     ).reset_index()
+    
+    # TODO Read this dynamically off of the locations file
+    district_map = lambda dist: dist + 1
 
     # Tract-level
-    result = (
-        districts.astype({"geoid": "str"})
-        .merge(tract_level, on="geoid")
-        .groupby("district")
-        .agg(
-            {
-                "num_people_w_det_poverty_status": "sum",
-                "num_people_below_200_fpl_acs": "sum",
-                "num_people_above_200_fpl_acs": "sum",
-                "total_households": "sum",
-                "owner_occupied_households": "sum",
-                "oo_hh_spending_lt_30": "sum",
-                "renter_occupied_households": "sum",
-                "ro_hh_spending_lt_30": "sum",
-                "total_population_ge_25": "sum",
-                "population_ge_25_with_post_hs_diploma_ged": "sum",
-                "population_ge_25_with_post_sec_degree": "sum",
-                "population_over_20": "sum",
-                "num_over_20_in_labor_force": "sum",
-                "population_16_to_19": "sum",
-                "num_16_to_19_in_labor_force": "sum",
-                "total_population": "sum",
-                "income_lt_10000": "sum",
-                "income_10000_to_14999": "sum",
-                "income_20000_to_24999": "sum",
-                "income_25000_to_29999": "sum",
-                "income_30000_to_34999": "sum",
-                "income_35000_to_39999": "sum",
-                "income_40000_to_44999": "sum",
-                "income_45000_to_49999": "sum",
-                "income_50000_to_59999": "sum",
-                "income_60000_to_74999": "sum",
-                "income_75000_to_99999": "sum",
-                "income_100000_to_124999": "sum",
-                "income_125000_to_149999": "sum",
-                "income_150000_to_199999": "sum",
-                "income_ge_200000": "sum",
-                "num_white_alone": "sum",
-                "num_black_or_african_american_alone": "sum",
-                "num_american_indian_and_alaska_native_alone": "sum",
-                "num_asian_alone": "sum",
-                "num_native_hawaiian_and_other_pacific_islander_alone": "sum",
-                "num_some_other_race_alone": "sum",
-                "num_two_or_more_races": "sum",
-                "num_hispanic_or_latino": "sum",
-                "num_children_below_pov": "sum",
-                "num_children_above_pov": "sum",
-                "num_households_with_children": "sum",
+    wide_format = (
+        districts.rename(
+            columns={
+                "tract_geoid": "geoid",
+                "district_number": "district",
             }
         )
+        .astype({"geoid": "str"})
+        .merge(tract_level, on="geoid")
+        .groupby("district")
+        .agg(aggregations["aggregations"])
         .assign(
             pct_hs_diploma_ged_plus=pct_hs_diploma_ged_plus,
             pct_post_secondary=pct_post_secondary,
@@ -179,63 +161,24 @@ def transform(logger):
             pct_renter_occupied=pct_renter_occupied,
             pct_children_below_pov=pct_children_below_pov,
             hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
+            location_id=lambda df: district_map(df.index)
         )
     )
 
-    assert len(result) == 7
-    result.to_excel(f"./output/nvi_districts_{YEAR}.xlsx")
+    assert len(wide_format) == 7
+
+    result = liquefy(wide_format, instructions, defaults=FIELD_DEFAULTS)
+
+    result.to_csv(
+        WORKING_DIR / "output" / f"nvi_districts_{YEAR}.csv", index=False
+    )
 
     # City-wide
 
-    result = (
+    wide_format = (
         city_wide.assign(district=1)
         .groupby("district")
-        .agg(
-            {
-                "num_people_w_det_poverty_status": "sum",
-                "num_people_below_200_fpl_acs": "sum",
-                "num_people_above_200_fpl_acs": "sum",
-                "total_households": "sum",
-                "owner_occupied_households": "sum",
-                "oo_hh_spending_lt_30": "sum",
-                "renter_occupied_households": "sum",
-                "ro_hh_spending_lt_30": "sum",
-                "total_population_ge_25": "sum",
-                "population_ge_25_with_post_hs_diploma_ged": "sum",
-                "population_ge_25_with_post_sec_degree": "sum",
-                "population_over_20": "sum",
-                "num_over_20_in_labor_force": "sum",
-                "population_16_to_19": "sum",
-                "num_16_to_19_in_labor_force": "sum",
-                "total_population": "sum",
-                "income_lt_10000": "sum",
-                "income_10000_to_14999": "sum",
-                "income_20000_to_24999": "sum",
-                "income_25000_to_29999": "sum",
-                "income_30000_to_34999": "sum",
-                "income_35000_to_39999": "sum",
-                "income_40000_to_44999": "sum",
-                "income_45000_to_49999": "sum",
-                "income_50000_to_59999": "sum",
-                "income_60000_to_74999": "sum",
-                "income_75000_to_99999": "sum",
-                "income_100000_to_124999": "sum",
-                "income_125000_to_149999": "sum",
-                "income_150000_to_199999": "sum",
-                "income_ge_200000": "sum",
-                "num_white_alone": "sum",
-                "num_black_or_african_american_alone": "sum",
-                "num_american_indian_and_alaska_native_alone": "sum",
-                "num_asian_alone": "sum",
-                "num_native_hawaiian_and_other_pacific_islander_alone": "sum",
-                "num_some_other_race_alone": "sum",
-                "num_two_or_more_races": "sum",
-                "num_hispanic_or_latino": "sum",
-                "num_children_below_pov": "sum",
-                "num_children_above_pov": "sum",
-                "num_households_with_children": "sum",
-            }
-        )
+        .agg(aggregations["aggregations"])
         .assign(  # Assign the district-level aggs with the functions above
             pct_hs_diploma_ged_plus=pct_hs_diploma_ged_plus,
             pct_post_secondary=pct_post_secondary,
@@ -247,8 +190,13 @@ def transform(logger):
             pct_renter_occupied=pct_renter_occupied,
             pct_children_below_pov=pct_children_below_pov,
             hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
+            location_id=1
         )
     )
 
-    assert len(result) == 1
-    result.to_excel(f"./output/nvi_citywide_{YEAR}.xlsx")
+    assert len(wide_format) == 1
+    result = liquefy(wide_format, instructions, defaults=FIELD_DEFAULTS)
+
+    result.to_csv(
+        WORKING_DIR / "output" / f"nvi_citywide_{YEAR}.csv", index=False
+    )

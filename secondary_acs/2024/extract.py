@@ -702,8 +702,7 @@ def extract(logger):
 
     if (WORKING_DIR / "output" / f"nvi_tracts_{YEAR}.parquet.gzip").exists():
         logger.info(
-            "Tract-level file has already been pulled--remove file from 'output' " 
-            "to pull again."
+            "Tract-level already pulled--remove file from 'output' to pull again."
         )
     else:
         logger.info("Pulling the tract level ACS data")
@@ -711,8 +710,7 @@ def extract(logger):
 
     if (WORKING_DIR / "output" / f"nvi_citywide_{YEAR}.parquet.gzip").exists():
         logger.info(
-            "City-wide file has already been pulled-- remove file from 'output' "
-            "to pull again."
+            "City-wide already pulled-- remove file from 'output' to pull again."
         )
     else:
         logger.info("Pulling the city-wide ACS data")

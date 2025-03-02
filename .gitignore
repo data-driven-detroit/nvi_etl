@@ -8,7 +8,7 @@ config.toml
 # Don't include log files
 *.log
 
-# Avoid including any intermediate data downloads 
+# Avoid including any intermediate data downloads
 *.json
 *.csv
 *.parquet
@@ -16,6 +16,10 @@ config.toml
 
 # The logging config is okay
 !logging_config.json
+
+# Any csv or json used as conf are also Okay.
+!**conf/*.json
+!**conf/*.csv
 
 .vscode/*
 */__pycache__/*
