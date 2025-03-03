@@ -1,0 +1,27 @@
+{
+    "index_cols": [
+        "location_id",
+        "year",
+        "survey_id",
+        "survey_question_id",
+        "survey_question_option_id"
+    ],
+    "dtypes": [
+        "count",
+        "universe",
+        "percentage",
+        "rate",
+        "rate_per",
+        "dollars",
+        "index"
+    ],
+    "id_map": {
+        "pct_hs_diploma_ged_plus": {"id": 10, "dtype": "percentage"},
+        "pct_post_secondary": {"id": 11, "dtype": "percentage"},
+        "pct_oo_spending_lt_30": {"id": 14, "dtype": "percentage"},
+        "pct_ro_spending_lt_30": {"id": 15, "dtype": "percentage"},
+        "pct_over_20_in_lf": {"id": 17, "dtype": "percentage"},
+        "pct_16_to_19_in_lf": {"id": 63, "dtype": "percentage"},
+        "hierfindal": {"id": 28, "dtype": "index"}
+    }
+}

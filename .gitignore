@@ -18,8 +18,8 @@ config.toml
 !logging_config.json
 
 # Any csv or json used as conf are also Okay.
-!**conf/*.json
-!**conf/*.csv
+!**/conf/*.json
+!**/conf/*.csv
 
 .vscode/*
 */__pycache__/*
