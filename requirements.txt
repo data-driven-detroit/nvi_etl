@@ -14,7 +14,6 @@ idna==3.10
 multidict==6.1.0
 mypy-extensions==1.0.0
 numpy==2.2.3
--e git+https://github.com/data-driven-detroit/nvi_etl.git@4fce57f0d177e24271d325708b58d68c45808ac9#egg=nvi_etl
 packaging==24.2
 pandas==2.2.3
 pandera==0.22.1
