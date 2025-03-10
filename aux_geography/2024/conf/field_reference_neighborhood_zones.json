@@ -1,7 +1,7 @@
 {
     "rename": {
-        "zonebecdd": "zone_id",
-        "district_n": "district_number"
+        "ZoneName": "zone_id",
+        "DistrictNu": "district_number"
     },
     "order": [
         "zone_id",

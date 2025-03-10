@@ -56,16 +56,17 @@ def transform_neighborhood_zones(logger):
 
     nzs = (
         gpd.read_file(
-            WORKING_DIR / "input" / "nvi_zones_20250301.zip"
+            WORKING_DIR / "input" / "Temp_NVIZones2026v2__20250226.zip",
         )
+        .set_crs(2898)
         .rename(columns=field_reference["rename"])
         .assign(
-            start_date=date.fromisoformat("2017-01-01"),
-            end_date=date.fromisoformat("2025-12-31"),
+            start_date=date.fromisoformat("2026-01-01"),
+            end_date=date.fromisoformat("2036-12-31"),
             square_miles=calculate_square_miles
         )
     )[field_reference["order"]]
-
+    
     nzs.to_file(WORKING_DIR / "output" / "neighborhood_zones_2026.geojson")
 
 
