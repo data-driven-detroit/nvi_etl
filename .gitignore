@@ -9,7 +9,9 @@ config.toml
 *.log
 
 # Avoid including any intermediate data downloads
+*.zip
 *.json
+*.geojson
 *.csv
 *.parquet
 *.parquet.gzip
