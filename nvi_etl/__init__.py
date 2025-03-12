@@ -4,7 +4,11 @@ import logging
 import logging.config
 import pandas as pd
 from sqlalchemy import create_engine
+from sqlalchemy.types import Integer, Float, Numeric
 import tomli
+
+
+WORKING_DIR = Path(__file__).resolve().parent
 
 
 with open(Path().cwd() / "config.toml", "rb") as f:
@@ -33,9 +37,35 @@ def setup_logging():
     return logging.getLogger(config["app"]["name"])
 
 
+def pull_instructions():
+    return json.loads(
+        (WORKING_DIR / "conf" / "liquefy_instructions.json").read_text()
+    )
 
-def liquefy(df, instructions, defaults=dict()):
-    # TODO This should be set into a conf somewhere.
+
+def nvi_table_dtypes():
+    """
+    This provides a default set of sqlalchemy datatypes based on the 
+    instructions file.
+    """
+    instructions = json.loads(
+        (WORKING_DIR / "conf" / "liquefy_instructions.json").read_text()
+    )
+
+    type_dict = {
+        "sqla_int": Integer(),
+        "sqla_float": Float(),
+        "sqla_dollar": Numeric(precision=10, scale=2), 
+    }
+
+
+    return {
+        key: type_dict[val] for key, val in instructions["dtypes"]
+    }
+
+
+def liquefy(df, instructions=pull_instructions(), defaults=dict()):
+    # TODO This should be set into a conf somewhere. Almost there!
     type_map = {
         "percentage": pd.Float64Dtype(),
         "index": pd.Float64Dtype(),
@@ -53,6 +83,10 @@ def liquefy(df, instructions, defaults=dict()):
     for _, row in df.iterrows():
         # Iterate over the columns following the 'instructions' 
         for col, instruction in instructions["id_map"].items():
+            if col not in row:
+                # Not all cols are available in every transformation
+                continue
+
             collector["indicator_id"].append(instruction["id"])
 
             # For the 'index' columns, append the values directly, because these
