@@ -199,13 +199,20 @@ def transform_data():
     data = pd.read_csv("./input/data.csv")
     output = pd.DataFrame(columns=["year", "count", "universe", "percentage", "rate", "rate_per", "dollars", "indicator_id", "location_id", "survey_id", "survey_question_id", "survey_question_option_id"])
 
-    transform_indicator_1_1(data, output)
+    # transform_indicator_1_1(data, output)
+    df = rename_columns(data)
+    df_nhood = survey_to_zone(df)
+    df_district = survey_to_district(df)
+
+    df_nhood = transform_wide(df_nhood)
+    df_district = transform_wide(df_district)
+
+    output = pd.concat([output, df_nhood, df_district])
 
     print(output)
 
     print("Data transformed successfully!")
-<<<<<<< Updated upstream
-=======
+
 
 
 def stay1year_recode(df):
@@ -516,6 +523,8 @@ def recode_data(df):
 def survey_to_zone(df):
     return
 
+
+
 def survey_to_district(df):
     return
 # make map for location ids to geo columns for district and nhoodzone 
@@ -546,4 +555,4 @@ def transform_wide(df, config_file):
                 transform_data.append(indicator_data)
 
     return pd.DataFrame(transform_data)
->>>>>>> Stashed changes
+
