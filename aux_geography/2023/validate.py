@@ -1,20 +1,9 @@
 from pathlib import Path
-from datetime import date
 import pandas as pd
-import pandera as pa
-from pandera.typing.geopandas import GeoSeries
 from geopandas import gpd
 
 
 WORKING_DIR = Path(__file__).resolve().parent
-
-
-class DetroitCouncilDistricts(pa.DataFrameModel):
-    district_number: str = pa.Field()
-    square_miles: float = pa.Field()
-    start_date: date = pa.Field(coerce=True)
-    end_date: date = pa.Field(coerce=True)
-    geometry: GeoSeries = pa.Field()
 
 
 def validate_council_districts(logger):
@@ -37,15 +26,6 @@ def validate_neighborhood_zones(logger):
     """
 
 
-class TractsToCouncilDistricts(pa.DataFrameModel):
-    tract_geoid: str = pa.Field()
-    district_number: int = pa.Field()
-    tract_start_date: date = pa.Field(coerce=True)
-    tract_end_date: date = pa.Field(coerce=True)
-    district_start_date: date = pa.Field(coerce=True)
-    district_end_date: date = pa.Field(coerce=True)
-
-
 def validate_2010_tract_2014_cd_crosswalk(logger):
     logger.info("Validating 2010 tracts to 2014 council districts.")
 
@@ -61,7 +41,6 @@ def validate_2010_tract_2014_cd_crosswalk(logger):
         WORKING_DIR / "output" / "tracts_districts_2010_2014_cw_validated.csv",
         index=False
     )
-
 
 def validate_2020_tract_2014_cd_crosswalk(logger):
     logger.info("Validating 2020 tracts to 2014 council districts.")

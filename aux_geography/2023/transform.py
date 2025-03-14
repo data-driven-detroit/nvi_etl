@@ -11,23 +11,6 @@ field_reference = json.loads(
 )
 
 
-def transform_council_districts(logger):
-    logger.info("Transforming council districts.")
-
-    cds = (
-        gpd.read_file(
-            WORKING_DIR / "input" / "DetroitCouncilDistricts2025.zip"
-        )
-        .rename(columns=field_reference["rename"])
-        .assign(
-            start_date=date.fromisoformat("2014-01-01"),
-            end_date=date.fromisoformat("2025-12-31"),
-        )
-    )[field_reference["order"]]
-
-    cds.to_file(WORKING_DIR / "output" / "council_districts_2014.geojson")
-
-
 def transform_neighborhood_zones(logger):
     logger.info("Transforming neighborhood zones.")
 
