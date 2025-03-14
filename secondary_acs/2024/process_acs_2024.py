@@ -12,5 +12,4 @@ extract(logger)
 transform(logger)
 validate_acs_to_nvi_schema(logger)
 load_acs(logger)
-archive_acs(logger)
 

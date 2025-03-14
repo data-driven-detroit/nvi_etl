@@ -1,4 +1,7 @@
+import json
 import pandas as pd
+import numpy as np
+
 
 # Adds a row to the output dataframe for a percentage value.
 def add_percentage_output(output, count, universe, indicator_id, question_id, question_option_id):
@@ -102,6 +105,93 @@ def transform_indicator_1_1(df, output):
         1
     )
 
+
+def rename_columns(df):
+    return df.rename(
+        columns={
+            'Block_Neighborhood_Community_Group_Participation:Activity_Participation_Frequency': 'NeighborhoodParticipation',
+               'Community_Group_Outside_of_Neighborhod_Participation:Activity_Participation_Frequency': 'OutNeighborParticipation',
+               'Community development organization(s):Community_Engagement_Process_Participation':'CDO_Participant', 
+               'City government:Community_Engagement_Process_Participation':'CityGov_Participant', 
+               'I have not participated in a community engagement process:Community_Engagement_Process_Participation':'Non_CityGov_Participant', 
+               'Other (please describe)::Community_Engagement_Process_Participation':'Other_Participant',
+               'Last12Months_PurchasedLot':'PurchasedLot',
+               'Last12Months_CleanLotOwned':'CleanOwnLot',
+               'Last12Months_CleanLotNotOwned':'CleanOtherLot',
+               'Last12Months_ImprovedVacHousing':'SecureVacancy',
+               'Last12Months_ImprovedAlleys':'CleanAlley',
+               'Last12Months_ImprovedParks':'CleanPark', 
+               'I have not participated in any of these activities:In_The_Last_12_Months':'residentagency_none',
+               'Housing:Agreement_Statements_Detroit_Access':'HousingAccess', 
+               'Financial:Agreement_Statements_Detroit_Access': 'FinanceAccess', 
+               'Medical_Care:Agreement_Statements_Detroit_Access':'MedicalAccess', 
+               'Mental_Health_Services:Agreement_Statements_Detroit_Access':'MentalHealthAccess', 
+               'Human_Services:Agreement_Statements_Detroit_Access':'HumanServiceAccess', 
+               'Currently_Employed':'EmploymentStatus', 
+               'Detroit_Business_Ownership':'OwnBusiness', 
+               'Savings_Account':'SavingAccount', 
+               'Safe_Reliable_Transportation_Access_Frequency':'SafeTransport', 
+               'Detroit:Residence_Length':'CityLength', 
+               'Current_Neighborhood:Residence_Length':'NeighborLength', 
+               'Personal_Move_Due_To_COVID':'Move_Covid', 
+               'Neighbors_Move_Due_To_COVID':'NeighborMove',
+               'Quality_of_Housing:Neighborhood_Satisfaction':'Neighborhood_Quality', 
+               'Condition_of_Vacant_Residential_Buildings:Neighborhood_Satisfaction':'Neighborhood_ResVacant', 
+               'Condition_of_Vacant_Commercial_Buildings:Neighborhood_Satisfaction':'Neighborhood_ComVacant', 
+               'Condition_of_Vacant_Lots:Neighborhood_Satisfaction':'Neighborhood_LotVacant',
+               'Neighborhood_Infrastructure:Neighborhood_Satisfaction':'Neighborhood_Infra',  
+               'Neighborhood:Neighborhood_Safety_Perception':'Neighborhood_Safe',
+               'Physical:Health_Satisfaction':'Physical_Health', 
+               'Mental_Health:Health_Satisfaction':'Mental_Health', 
+               'SocioEmotional_Support:Health_Satisfaction':'SocioEmotional_Support', 
+               'QualityLife_Satisfaction':'QualityLife', 
+               'K_12_Public_Charter_Schools:Neighborhood_Access_Satisfaction':'Neighborhood_Schools',
+               'Parks_Playgrounds_and_Public Spaces:Neighborhood_Access_Satisfaction':'Neighborhood_Parks',
+               'Childcare:Neighborhood_Access_Satisfaction':'Neighborhood_Childcare',
+               'Amenities:Neighborhood_Access_Satisfaction':'Neighborhood_Retail', 
+               'Medical_Care:Neighborhood_Health_Related_Access':'Neighborhood_MedCare', 
+               'Mental_Health_Services:Neighborhood_Health_Related_Access':'Neighborhood_MentalHealth', 
+               'Places_to_be_Active:Neighborhood_Health_Related_Access':'Neighborhood_Active', 
+               'Fresh_Healthy_Food:Neighborhood_Health_Related_Access':'Neighborhood_Food',
+               'YouthProgram_Participation_question1':'Extracurric_under18Count', 
+               'YouthProgram_Participation_question2':'Leadership_under18Count', 
+               'Childcare_Prevent_Work_Meetings_Appointments':'Work_Childcare',
+               'Neighborhood:Youth_Safety_Perception':'NeighborSafe_Under18',
+               'Public_Spaces:Youth_Safety_Perception':'PublicSafe_Under18',
+               'Stay_12_Months:Agreement_Statements_Access_and_Support':'Stay1Year',
+               "Meet_Basic_Needs:Agreement_Statements_Access_and_Support":'MeetNeeds',
+               'Child_Quality_Recreation:Agreement_Statements_Access_and_Support':'QualRecreation',
+               'Fam_Incarcerated_YN:Crime_and_COVID_Best_Answer':'Incarceration',
+               'Victim_Neighborhood_YN:Crime_and_COVID_Best_Answer':'CrimeVictim', 
+               'Comfortable_Reporting_YN:Crime_and_COVID_Best_Answer':'ReportCrime',
+               'COVID_HealthImpact_YN:Crime_and_COVID_Best_Answer':'CovidHealth', 
+               'COVID_HousingImpact_YN:Crime_and_COVID_Best_Answer':'CovidHousing', 
+               'Risk_LosingHome_YN:Crime_and_COVID_Best_Answer':'CovidLoss',
+               'Bail_System:Negatively_Impacted_Or_Harmed_By':'Bail_Negative', 
+               'Illegal_Dump:Neighborhood_Environmental_Severity': 'Illegal_Dump',
+               'Air_Pollution:Neighborhood_Environmental_Severity': 'Air_Pollution',
+               'Lead:Neighborhood_Environmental_Severity': 'Lead',
+               'Stray_Dogs:Neighborhood_Environmental_Severity': 'Stray_Dogs',
+               'Flooding:Neighborhood_Environmental_Severity': 'Flooding',
+               'Water_Quality:Neighborhood_Environmental_Severity': 'Water_Quality',
+               'Heat:Neighborhood_Environmental_Severity': 'Heat',
+               'Power-Outages:Neighborhood_Environmental_Severity': 'Power-Outages',
+               'Brownfields:Neighborhood_Environmental_Severity': 'Brownfields',
+               "I don't have a computer/smartphone because it's too expensive:Technology_Statements":'Tech_ComExpensive', 
+               "I don't have a computer/smartphone because I don't need to use the internet:Technology_Statements":'Tech_NoNeed', 
+               "I don't understand/feel confident using the internet:Technology_Statements":'Tech_NotConfident',
+               "I don't have internet access at home because it's too expensive:Technology_Statements":'Tech_InternetExpensive', 
+               "I'm worried about my privacy/security:Technology_Statements":'Tech_Privacy',
+               "I do not have any of these concerns:Concerns_Using_Devices":'Tech_NoIssue',
+               'Employment_Impacted_By_COVID':'Covid_Unimpact',
+               'Number_Of_Youth_In_Household':'YouthinHousehold',
+               'Racial_Equity1': 'Race_Oppurtunity',
+               'Racial_Equity2': 'Race_Work',
+               'Racial_Equity3': 'Race_Health'
+            }
+        )
+
+
 # Transforms all indicator and question data.
 def transform_data():
     print("Transforming data...")
@@ -124,93 +214,9 @@ def transform_data():
     print("Data transformed successfully!")
 
 
-def rename_colums(df):
-    df_nvi = df.rename(columns={'Block_Neighborhood_Community_Group_Participation:Activity_Participation_Frequency': 'NeighborhoodParticipation',
-                   'Community_Group_Outside_of_Neighborhod_Participation:Activity_Participation_Frequency': 'OutNeighborParticipation',
-                   'Community development organization(s):Community_Engagement_Process_Participation':'CDO_Participant', 
-                   'City government:Community_Engagement_Process_Participation':'CityGov_Participant', 
-                   'I have not participated in a community engagement process:Community_Engagement_Process_Participation':'Non_CityGov_Participant', 
-                   'Other (please describe)::Community_Engagement_Process_Participation':'Other_Participant',
-                   'Last12Months_PurchasedLot':'PurchasedLot',
-                   'Last12Months_CleanLotOwned':'CleanOwnLot',
-                   'Last12Months_CleanLotNotOwned':'CleanOtherLot',
-                   'Last12Months_ImprovedVacHousing':'SecureVacancy',
-                   'Last12Months_ImprovedAlleys':'CleanAlley',
-                   'Last12Months_ImprovedParks':'CleanPark', 
-                   'I have not participated in any of these activities:In_The_Last_12_Months':'residentagency_none',
-                   'Housing:Agreement_Statements_Detroit_Access':'HousingAccess', 
-                   'Financial:Agreement_Statements_Detroit_Access': 'FinanceAccess', 
-                   'Medical_Care:Agreement_Statements_Detroit_Access':'MedicalAccess', 
-                   'Mental_Health_Services:Agreement_Statements_Detroit_Access':'MentalHealthAccess', 
-                   'Human_Services:Agreement_Statements_Detroit_Access':'HumanServiceAccess', 
-                   'Currently_Employed':'EmploymentStatus', 
-                   'Detroit_Business_Ownership':'OwnBusiness', 
-                   'Savings_Account':'SavingAccount', 
-                   'Safe_Reliable_Transportation_Access_Frequency':'SafeTransport', 
-                   'Detroit:Residence_Length':'CityLength', 
-                   'Current_Neighborhood:Residence_Length':'NeighborLength', 
-                   'Personal_Move_Due_To_COVID':'Move_Covid', 
-                   'Neighbors_Move_Due_To_COVID':'NeighborMove',
-                   'Quality_of_Housing:Neighborhood_Satisfaction':'Neighborhood_Quality', 
-                   'Condition_of_Vacant_Residential_Buildings:Neighborhood_Satisfaction':'Neighborhood_ResVacant', 
-                   'Condition_of_Vacant_Commercial_Buildings:Neighborhood_Satisfaction':'Neighborhood_ComVacant', 
-                   'Condition_of_Vacant_Lots:Neighborhood_Satisfaction':'Neighborhood_LotVacant',
-                   'Neighborhood_Infrastructure:Neighborhood_Satisfaction':'Neighborhood_Infra',  
-                   'Neighborhood:Neighborhood_Safety_Perception':'Neighborhood_Safe',
-                   'Physical:Health_Satisfaction':'Physical_Health', 
-                   'Mental_Health:Health_Satisfaction':'Mental_Health', 
-                   'SocioEmotional_Support:Health_Satisfaction':'SocioEmotional_Support', 
-                   'QualityLife_Satisfaction':'QualityLife', 
-                   'K_12_Public_Charter_Schools:Neighborhood_Access_Satisfaction':'Neighborhood_Schools',
-                   'Parks_Playgrounds_and_Public Spaces:Neighborhood_Access_Satisfaction':'Neighborhood_Parks',
-                   'Childcare:Neighborhood_Access_Satisfaction':'Neighborhood_Childcare',
-                   'Amenities:Neighborhood_Access_Satisfaction':'Neighborhood_Retail', 
-                   'Medical_Care:Neighborhood_Health_Related_Access':'Neighborhood_MedCare', 
-                   'Mental_Health_Services:Neighborhood_Health_Related_Access':'Neighborhood_MentalHealth', 
-                   'Places_to_be_Active:Neighborhood_Health_Related_Access':'Neighborhood_Active', 
-                   'Fresh_Healthy_Food:Neighborhood_Health_Related_Access':'Neighborhood_Food',
-                   'YouthProgram_Participation_question1':'Extracurric_under18Count', 
-                   'YouthProgram_Participation_question2':'Leadership_under18Count', 
-                   'Childcare_Prevent_Work_Meetings_Appointments':'Work_Childcare',
-                   'Neighborhood:Youth_Safety_Perception':'NeighborSafe_Under18',
-                   'Public_Spaces:Youth_Safety_Perception':'PublicSafe_Under18',
-                   'Stay_12_Months:Agreement_Statements_Access_and_Support':'Stay1Year',
-                   "Meet_Basic_Needs:Agreement_Statements_Access_and_Support":'MeetNeeds',
-                   'Child_Quality_Recreation:Agreement_Statements_Access_and_Support':'QualRecreation',
-                   'Fam_Incarcerated_YN:Crime_and_COVID_Best_Answer':'Incarceration',
-                   'Victim_Neighborhood_YN:Crime_and_COVID_Best_Answer':'CrimeVictim', 
-                   'Comfortable_Reporting_YN:Crime_and_COVID_Best_Answer':'ReportCrime',
-                   'COVID_HealthImpact_YN:Crime_and_COVID_Best_Answer':'CovidHealth', 
-                   'COVID_HousingImpact_YN:Crime_and_COVID_Best_Answer':'CovidHousing', 
-                   'Risk_LosingHome_YN:Crime_and_COVID_Best_Answer':'CovidLoss',
-                   'Bail_System:Negatively_Impacted_Or_Harmed_By':'Bail_Negative', 
-                   'Illegal_Dump:Neighborhood_Environmental_Severity': 'Illegal_Dump',
-                   'Air_Pollution:Neighborhood_Environmental_Severity': 'Air_Pollution',
-                   'Lead:Neighborhood_Environmental_Severity': 'Lead',
-                   'Stray_Dogs:Neighborhood_Environmental_Severity': 'Stray_Dogs',
-                   'Flooding:Neighborhood_Environmental_Severity': 'Flooding',
-                   'Water_Quality:Neighborhood_Environmental_Severity': 'Water_Quality',
-                   'Heat:Neighborhood_Environmental_Severity': 'Heat',
-                   'Power-Outages:Neighborhood_Environmental_Severity': 'Power-Outages',
-                   'Brownfields:Neighborhood_Environmental_Severity': 'Brownfields',
-                   "I don't have a computer/smartphone because it's too expensive:Technology_Statements":'Tech_ComExpensive', 
-                   "I don't have a computer/smartphone because I don't need to use the internet:Technology_Statements":'Tech_NoNeed', 
-                   "I don't understand/feel confident using the internet:Technology_Statements":'Tech_NotConfident',
-                   "I don't have internet access at home because it's too expensive:Technology_Statements":'Tech_InternetExpensive', 
-                   "I'm worried about my privacy/security:Technology_Statements":'Tech_Privacy',
-                   "I do not have any of these concerns:Concerns_Using_Devices":'Tech_NoIssue',
-                   'Employment_Impacted_By_COVID':'Covid_Unimpact',
-                   'Number_Of_Youth_In_Household':'YouthinHousehold',
-                   'Racial_Equity1': 'Race_Oppurtunity',
-                   'Racial_Equity2': 'Race_Work',
-                   'Racial_Equity3': 'Race_Health'}, inplace=True)
-    return df
-
-
 
 def stay1year_recode(df):
     return df
-
 
 
 def recode_data(df):
@@ -516,6 +522,9 @@ def recode_data(df):
 # TODO: 3/12/2024 Move aggregation code to sum to district and nhood_zone here!
 def survey_to_zone(df):
     return
+
+
+
 def survey_to_district(df):
     return
 # make map for location ids to geo columns for district and nhoodzone 
@@ -523,9 +532,8 @@ def survey_to_district(df):
 # TODO: redo for question option rows 
 def transform_wide(df, config_file):
     with open(config_file, "r") as f:
-        config = json .load(f)
+        config = json.load(f)
 
-    transformed_data = []
     geographies = df.index if hasattr(df, 'index') and not isinstance(df.index, pd.RangeIndex) else df.index.tolist()
 
     for geo in geographies:
@@ -547,3 +555,4 @@ def transform_wide(df, config_file):
                 transform_data.append(indicator_data)
 
     return pd.DataFrame(transform_data)
+
