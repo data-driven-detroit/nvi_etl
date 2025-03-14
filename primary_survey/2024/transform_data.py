@@ -109,7 +109,15 @@ def transform_data():
     data = pd.read_csv("./input/data.csv")
     output = pd.DataFrame(columns=["year", "count", "universe", "percentage", "rate", "rate_per", "dollars", "indicator_id", "location_id", "survey_id", "survey_question_id", "survey_question_option_id"])
 
-    transform_indicator_1_1(data, output)
+    # transform_indicator_1_1(data, output)
+    df = rename_columns(data)
+    df_nhood = survey_to_zone(df)
+    df_district = survey_to_district(df)
+
+    df_nhood = transform_wide(df_nhood)
+    df_district = transform_wide(df_district)
+
+    output = pd.concat([output, df_nhood, df_district])
 
     print(output)
 
@@ -496,9 +504,46 @@ def recode_data(df):
     df['childcare_access'] = df.apply(lambda row: _childcare_recode(row), axis=1)
 
 
+# TODO: finish adding survey fields here:
     nvi_survey_fields = df[['zonebecdd', 'detroit_city', 'stay1year_recode', 'resparticipant', 'cityaccess', 'commengage','residentagency', 'savingaccount_recode', 
                             'safetransport_recode', 'resturnover', 'resvacancy', 'vacantlot', 'infrastructure', 'housingquality', 'healthaccess', 
                             'schoolaccess', 'parkaccess', 'retailaccess', 'incarceration_recode', 'bail_recode', 'envirohealth', 'techissue', 
                             'covidjobloss', 'youthleader', 'youthsafe_neigh', 'youthsafe_park', 'youth_access', 'youthrec']].copy()
     
     return nvi_survey_fields
+
+
+# TODO: 3/12/2024 Move aggregation code to sum to district and nhood_zone here!
+def survey_to_zone(df):
+    return
+def survey_to_district(df):
+    return
+# make map for location ids to geo columns for district and nhoodzone 
+
+# TODO: redo for question option rows 
+def transform_wide(df, config_file):
+    with open(config_file, "r") as f:
+        config = json .load(f)
+
+    transformed_data = []
+    geographies = df.index if hasattr(df, 'index') and not isinstance(df.index, pd.RangeIndex) else df.index.tolist()
+
+    for geo in geographies:
+        for indicator_name, indicator_info in config.items():
+            count_col = f"{indicator_name}_count"
+            total_col = f"{indicator_name}_total"
+            percent_col = f"{indicator_name}_percent"
+
+            if count_col in df.columns and total_col in df.columns and percent_col in df.columns:
+                indicator_data = {
+                    "id": indicator_info['id'],
+                    "survey_question_id": indicator_info['survey_question_id'],
+                    "survey_question_option_id": indicator_info['survey_question_id'],
+                    "location_id": geo,
+                    "count": df.loc[geo, count_col] if isinstance(df.index, pd.MultiIndex) else df.loc[geo, count_col],
+                    "total": df.loc[geo, total_col] if isinstance(df.index, pd.MultiIndex) else df.loc[geo, total_col],
+                    "percentage": df.loc[geo, percent_col] if isinstance(df.index, pd.MultiIndex) else df.loc[geo, percent_col],
+                }
+                transform_data.append(indicator_data)
+
+    return pd.DataFrame(transform_data)
