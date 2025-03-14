@@ -1,9 +1,9 @@
 import json
 from pathlib import Path
 import pandas as pd
-from sqlalchemy import text
 
-from nvi_etl import db_engine, liquefy
+from nvi_etl import liquefy
+from nvi_etl.geo_reference import pull_cw_tracts_districts
 
 
 WORKING_DIR = Path(__file__).resolve().parent
@@ -95,19 +95,6 @@ def pct_children_below_pov(df):
     )
 
 
-def pull_tracts_to_council_districts():
-    cw_q = text(
-        """
-    SELECT tract_geoid, district_number
-    FROM nvi.tracts_to_council_districts
-    WHERE tract_start_date = DATE '2020-01-01'
-    AND district_start_date = DATE '2026-01-01';
-    """
-    )
-
-    return pd.read_sql(cw_q, db_engine)
-
-
 def transform(logger):
     logger.info("Aggregating tract-level ACS data to 2026 Council Districts")
 
@@ -126,14 +113,17 @@ def transform(logger):
         (WORKING_DIR / "conf" / "liquefy_instructions.json").read_text()
     )
 
-    districts = pull_tracts_to_council_districts()
+    districts = pull_cw_tracts_districts(2020, 2026)
 
     city_wide = pd.read_parquet(
         WORKING_DIR / "output" / f"nvi_citywide_{YEAR}.parquet.gzip"
     ).reset_index()
+
     tract_level = pd.read_parquet(
         WORKING_DIR / "output" / f"nvi_tracts_{YEAR}.parquet.gzip"
     ).reset_index()
+    
+    zone_level = ... # TODO: Implement zone level
     
     # TODO Read this dynamically off of the locations file
     district_map = lambda dist: dist + 1
@@ -172,6 +162,7 @@ def transform(logger):
     result.to_csv(
         WORKING_DIR / "output" / f"nvi_districts_{YEAR}.csv", index=False
     )
+
 
     # City-wide
 
