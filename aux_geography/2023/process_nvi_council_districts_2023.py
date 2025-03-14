@@ -17,11 +17,10 @@ transform_council_districts(logger)
 validate_council_districts(logger)
 load_council_districts(logger)
 
-
 # Neighborhood zone workflow
-extract_neighborhood_zones(logger)
-transform_neighborhood_zones(logger)
-validate_neighborhood_zones(logger)
-load_neighborhood_zones(logger)
+# extract_neighborhood_zones(logger)
+# transform_neighborhood_zones(logger)
+# validate_neighborhood_zones(logger)
+# load_neighborhood_zones(logger)
 
 # Tracts to council districts workflow
