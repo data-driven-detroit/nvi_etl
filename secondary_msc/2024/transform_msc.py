@@ -144,4 +144,9 @@ def transform_births(logger):
     nvi_zones = aggregate_to_zones(births_gdf)
 
 
+def transform_rms_crime(logger):
+    logger.warning("RMS Crime transform has not been written yet!")
 
+
+def transform_cdo_coverage(logger):
+    logger.warning("CDO coverage transform has not been written yet!")

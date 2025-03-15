@@ -14,7 +14,6 @@ import numpy as np
 WORKING_DIR = Path(__file__).resolve().parent
 
 
-
 def extract_births(logger):
     logger.info("Extracting births data.")
 
@@ -36,3 +35,10 @@ def extract_births(logger):
 
     births_gdf.to_file(WORKING_DIR / "output" / "births_extracted_2023.geojson")
 
+
+def extract_rms_crime(logger):
+    logger.warning("RMS Crime extract hasn't been written beyond the SQL!")
+
+
+def extract_cdo_coverage(logger):
+    logger.warning("CDO Coverage extract hasn't been written beyond the SQL!")
