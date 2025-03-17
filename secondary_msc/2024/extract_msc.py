@@ -29,3 +29,10 @@ def extract_births(logger):
 
     births_gdf.to_file(WORKING_DIR / "input" / "births_extracted_2023.geojson")
 
+
+def extract_rms_crime(logger):
+    logger.warning("RMS Crime extract hasn't been written beyond the SQL!")
+
+
+def extract_cdo_coverage(logger):
+    logger.warning("CDO Coverage extract hasn't been written beyond the SQL!")

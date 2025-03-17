@@ -1,5 +1,7 @@
 from pathlib import Path
 import geopandas as gpd
+import pandas as pd
+from nvi_etl import liquefy
 from nvi_etl.geo_reference import (
     pull_city_boundary,
     pull_council_districts,
@@ -146,6 +148,21 @@ def transform_births(logger):
     logger.info("\n" + str(city_wide.head())) 
     logger.info("\n" + str(council_districts.head())) 
     logger.info("\n" + str(nvi_zones.head())) 
+    
+    # Save each of these
+    
+    wide_format = pd.concat([
+        city_wide,
+        council_districts,
+        nvi_zones,
+    ])
+
+    tall_format = liquefy(wide_format)
 
 
+def transform_rms_crime(logger):
+    logger.warning("RMS Crime transform has not been written yet!")
 
+
+def transform_cdo_coverage(logger):
+    logger.warning("CDO coverage transform has not been written yet!")
