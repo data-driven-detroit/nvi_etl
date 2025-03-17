@@ -21,7 +21,7 @@ def pull_council_districts(year):
 
     q = text("""
     SELECT *
-    FROM nvi.neighborhood_zones
+    FROM nvi.detroit_council_districts
     WHERE start_date = :start_date;
     """)
 
