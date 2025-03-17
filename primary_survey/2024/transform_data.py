@@ -1,8 +1,9 @@
-import pandas as pd
+import os
 import json
 from pathlib import Path
+import pandas as pd
+import numpy as np
 from sqlalchemy import text
-import os
 
 
 def recode_aggregate(survey_data, config_file, geography):

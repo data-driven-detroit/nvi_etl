@@ -114,8 +114,8 @@ class TractsToNeighborhoodZones(pa.DataFrameModel):
     district_number: int = pa.Field()
     tract_start_date: date = pa.Field(coerce=True)
     tract_end_date: date = pa.Field(coerce=True)
-    district_start_date: date = pa.Field(coerce=True)
-    district_end_date: date = pa.Field(coerce=True)
+    zone_start_date: date = pa.Field(coerce=True)
+    zone_end_date: date = pa.Field(coerce=True)
 
 
 def validate_2010_tract_2026_zone_crosswalk(logger):

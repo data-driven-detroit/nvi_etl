@@ -10,9 +10,11 @@ config.toml
 
 # Avoid including any intermediate data downloads
 *.json
+*.geojson
 *.csv
 *.parquet
 *.parquet.gzip
+*.zip
 
 # The logging config is okay
 !logging_config.json
