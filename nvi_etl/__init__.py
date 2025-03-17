@@ -65,6 +65,37 @@ def nvi_table_dtypes():
 
 
 def liquefy(df, instructions=pull_instructions(), defaults=dict()):
+    """
+    Liquefy is similar to pandas DataFrame 'melt' method, which basically
+    'de-pivots' a table. So if you had a table like
+
+    geoid | year |  a  |  b  |  c
+    ------|------|-----|-----|-----
+      1   | 2025 |  0  |  1  | 'A'
+      2   | 2025 |  6  |  5  | 'B'
+      3   | 2025 |  12 |  9  | 'C' ,
+
+    and your output table has the structure
+
+    geoid: int
+    indicator_id: str
+    count: int
+    category: str ,
+
+    then liquefy will produce the output table
+
+    geoid | year | indicator_id | count | category
+    ------|------|--------------|-------|---------
+      1   | 2025 |     'a'      |   0   |  null
+      1   | 2025 |     'b'      |   1   |  null
+      1   | 2025 |     'c'      |  null |  'A'
+      2   | 2025 |     'a'      |   6   |  null
+      2   | 2025 |     'b'      |   5   |  null
+      2   | 2025 |     'c'      |  null |  'B'
+      3   | 2025 |     'a'      |   12  |  null
+      3   | 2025 |     'b'      |   9   |  null
+      3   | 2025 |     'c'      |  null |  'C'
+    """
     # TODO This should be set into a conf somewhere. Almost there!
     type_map = {
         "percentage": pd.Float64Dtype(),
