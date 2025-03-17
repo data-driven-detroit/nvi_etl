@@ -1,5 +1,7 @@
 from pathlib import Path
 import geopandas as gpd
+import pandas as pd
+from nvi_etl import liquefy
 from nvi_etl.geo_reference import (
     pull_city_boundary,
     pull_council_districts,
@@ -142,6 +144,19 @@ def transform_births(logger):
     city_wide = aggregate_city_wide(births_gdf)
     council_districts = aggregate_to_cds(births_gdf)
     nvi_zones = aggregate_to_zones(births_gdf)
+
+    
+    # Save each of these
+    
+    wide_format = pd.concat([
+        city_wide,
+        council_districts,
+        nvi_zones,
+    ])
+
+    tall_format = liquefy(wide_format)
+
+
 
 
 def transform_rms_crime(logger):
