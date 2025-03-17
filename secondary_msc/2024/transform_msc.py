@@ -134,7 +134,7 @@ def transform_births(logger):
     logger.info("Transforming births.")
 
     births_gdf = gpd.read_file(
-        WORKING_DIR / "output" / "births_extracted_2023.geojson"
+        WORKING_DIR / "input" / "births_extracted_2023.geojson"
     )
 
     # TODO: Combine these with appropriate location_ids and save
@@ -142,6 +142,10 @@ def transform_births(logger):
     city_wide = aggregate_city_wide(births_gdf)
     council_districts = aggregate_to_cds(births_gdf)
     nvi_zones = aggregate_to_zones(births_gdf)
+
+    logger.info("\n" + str(city_wide.head())) 
+    logger.info("\n" + str(council_districts.head())) 
+    logger.info("\n" + str(nvi_zones.head())) 
 
 
 

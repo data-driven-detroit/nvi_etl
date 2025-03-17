@@ -4,15 +4,8 @@ import geopandas as gpd
 import pandas as pd
 import numpy as np
 
-# nvi_shp = gpd.read_file("P:/2024_Projects/NVI24/Development/Workspace/Abhi Workspace/Secondary Data Pull/NVI Zones/nvi_neighborhood_zones_temp_2025.shp")
-# detroit_shp = gpd.read_file("P:/2024_Projects/NVI24/Development/Workspace/Abhi Workspace/Secondary Data Pull/City_of_Detroit_Boundary/City_of_Detroit_Boundary.shp")
-# cd_shp = gpd.read_file("P:/2024_Projects/NVI24/Development/Workspace/Abhi Workspace/Secondary Data Pull/Detroit_City_Council_Districts_2026/Detroit_City_Council_Districts_2026.shp")
-
-# Load birth data from csv
-
 
 WORKING_DIR = Path(__file__).resolve().parent
-
 
 
 def extract_births(logger):
@@ -34,5 +27,5 @@ def extract_births(logger):
 
     # FIXME: We can save this temporarily locally -- right?
 
-    births_gdf.to_file(WORKING_DIR / "output" / "births_extracted_2023.geojson")
+    births_gdf.to_file(WORKING_DIR / "input" / "births_extracted_2023.geojson")
 
