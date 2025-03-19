@@ -1,12 +1,9 @@
 import os
 import json
-from pathlib import Path
 import pandas as pd
-import numpy as np
-from sqlalchemy import text
 
 
-def recode_aggregate(survey_data, config_file, geography):
+def recode_aggregate(survey_data, config_file, geography, logger):
 
     with open(config_file, "r") as f:
         config = json .load(f)
@@ -28,7 +25,7 @@ def recode_aggregate(survey_data, config_file, geography):
             try:
                 df[column] = pd.to_numeric(df[column], errors='coerce')
             except:
-                print(f"Column {column} could not be converted to numeric!")
+                logger.error(f"Column {column} could not be converted to numeric!")
 
     results = []
 
@@ -69,8 +66,8 @@ def recode_aggregate(survey_data, config_file, geography):
     return pd.DataFrame(results)
 
 # Transforms all indicator and question data.
-def transform_data():
-    print("Transforming data...")
+def transform_data(logger):
+    logger.info("Transforming data...")
 
     # Raw Survey Data 
     os.chdir('Q:/NVI/2024/Raw Survey Response')
@@ -91,7 +88,9 @@ def transform_data():
 
     config = "indicator_map.json"
 
-    transformed_data_district = recode_aggregate(df, config, 'district_level')
-    transformed_data_zone = recode_aggregate(df, config, 'zone')
+    # TODO: Added logging to this function in a hap-hazard way (mv)
+
+    transformed_data_district = recode_aggregate(df, config, 'district_level', logger)
+    transformed_data_zone = recode_aggregate(df, config, 'zone', logger)
 
     transformed_data_district.to_csv('district_test.csv')
