@@ -79,31 +79,6 @@ def transform_neighborhood_zones(logger):
     nzs.to_file(WORKING_DIR / "output" / "neighborhood_zones_2026.geojson")
 
 
-def transform_2020_tracts_to_2026_council_districts(logger):
-    logger.info("Transforming tracts to council districts crosswalk.")
-    
-    field_reference = json.loads(
-        (
-            WORKING_DIR / 
-            "conf" / 
-            "field_reference_neighborhood_zones.json"
-        ).read_text()
-    )
-
-    nzs = (
-        gpd.read_file(config["district_zone_tract_crosswalk"])
-        .to_crs(crs="EPSG:2898")
-        .rename(columns=field_reference["rename"])
-        .assign(
-            start_date=date.fromisoformat("2026-01-01"),
-            end_date=date.fromisoformat("2036-12-31"),
-            square_miles=calculate_square_miles
-        )
-    )[field_reference["order"]]
-    
-    nzs.to_file(WORKING_DIR / "output" / "neighborhood_zones_2026.geojson")
-
-
 def transform_2020_tracts_to_2026_nvi_cw(logger):
     logger.info("Transforming tracts to council_districts / neighborhood zones crosswalk.")
     
@@ -128,4 +103,6 @@ def transform_2020_tracts_to_2026_nvi_cw(logger):
         )
     )[field_reference["column_order"]]
 
-    nzs.to_csv(WORKING_DIR / "output" / "tracts_2020_to_zones_2026_crosswalk.csv")
+    nzs.to_csv(
+        WORKING_DIR / "output" / "tracts_2020_to_zones_2026_crosswalk.csv", index=False
+    )
