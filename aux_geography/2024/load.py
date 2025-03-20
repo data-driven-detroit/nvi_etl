@@ -38,6 +38,15 @@ def load_neighborhood_zones(logger):
 
 
 def load_2020_tracts_to_2026_nvi_cw(logger):
+    logger.info("Loading transformed file to the nvi schema on the database.")
 
-    validated = 
-    pass
+    file = gpd.read_file(
+        WORKING_DIR / "output" / "neighborhood_zones_2026_validated.geojson",
+    )
+
+    validated = TractsToNVICrosswalk.validate(file)
+
+    validated.to_postgis(
+        "tracts_to_nvi_crosswalk", db_engine, schema="nvi", if_exists="append", index=False
+    )
+
