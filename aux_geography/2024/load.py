@@ -14,25 +14,25 @@ WORKING_DIR = Path(__file__).resolve().parent
 def load_council_districts(logger):
     logger.info("Loading council districts to database.")
     file = gpd.read_file(
-        WORKING_DIR / "output" / "council_districts_2026_validated.geojson",
+        WORKING_DIR / "output" / "council_districts_2026.geojson",
     )
 
-    correct_types = DetroitCouncilDistricts.validate(file)
+    validated = DetroitCouncilDistricts.validate(file)
 
-    correct_types.to_postgis(
+    validated.to_postgis(
         "detroit_council_districts", db_engine, schema="nvi", if_exists="append"
     )
 
 
 def load_neighborhood_zones(logger):
-    logger.info("Loading council districts to database.")
+    logger.info("Loading neighborhood zones to database.")
     file = gpd.read_file(
-        WORKING_DIR / "output" / "neighborhood_zones_2026_validated.geojson",
+        WORKING_DIR / "output" / "neighborhood_zones_2026.geojson",
     )
 
-    correct_types = NVINeighborhoodZones.validate(file)
+    validated = NVINeighborhoodZones.validate(file)
 
-    correct_types.to_postgis(
+    validated.to_postgis(
         "neighborhood_zones", db_engine, schema="nvi", if_exists="append"
     )
 

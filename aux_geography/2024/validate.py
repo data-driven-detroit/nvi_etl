@@ -1,4 +1,3 @@
-from pathlib import Path
 from datetime import date
 import pandera as pa
 from pandera.typing.geopandas import GeoSeries

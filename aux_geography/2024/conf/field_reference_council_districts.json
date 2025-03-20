@@ -1,9 +1,9 @@
 {
-    "rename": {
-        "DistrictTx": "district_number",
+    "renames": {
+        "district_n": "district_number",
         "sqmi": "square_miles"
     },
-    "order": [
+    "column_order": [
         "district_number",
         "square_miles",
         "start_date",

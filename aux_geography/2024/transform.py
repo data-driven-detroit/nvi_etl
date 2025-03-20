@@ -42,15 +42,16 @@ def transform_council_districts(logger):
     )
 
     cds = (
-        gpd.read_file(config["council_districts"])
+        gpd.read_file(config["source_files"]["council_districts"])
+        .rename(columns=field_reference["renames"])
         .to_crs(crs="EPSG:2898")
         .assign(
             start_date=date.fromisoformat("2026-01-01"),
             end_date=date.fromisoformat("2036-12-31"), # 'Forever' wasn't working
             square_miles=calculate_square_miles
         )
-    )[field_reference["order"]]
-    
+    )[field_reference["column_order"]]
+
     cds.to_file(WORKING_DIR / "output" / "council_districts_2026.geojson")
 
 
@@ -66,7 +67,7 @@ def transform_neighborhood_zones(logger):
     )
 
     nzs = (
-        gpd.read_file(config["neighborhood_zones"])
+        gpd.read_file(config["source_files"]["neighborhood_zones"])
         .to_crs(crs="EPSG:2898")
         .rename(columns=field_reference["rename"])
         .assign(
