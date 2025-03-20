@@ -34,7 +34,7 @@ class NVINeighborhoodZones(pa.DataFrameModel):
 
 class TractsToNVICrosswalk(pa.DataFrameModel):
     tract_geoid: str = pa.Field()
-    zone_id: str = pa.Field()
+    zone_name: str = pa.Field()
     district_number: int = pa.Field()
     tract_start_date: date = pa.Field(coerce=True)
     tract_end_date: date = pa.Field(coerce=True)

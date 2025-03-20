@@ -128,6 +128,4 @@ def transform_2020_tracts_to_2026_nvi_cw(logger):
         )
     )[field_reference["column_order"]]
 
-    logger.info("\n" + str(nzs.head()))
-
     nzs.to_csv(WORKING_DIR / "output" / "tracts_2020_to_zones_2026_crosswalk.csv")
