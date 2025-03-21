@@ -15,10 +15,8 @@ This 'processor' file basically calls a few functions, though Brian suggested th
 from nvi_etl import setup_logging
 
 from extract_data import extract_data
-from validate_data import validate_data
 from transform_data import transform_data
 from load_data import load_data
-from archive_data import archive_data
 
 # This is configured in ./logging_config.json
 logger = setup_logging()
@@ -26,8 +24,9 @@ logger = setup_logging()
 #TODO: Add logging
 extract_data(logger)
 transform_data(logger)
-validate_data(logger)
 load_data(logger)
+
+# TODO: Add back validate / archive steps
 ```
 
 A short description of each of these steps follows.
@@ -86,6 +85,8 @@ Notes on this:
 └── README.md
 ```
 
+
+`IGNORE THIS SECTION FOR NOW`
 ## `metadata.toml`
 
 This is something that I've (Mike) have been working on for the last few months
@@ -153,3 +154,12 @@ acquired = "2025-01-01"
 This file is where to go in the 'load' file to find the raw path, it should also be referenced in the transform file
 to append the appropriate start dates. TODO: This can be connected to a package that I've been working on 'metadata audit' which makes sure any file you're adding to the database has every field annotated that way we have that information for downstream analysis.
 
+
+## Important data dependencies not managed by this repository
+
+- NVI Zones
+  - These were created by had
+- ACS Data
+    - [d3census](https://github.com/mikevatd3/d3census)
+- IPDS
+  - 
