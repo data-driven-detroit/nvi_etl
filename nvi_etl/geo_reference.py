@@ -54,7 +54,8 @@ def pull_zones(year):
 
 def pull_tracts_to_nvi_crosswalk(tract_year, district_year):
     """
-    Pull the NVI neighborhood_zones at the year provided.
+    Pull the translation file between census tracts and NVI zones and 
+    Detroit City Council Districts.
     """
     tract_start_date = datetime.date(year=tract_year, month=1, day=1)
     zone_start_date = datetime.date(year=district_year, month=1, day=1)
