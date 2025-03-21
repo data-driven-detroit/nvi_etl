@@ -1,1494 +1,1494 @@
 {
-    "combine_columns" : {
-        "Community_Engagement_Process_Participation": ["Community development organization(s):Community_Engagement_Process_Participation", 
-                                                        "City government:Community_Engagement_Process_Participation",
-                                                        "I have not participated in a community engagement process:Community_Engagement_Process_Participation",
-                                                        "Other (please describe)::Community_Engagement_Process_Participation"
-                                                    ],
-        "In_The_Last_12_Months" : [ "Purchased a lot or lots near my home:In_The_Last_12_Months",
-                                    "Cleaned up or improved lot(s) <u>that I own</u>:In_The_Last_12_Months",
-                                    "Cleaned up or improved lot(s) <u>that I do <b>not</b> own</u>:In_The_Last_12_Months",
-                                    "Secured or improved vacant housing:In_The_Last_12_Months",
-                                    "Cleaned up or improved alley ways:In_The_Last_12_Months",
-                                    "Cleaned up or improved park/open spaces:In_The_Last_12_Months",
-                                    "I have not participated in any of these activities:In_The_Last_12_Months"
-
-        ]
+  "combine_columns": {
+    "Community_Engagement_Process_Participation": [
+      "Community development organization(s):Community_Engagement_Process_Participation",
+      "City government:Community_Engagement_Process_Participation",
+      "I have not participated in a community engagement process:Community_Engagement_Process_Participation",
+      "Other (please describe)::Community_Engagement_Process_Participation"
+    ],
+    "In_The_Last_12_Months": [
+      "Purchased a lot or lots near my home:In_The_Last_12_Months",
+      "Cleaned up or improved lot(s) <u>that I own</u>:In_The_Last_12_Months",
+      "Cleaned up or improved lot(s) <u>that I do <b>not</b> own</u>:In_The_Last_12_Months",
+      "Secured or improved vacant housing:In_The_Last_12_Months",
+      "Cleaned up or improved alley ways:In_The_Last_12_Months",
+      "Cleaned up or improved park/open spaces:In_The_Last_12_Months",
+      "I have not participated in any of these activities:In_The_Last_12_Months"
+    ]
+  },
+  "recode": {
+    "Block_Neighborhood_Community_Group_Participation:Activity_Participation_Frequency": {
+      "type": "categorical",
+      "mapping": {
+        "1": 1,
+        "Never": 1,
+        "2": 2,
+        "Rarely": 2,
+        "3": 3,
+        "Often": 3,
+        "4": 4,
+        "Usually": 4
+      }
     },
-    "recode": {
-        "Block_Neighborhood_Community_Group_Participation:Activity_Participation_Frequency" : {
-            "type" : "categorical",
-            "mapping" : {
-                "1" : 1,
-                "Never" : 1,
-                "2" : 2,
-                "Rarely" : 2,
-                "3" : 3,
-                "Often" : 3,
-                "4" : 4,
-                "Usually" : 4
-            }
-        },
-        "Community_Group_Outside_of_Neighborhod_Participation:Activity_Participation_Frequency" : {
-            "type" : "categorical",
-            "mapping" : {
-                "1" : 1,
-                "Never" : 1,
-                "2" : 2,
-                "Rarely" : 2,
-                "3" : 3,
-                "Often" : 3,
-                "4" : 4,
-                "Usually" : 4
-            }
-        },
-        "Housing:Agreement_Statements_Detroit_Access" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Strongly Agree" : 21,
-                "5" : 21,
-                "Somewhat Agree" : 20,
-                "4" : 20,
-                "Neither Agree or Disagree" : 19,
-                "3" : 19,
-                "Somewhat Disagree" : 18,
-                "2": 18,
-                "Strongly Disagree" : 17,
-                "1" : 17
-            }
-        },
-        "Financial:Agreement_Statements_Detroit_Access" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Strongly Agree" : 21,
-                "5" : 21,
-                "Somewhat Agree" : 20,
-                "4" : 20,
-                "Neither Agree or Disagree" : 19,
-                "3" : 19,
-                "Somewhat Disagree" : 18,
-                "2": 18,
-                "Strongly Disagree" : 17,
-                "1" : 17
-            }
-        },
-        "Medical_Care:Agreement_Statements_Detroit_Access" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Strongly Agree" : 21,
-                "5" : 21,
-                "Somewhat Agree" : 20,
-                "4" : 20,
-                "Neither Agree or Disagree" : 19,
-                "3" : 19,
-                "Somewhat Disagree" : 18,
-                "2": 18,
-                "Strongly Disagree" : 17,
-                "1" : 17
-            }
-        },
-        "Mental_Health_Services:Agreement_Statements_Detroit_Access" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Strongly Agree" : 21,
-                "5" : 21,
-                "Somewhat Agree" : 20,
-                "4" : 20,
-                "Neither Agree or Disagree" : 19,
-                "3" : 19,
-                "Somewhat Disagree" : 18,
-                "2": 18,
-                "Strongly Disagree" : 17,
-                "1" : 17
-            }
-        },
-        "Human_Services:Agreement_Statements_Detroit_Access" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Strongly Agree" : 21,
-                "5" : 21,
-                "Somewhat Agree" : 20,
-                "4" : 20,
-                "Neither Agree or Disagree" : 19,
-                "3" : 19,
-                "Somewhat Disagree" : 18,
-                "2": 18,
-                "Strongly Disagree" : 17,
-                "1" : 17
-            }
-        },
-        "Currently_Employed" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 4,
-                "3" : 3,
-                "2": 2,
-                "1" : 1
-            }
-        },
-        "Savings_Account" : {
-            "type" : "categorical",
-            "mapping" : {
-                "1" : 1,
-                "2" : 2
-            }
-        },
-        "Safe_Reliable_Transportation_Access_Frequency" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Strongly Agree" : 5,
-                "5" : 5,
-                "Somewhat Agree" : 4,
-                "4" : 4,
-                "Neither Agree or Disagree" : 3,
-                "3" : 3,
-                "Somewhat Disagree" : 2,
-                "2": 2,
-                "Strongly Disagree" : 1,
-                "1" : 1
-            }
-        },
-        "Finance_Prevent_Healthcare:Needs_In_Past_12_Months" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Not_Find_Affordable_Housing:Needs_In_Past_12_Months" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "At_Risk_Losing_Home:Needs_In_Past_12_Months" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Meets_Needs_Now:Current_Housing" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Will_Meet_Needs_10_Years:Current_Housing" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Needs_Major_Improvements_Livable:Current_Housing" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Needs_Major_Improvements_Get_Around:Current_Housing" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Unhoused:Current_Housing" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Own_Or_Rent" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Detroit:Residence_Length" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Current_Neighborhood:Residence_Length" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Quality_of_Housing:Neighborhood_Satisfaction" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Condition_of_Vacant_Residential_Buildings:Neighborhood_Satisfaction" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Condition_of_Vacant_Commercial_Buildings:Neighborhood_Satisfaction" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Condition_of_Vacant_Lots:Neighborhood_Satisfaction" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Neighborhood_Infrastructure:Neighborhood_Satisfaction" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Neighborhood:Neighborhood_Safety_Perception" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Public_Spaces:Neighborhood_Safety_Perception" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Physical:Health_Satisfaction" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Mental_Health:Health_Satisfaction" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "SocioEmotional_Support:Health_Satisfaction" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "QualityLife_Satisfaction" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "K_12_Public_Charter_Schools:Neighborhood_Access_Satisfaction" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Parks_Playgrounds_and_Public Spaces:Neighborhood_Access_Satisfaction" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Amenities:Neighborhood_Access_Satisfaction" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Medical_Care:Neighborhood_Health_Related_Access" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Mental_Health_Services:Neighborhood_Health_Related_Access" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Places_to_be_Active:Neighborhood_Health_Related_Access" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Fresh_Healthy_Food:Neighborhood_Health_Related_Access" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Youth_in_Household_YesNo" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "YouthProgram_Participation_question1" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "YouthProgram_Participation_question2" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Youth_Enrolled_In_Out_Of_School_Or_Recreational_Programs" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Youth_Enrolled_In_More_Than_One_Program" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Childcare_Prevent_Work_Meetings_Appointments" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Don't Know" : 3,
-                "3" : 3,
-                "No" : 2,
-                "2": 2,
-                "Yes" : 1,
-                "1" : 1
-            }
-        },
-        "Neighborhood:Youth_Safety_Perception" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 5,
-                "3" : 4,
-                "2": 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Public_Spaces:Youth_Safety_Perception" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 5,
-                "3" : 4,
-                "2": 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Neighborhood_Amenities_Use_Frequency:Amenities" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 4,
-                "3" : 3,
-                "2": 2,
-                "1" : 1
-            }
-        },
-        "Leave_City_For_Amenities_Frequency:Amenities" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 4,
-                "3" : 3,
-                "2": 2,
-                "1" : 1
-            }
-        },
-        "Welcome_To_Business_and_Services_Perception" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 4,
-                "3" : 3,
-                "2": 2,
-                "1" : 1
-            }
-        },
-        "Stay_12_Months:Agreement_Statements_Access_and_Support" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Strongly Agree" : 21,
-                "5" : 21,
-                "Somewhat Agree" : 20,
-                "4" : 20,
-                "Neither Agree or Disagree" : 19,
-                "3" : 19,
-                "Somewhat Disagree" : 18,
-                "2": 18,
-                "Strongly Disagree" : 17,
-                "1" : 17
-            }
-        },
-        "Support_Residents:Agreement_Statements_Access_and_Support" : {
-            "type" : "categorical",
-            "mapping" : {
-                "5" : 6,
-                "4" : 5,
-                "3" : 4,
-                "2": 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Support_Community:Agreement_Statements_Access_and_Support" : {
-            "type" : "categorical",
-            "mapping" : {
-                "5" : 6,
-                "4" : 5,
-                "3" : 4,
-                "2": 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Child_Quality_Recreation:Agreement_Statements_Access_and_Support" : {
-            "type" : "categorical",
-            "mapping" : {
-                "5" : 6,
-                "4" : 5,
-                "3" : 4,
-                "2": 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Not_Able_Pay_Rent_Mortgage:Rent_Utilities_Past_12_Months" : {
-            "type" : "categorical",
-            "mapping" : {
-                "2": 2,
-                "1" : 1
-            }
-        },
-        "Electric_Water_Threatened_Shutoff:Rent_Utilities_Past_12_Months" : {
-            "type" : "categorical",
-            "mapping" : {
-                "2": 2,
-                "1" : 1
-            }
-        },
-        "No_Money_For_Food_Past_12Mos" : {
-            "type" : "categorical",
-            "mapping" : {
-                "5" : 5,
-                "4" : 4,
-                "3": 3,
-                "2" : 2,
-                "1" : 1
-            }
-        },
-        "Fam_Incarcerated_YN:Crime_and_COVID_Best_Answer" : {
-            "type" : "categorical",
-            "mapping" : {
-                "2" : 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Victim_Neighborhood_YN:Crime_and_COVID_Best_Answer" : {
-            "type" : "categorical",
-            "mapping" : {
-                "2" : 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Police:Negatively_Impacted_Or_Harmed_By" : {
-            "type" : "categorical",
-            "mapping" : {
-                "2" : 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Courts:Negatively_Impacted_Or_Harmed_By" : {
-            "type" : "categorical",
-            "mapping" : {
-                "2" : 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Bail_System:Negatively_Impacted_Or_Harmed_By" : {
-            "type" : "categorical",
-            "mapping" : {
-                "2" : 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Immigration_System:Negatively_Impacted_Or_Harmed_By" : {
-            "type" : "categorical",
-            "mapping" : {
-                "2" : 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "General distrust of law enforcement:Hesitate_Reporting_Crime_Reason" : {
-            "type" : "categorical",
-            "mapping" : {
-                "General distrust of law enforcement" : 1,
-                "1" : 1
-            }
-        },
-        "Concern that I wont be taken seriously, or no action will be taken:Hesitate_Reporting_Crime_Reason" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Concern that I wont be taken seriously, or no action will be taken" : 2,
-                "2" : 2
-            }
-        },
-        "Fear of retaliation:Hesitate_Reporting_Crime_Reason" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Fear of retaliation" : 3,
-                "3" : 3
-            }
-        },
-        "Risk of consequences from immigration (such as deportation):Hesitate_Reporting_Crime_Reason" : {
-            "type" : "categorical",
-            "mapping" : {
-                "Risk of consequences from immigration (such as deportation)" : 4,
-                "1" : 4
-            }
-        },
-        "Other:Hesitate_Reporting_Crime_Reason" : {
-            "type" : "categorical",
-            "mapping" : {
-                "5" : 5
-            }
-        },
-        "I would not hesitate or avoid reporting crime:Hesitate_Reporting_Crime_Reason" : {
-            "type" : "categorical",
-            "mapping" : {
-                "I would not hesitate or avoid reporting crime" : 6,
-                "1" : 6
-            }
-        },
-        "Illegal_Dump:Neighborhood_Environmental_Severity" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 5,
-                "3" : 4,
-                "2": 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Air_Pollution:Neighborhood_Environmental_Severity" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 5,
-                "3" : 4,
-                "2": 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Lead:Neighborhood_Environmental_Severity" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 5,
-                "3" : 4,
-                "2": 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Stray_Dogs:Neighborhood_Environmental_Severity" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 5,
-                "3" : 4,
-                "2": 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Flooding:Neighborhood_Environmental_Severity" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 5,
-                "3" : 4,
-                "2": 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Water_Quality:Neighborhood_Environmental_Severity" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 5,
-                "3" : 4,
-                "2": 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Heat:Neighborhood_Environmental_Severity" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 5,
-                "3" : 4,
-                "2": 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Power-Outages:Neighborhood_Environmental_Severity" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 5,
-                "3" : 4,
-                "2": 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Brownfields:Neighborhood_Environmental_Severity" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 5,
-                "3" : 4,
-                "2": 3,
-                "1" : 2,
-                "0" : 1
-            }
-        },
-        "Employment_Impacted_By_COVID" : {
-            "type" : "categorical",
-            "mapping" : {
-                "9": 9,
-                "5" : 5,
-                "4" : 4,
-                "3" : 3,
-                "2": 2,
-                "1" : 1
-            }
-        },
-        "Racial_Equity1" : {
-            "type" : "categorical",
-            "mapping" : {
-                "5" : 5,
-                "4" : 4,
-                "3" : 3,
-                "2": 2,
-                "1" : 1
-            }
-        },
-        "BRFSS_Work_RaceTreatment" : {
-            "type" : "categorical",
-            "mapping" : {
-                "5" : 5,
-                "4" : 4,
-                "3" : 3,
-                "2": 2,
-                "1" : 1
-            }
-        },
-        "BRFSS_Healthcare_RaceTreatment" : {
-            "type" : "categorical",
-            "mapping" : {
-                "4" : 4,
-                "3" : 3,
-                "2": 2,
-                "The same as other races": 2,
-                "1" : 1,
-                "Worse than some races but better than others": 1
-            }
-        }
+    "Community_Group_Outside_of_Neighborhod_Participation:Activity_Participation_Frequency": {
+      "type": "categorical",
+      "mapping": {
+        "1": 1,
+        "Never": 1,
+        "2": 2,
+        "Rarely": 2,
+        "3": 3,
+        "Often": 3,
+        "4": 4,
+        "Usually": 4
+      }
     },
-    "indicators"  : {
-        "1" : {  
-            "questions" : {
-                "1" : {
-                    "column" : "Stay_12_Months:Agreement_Statements_Access_and_Support",
-                    "options" : {
-                        "values" : [20, 21]
-                    }
-                }
-            }
-        },
-        "2" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Block_Neighborhood_Community_Group_Participation:Activity_Participation_Frequency",
-                    "options" : {
-                        "values" : [3, 4]
-                    }
-                },
-                "2" : {
-                    "column" : "Community_Group_Outside_of_Neighborhod_Participation:Activity_Participation_Frequency",
-                    "options" : {
-                        "values" : [3, 4]
-                    }
-                }
-            }
-        },
-        "3" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Housing:Agreement_Statements_Detroit_Access",
-                    "options" : {
-                        "values" : [20, 21]
-                    }
-                },
-                "2" : {
-                    "column" : "Financial:Agreement_Statements_Detroit_Access",
-                    "options" : {
-                        "values" : [20, 21]
-                    }
-                },
-                "3" : {
-                    "column" : "Medical_Care:Agreement_Statements_Detroit_Access",
-                    "options" : {
-                        "values" : [20, 21]
-                    }
-                },
-                "4" : {
-                    "column" : "Mental_Health_Services:Agreement_Statements_Detroit_Access",
-                    "options" : {
-                        "values" : [20, 21]
-                    }
-                },
-                "5" : {
-                    "column" : "Human_Services:Agreement_Statements_Detroit_Access",
-                    "options" : {
-                        "values" : [20, 21]
-                    }
-                }
-            }
-        },
-        "5" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "City government:Community_Engagement_Process_Participation",
-                    "options" : {
-                        "values" : 2
-                    }
-                },
-                "2" : {
-                    "column" : "Community development organization(s):Community_Engagement_Process_Participation",
-                    "options" : {
-                        "values" : 1
-                    }
-                },
-                "3" : {
-                    "column" : "Other (please describe)::Community_Engagement_Process_Participation",
-                    "options" : {
-                        "values" : 4
-                    }
-                }
-            }
-        },
-        "6" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Purchased a lot or lots near my home:In_The_Last_12_Months",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                },
-                "2" : {
-                    "column" : "Financial:Agreement_Statements_Detroit_Access",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                },
-                "3" : {
-                    "column" : "Medical_Care:Agreement_Statements_Detroit_Access",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                },
-                "4" : {
-                    "column" : "Mental_Health_Services:Agreement_Statements_Detroit_Access",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                },
-                "5" : {
-                    "column" : "Human_Services:Agreement_Statements_Detroit_Access",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "9" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Detroit_Business_Ownership",
-                    "options" : {
-                        "values" : [1, 2]
-                    }
-                }
-            }
-        },
-        "16" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Savings_Account",
-                    "options" : {
-                        "values" : 1
-                    }
-                }
-            }
-        },
-        "18" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Currently_Employed",
-                    "options" : {
-                        "values" : [1, 3]
-                    }
-                }
-            }
-        },
-        "19" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Finance_Prevent_Healthcare:Needs_In_Past_12_Months",
-                    "options" : {
-                        "values" : 2
-                    }
-                }
-            }
-        },
-        "20" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Safe_Reliable_Transportation_Access_Frequency",
-                    "options" : {
-                        "values" : 2
-                    }
-                }
-            }
-        },
-        "22" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Detroit:Residence_Length",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "23" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Condition_of_Vacant_Residential_Buildings:Neighborhood_Satisfaction",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "25" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Condition_of_Vacant_Lots:Neighborhood_Satisfaction",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "26" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Neighborhood_Infrastructure:Neighborhood_Satisfaction",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "27" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Condition_of_Vacant_Commercial_Buildings:Neighborhood_Satisfaction",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "29" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Neighborhood:Neighborhood_Safety_Perception",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "33" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Medical_Care:Neighborhood_Health_Related_Access",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                },
-                "2" : {
-                    "column" : "Mental_Health_Services:Neighborhood_Health_Related_Access",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                },
-                "3" : {
-                    "column" : "Places_to_be_Active:Neighborhood_Health_Related_Access",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                },
-                "4" : {
-                    "column" : "Fresh_Healthy_Food:Neighborhood_Health_Related_Access",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "34" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "K_12_Public_Charter_Schools:Neighborhood_Access_Satisfaction",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "35" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Parks_Playgrounds_and_Public Spaces:Neighborhood_Access_Satisfaction",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "36" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Amenities:Neighborhood_Access_Satisfaction",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "37" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Physical:Health_Satisfaction",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                },
-                "2" : {
-                    "column" : "Mental_Health:Health_Satisfaction",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "38" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "SocioEmotional_Support:Health_Satisfaction",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "39" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "QualityLife_Satisfaction",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "40" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Public_Spaces:Neighborhood_Safety_Perception",
-                    "options" : {
-                        "values" : [3, 4]
-                    }
-                }
-            }
-        },
-        "41" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Meets_Needs_Now:Current_Housing",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "42" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Will_Meet_Needs_10_Years:Current_Housing",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "43" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Not_Able_Pay_Rent_Mortgage:Rent_Utilities_Past_12_Months",
-                    "options" : {
-                        "values" : 2
-                    }
-                },
-                "2" : {
-                    "column" : "Electric_Water_Threatened_Shutoff:Rent_Utilities_Past_12_Months",
-                    "options" : {
-                        "values" : 2
-                    }
-                }
-            }
-        },
-        "44" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "No_Money_For_Food_Past_12Mos",
-                    "options" : {
-                        "values" : [1, 2]
-                    }
-                }
-            }
-        },
-        "45" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Quality_of_Housing:Neighborhood_Satisfaction",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "46" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Fam_Incarcerated_YN:Crime_and_COVID_Best_Answer",
-                    "options" : {
-                        "values" : 2
-                    }
-                }
-            }
-        },
-        "47" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Illegal_Dump:Neighborhood_Environmental_Severity",
-                    "options" : {
-                        "values" : 4
-                    }
-                },
-                "2" : {
-                    "column" : "Air_Pollution:Neighborhood_Environmental_Severity",
-                    "options" : {
-                        "values" : 4
-                    }
-                },
-                "3" : {
-                    "column" : "Lead:Neighborhood_Environmental_Severity",
-                    "options" : {
-                        "values" : 4
-                    }
-                },
-                "4" : {
-                    "column" : "Stray_Dogs:Neighborhood_Environmental_Severity",
-                    "options" : {
-                        "values" : 4
-                    }
-                },
-                "5" : {
-                    "column" : "Flooding:Neighborhood_Environmental_Severity",
-                    "options" : {
-                        "values" : 4
-                    }
-                },
-                "6" : {
-                    "column" : "Water_Quality:Neighborhood_Environmental_Severity",
-                    "options" : {
-                        "values" : 4
-                    }
-                },
-                "7" : {
-                    "column" : "Heat:Neighborhood_Environmental_Severity",
-                    "options" : {
-                        "values" : 4
-                    }
-                },
-                "8" : {
-                    "column" : "Power-Outages:Neighborhood_Environmental_Severity",
-                    "options" : {
-                        "values" : 4
-                    }
-                },
-                "9" : {
-                    "column" : "Brownfields:Neighborhood_Environmental_Severity",
-                    "options" : {
-                        "values" : 4
-                    }
-                }
-            }
-        },
-        "48" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Employment_Impacted_By_COVID",
-                    "options" : {
-                        "values" : [3, 4, 5]
-                    }
-                }
-            }
-        },
-        "49" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Racial_Equity1",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "50" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "BRFSS_Work_RaceTreatment",
-                    "options" : {
-                        "values" : 2
-                    }
-                }
-            }
-        },
-        "51" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "BRFSS_Healthcare_RaceTreatment",
-                    "options" : {
-                        "values" : 2
-                    }
-                }
-            }
-        },
-        "52" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Yes, I can access the internet at home using my home internet service:Internet_At_Home",
-                    "options" : {
-                        "values" : 2
-                    }
-                }
-            }
-        },
-        "53" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Bail_System:Negatively_Impacted_Or_Harmed_By",
-                    "options" : {
-                        "values" : 2
-                    }
-                }
-            }
-        },
-        "54" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "I would not hesitate or avoid reporting crime:Hesitate_Reporting_Crime_Reason",
-                    "options" : {
-                        "values" : 6
-                    }
-                }
-            }
-        },
-        "55" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Victim_Neighborhood_YN:Crime_and_COVID_Best_Answer",
-                    "options" : {
-                        "values" : 6
-                    }
-                }
-            }
-        },
-        "56" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "No, none of these issues have prevented me from using the internet or a device:Issues_Prevent_Use_Device",
-                    "options" : {
-                        "values" : 8
-                    }
-                }
-            }
-        },
-        "57" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "I do not have any of these concerns:Concerns_Using_Devices",
-                    "options" : {
-                        "values" : 8
-                    }
-                }
-            }
-        },
-        "58" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "SchoolProgram_Leadership_Participation:Youth_In_Household_Last_12_Months_Questions",
-                    "options" : {
-                        "values" : 1
-                    }
-                }
-            }
-        },
-        "59" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Neighborhood:Youth_Safety_Perception",
-                    "options" : {
-                        "values" : [3, 4]
-                    }
-                }
-            }
-        },
-        "60" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Public_Spaces:Youth_Safety_Perception",
-                    "options" : {
-                        "values" : [3, 4]
-                    }
-                }
-            }
-        },
-        "61" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Child_Quality_Recreation:Agreement_Statements_Access_and_Support",
-                    "options" : {
-                        "values" : [4, 5]
-                    }
-                }
-            }
-        },
-        "62" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "SchoolProgram_Sports_Tutoring_Participation:Youth_In_Household_Last_12_Months_Questions",
-                    "options" : {
-                        "values" : 1
-                    }
-                }
-            }
-        },
-        "64" : { 
-            "questions" : {
-                "1" : {
-                    "column" : "Childcare_Prevent_Work_Meetings_Appointments",
-                    "options" : {
-                        "values" : 1
-                    }
-                }
-            }
-        }
+    "Housing:Agreement_Statements_Detroit_Access": {
+      "type": "categorical",
+      "mapping": {
+        "Strongly Agree": 21,
+        "5": 21,
+        "Somewhat Agree": 20,
+        "4": 20,
+        "Neither Agree or Disagree": 19,
+        "3": 19,
+        "Somewhat Disagree": 18,
+        "2": 18,
+        "Strongly Disagree": 17,
+        "1": 17
+      }
+    },
+    "Financial:Agreement_Statements_Detroit_Access": {
+      "type": "categorical",
+      "mapping": {
+        "Strongly Agree": 21,
+        "5": 21,
+        "Somewhat Agree": 20,
+        "4": 20,
+        "Neither Agree or Disagree": 19,
+        "3": 19,
+        "Somewhat Disagree": 18,
+        "2": 18,
+        "Strongly Disagree": 17,
+        "1": 17
+      }
+    },
+    "Medical_Care:Agreement_Statements_Detroit_Access": {
+      "type": "categorical",
+      "mapping": {
+        "Strongly Agree": 21,
+        "5": 21,
+        "Somewhat Agree": 20,
+        "4": 20,
+        "Neither Agree or Disagree": 19,
+        "3": 19,
+        "Somewhat Disagree": 18,
+        "2": 18,
+        "Strongly Disagree": 17,
+        "1": 17
+      }
+    },
+    "Mental_Health_Services:Agreement_Statements_Detroit_Access": {
+      "type": "categorical",
+      "mapping": {
+        "Strongly Agree": 21,
+        "5": 21,
+        "Somewhat Agree": 20,
+        "4": 20,
+        "Neither Agree or Disagree": 19,
+        "3": 19,
+        "Somewhat Disagree": 18,
+        "2": 18,
+        "Strongly Disagree": 17,
+        "1": 17
+      }
+    },
+    "Human_Services:Agreement_Statements_Detroit_Access": {
+      "type": "categorical",
+      "mapping": {
+        "Strongly Agree": 21,
+        "5": 21,
+        "Somewhat Agree": 20,
+        "4": 20,
+        "Neither Agree or Disagree": 19,
+        "3": 19,
+        "Somewhat Disagree": 18,
+        "2": 18,
+        "Strongly Disagree": 17,
+        "1": 17
+      }
+    },
+    "Currently_Employed": {
+      "type": "categorical",
+      "mapping": {
+        "4": 4,
+        "3": 3,
+        "2": 2,
+        "1": 1
+      }
+    },
+    "Savings_Account": {
+      "type": "categorical",
+      "mapping": {
+        "1": 1,
+        "2": 2
+      }
+    },
+    "Safe_Reliable_Transportation_Access_Frequency": {
+      "type": "categorical",
+      "mapping": {
+        "Strongly Agree": 21,
+        "5": 5,
+        "Somewhat Agree": 20,
+        "4": 4,
+        "Neither Agree or Disagree": 19,
+        "3": 3,
+        "Somewhat Disagree": 18,
+        "2": 2,
+        "Strongly Disagree": 17,
+        "1": 1
+      }
+    },
+    "Finance_Prevent_Healthcare:Needs_In_Past_12_Months": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Not_Find_Affordable_Housing:Needs_In_Past_12_Months": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "At_Risk_Losing_Home:Needs_In_Past_12_Months": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Meets_Needs_Now:Current_Housing": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Will_Meet_Needs_10_Years:Current_Housing": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Needs_Major_Improvements_Livable:Current_Housing": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Needs_Major_Improvements_Get_Around:Current_Housing": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Unhoused:Current_Housing": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Own_Or_Rent": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Detroit:Residence_Length": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Current_Neighborhood:Residence_Length": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Quality_of_Housing:Neighborhood_Satisfaction": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Condition_of_Vacant_Residential_Buildings:Neighborhood_Satisfaction": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Condition_of_Vacant_Commercial_Buildings:Neighborhood_Satisfaction": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Condition_of_Vacant_Lots:Neighborhood_Satisfaction": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Neighborhood_Infrastructure:Neighborhood_Satisfaction": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Neighborhood:Neighborhood_Safety_Perception": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Public_Spaces:Neighborhood_Safety_Perception": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Physical:Health_Satisfaction": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Mental_Health:Health_Satisfaction": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "SocioEmotional_Support:Health_Satisfaction": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "QualityLife_Satisfaction": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "K_12_Public_Charter_Schools:Neighborhood_Access_Satisfaction": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Parks_Playgrounds_and_Public Spaces:Neighborhood_Access_Satisfaction": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Amenities:Neighborhood_Access_Satisfaction": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Medical_Care:Neighborhood_Health_Related_Access": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Mental_Health_Services:Neighborhood_Health_Related_Access": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Places_to_be_Active:Neighborhood_Health_Related_Access": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Fresh_Healthy_Food:Neighborhood_Health_Related_Access": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Youth_in_Household_YesNo": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "YouthProgram_Participation_question1": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "YouthProgram_Participation_question2": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Youth_Enrolled_In_Out_Of_School_Or_Recreational_Programs": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Youth_Enrolled_In_More_Than_One_Program": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Childcare_Prevent_Work_Meetings_Appointments": {
+      "type": "categorical",
+      "mapping": {
+        "Don't Know": 3,
+        "3": 3,
+        "No": 2,
+        "2": 2,
+        "Yes": 1,
+        "1": 1
+      }
+    },
+    "Neighborhood:Youth_Safety_Perception": {
+      "type": "categorical",
+      "mapping": {
+        "4": 5,
+        "3": 4,
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Public_Spaces:Youth_Safety_Perception": {
+      "type": "categorical",
+      "mapping": {
+        "4": 5,
+        "3": 4,
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Neighborhood_Amenities_Use_Frequency:Amenities": {
+      "type": "categorical",
+      "mapping": {
+        "4": 4,
+        "3": 3,
+        "2": 2,
+        "1": 1
+      }
+    },
+    "Leave_City_For_Amenities_Frequency:Amenities": {
+      "type": "categorical",
+      "mapping": {
+        "4": 4,
+        "3": 3,
+        "2": 2,
+        "1": 1
+      }
+    },
+    "Welcome_To_Business_and_Services_Perception": {
+      "type": "categorical",
+      "mapping": {
+        "4": 4,
+        "3": 3,
+        "2": 2,
+        "1": 1
+      }
+    },
+    "Stay_12_Months:Agreement_Statements_Access_and_Support": {
+      "type": "categorical",
+      "mapping": {
+        "Strongly Agree": 21,
+        "5": 21,
+        "Somewhat Agree": 20,
+        "4": 20,
+        "Neither Agree or Disagree": 19,
+        "3": 19,
+        "Somewhat Disagree": 18,
+        "2": 18,
+        "Strongly Disagree": 17,
+        "1": 17
+      }
+    },
+    "Support_Residents:Agreement_Statements_Access_and_Support": {
+      "type": "categorical",
+      "mapping": {
+        "5": 6,
+        "4": 5,
+        "3": 4,
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Support_Community:Agreement_Statements_Access_and_Support": {
+      "type": "categorical",
+      "mapping": {
+        "5": 6,
+        "4": 5,
+        "3": 4,
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Child_Quality_Recreation:Agreement_Statements_Access_and_Support": {
+      "type": "categorical",
+      "mapping": {
+        "5": 6,
+        "4": 5,
+        "3": 4,
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Not_Able_Pay_Rent_Mortgage:Rent_Utilities_Past_12_Months": {
+      "type": "categorical",
+      "mapping": {
+        "2": 2,
+        "1": 1
+      }
+    },
+    "Electric_Water_Threatened_Shutoff:Rent_Utilities_Past_12_Months": {
+      "type": "categorical",
+      "mapping": {
+        "2": 2,
+        "1": 1
+      }
+    },
+    "No_Money_For_Food_Past_12Mos": {
+      "type": "categorical",
+      "mapping": {
+        "5": 5,
+        "4": 4,
+        "3": 3,
+        "2": 2,
+        "1": 1
+      }
+    },
+    "Fam_Incarcerated_YN:Crime_and_COVID_Best_Answer": {
+      "type": "categorical",
+      "mapping": {
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Victim_Neighborhood_YN:Crime_and_COVID_Best_Answer": {
+      "type": "categorical",
+      "mapping": {
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Police:Negatively_Impacted_Or_Harmed_By": {
+      "type": "categorical",
+      "mapping": {
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Courts:Negatively_Impacted_Or_Harmed_By": {
+      "type": "categorical",
+      "mapping": {
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Bail_System:Negatively_Impacted_Or_Harmed_By": {
+      "type": "categorical",
+      "mapping": {
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Immigration_System:Negatively_Impacted_Or_Harmed_By": {
+      "type": "categorical",
+      "mapping": {
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "General distrust of law enforcement:Hesitate_Reporting_Crime_Reason": {
+      "type": "categorical",
+      "mapping": {
+        "General distrust of law enforcement": 1,
+        "1": 1
+      }
+    },
+    "Concern that I wont be taken seriously, or no action will be taken:Hesitate_Reporting_Crime_Reason": {
+      "type": "categorical",
+      "mapping": {
+        "Concern that I wont be taken seriously, or no action will be taken": 2,
+        "2": 2
+      }
+    },
+    "Fear of retaliation:Hesitate_Reporting_Crime_Reason": {
+      "type": "categorical",
+      "mapping": {
+        "Fear of retaliation": 3,
+        "3": 3
+      }
+    },
+    "Risk of consequences from immigration (such as deportation):Hesitate_Reporting_Crime_Reason": {
+      "type": "categorical",
+      "mapping": {
+        "Risk of consequences from immigration (such as deportation)": 4,
+        "1": 4
+      }
+    },
+    "Other:Hesitate_Reporting_Crime_Reason": {
+      "type": "categorical",
+      "mapping": {
+        "5": 5
+      }
+    },
+    "I would not hesitate or avoid reporting crime:Hesitate_Reporting_Crime_Reason": {
+      "type": "categorical",
+      "mapping": {
+        "I would not hesitate or avoid reporting crime": 6,
+        "1": 6
+      }
+    },
+    "Illegal_Dump:Neighborhood_Environmental_Severity": {
+      "type": "categorical",
+      "mapping": {
+        "4": 5,
+        "3": 4,
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Air_Pollution:Neighborhood_Environmental_Severity": {
+      "type": "categorical",
+      "mapping": {
+        "4": 5,
+        "3": 4,
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Lead:Neighborhood_Environmental_Severity": {
+      "type": "categorical",
+      "mapping": {
+        "4": 5,
+        "3": 4,
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Stray_Dogs:Neighborhood_Environmental_Severity": {
+      "type": "categorical",
+      "mapping": {
+        "4": 5,
+        "3": 4,
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Flooding:Neighborhood_Environmental_Severity": {
+      "type": "categorical",
+      "mapping": {
+        "4": 5,
+        "3": 4,
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Water_Quality:Neighborhood_Environmental_Severity": {
+      "type": "categorical",
+      "mapping": {
+        "4": 5,
+        "3": 4,
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Heat:Neighborhood_Environmental_Severity": {
+      "type": "categorical",
+      "mapping": {
+        "4": 5,
+        "3": 4,
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Power-Outages:Neighborhood_Environmental_Severity": {
+      "type": "categorical",
+      "mapping": {
+        "4": 5,
+        "3": 4,
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Brownfields:Neighborhood_Environmental_Severity": {
+      "type": "categorical",
+      "mapping": {
+        "4": 5,
+        "3": 4,
+        "2": 3,
+        "1": 2,
+        "0": 1
+      }
+    },
+    "Employment_Impacted_By_COVID": {
+      "type": "categorical",
+      "mapping": {
+        "9": 9,
+        "5": 5,
+        "4": 4,
+        "3": 3,
+        "2": 2,
+        "1": 1
+      }
+    },
+    "Racial_Equity1": {
+      "type": "categorical",
+      "mapping": {
+        "5": 5,
+        "4": 4,
+        "3": 3,
+        "2": 2,
+        "1": 1
+      }
+    },
+    "BRFSS_Work_RaceTreatment": {
+      "type": "categorical",
+      "mapping": {
+        "5": 5,
+        "4": 4,
+        "3": 3,
+        "2": 2,
+        "1": 1
+      }
+    },
+    "BRFSS_Healthcare_RaceTreatment": {
+      "type": "categorical",
+      "mapping": {
+        "4": 4,
+        "3": 3,
+        "2": 2,
+        "The same as other races": 2,
+        "1": 1,
+        "Worse than some races but better than others": 1
+      }
     }
-
+  },
+  "indicators": {
+    "1": {
+      "questions": {
+        "1": {
+          "column": "Stay_12_Months:Agreement_Statements_Access_and_Support",
+          "options": {
+            "values": [20, 21]
+          }
+        }
+      }
+    },
+    "2": {
+      "questions": {
+        "1": {
+          "column": "Block_Neighborhood_Community_Group_Participation:Activity_Participation_Frequency",
+          "options": {
+            "values": [3, 4]
+          }
+        },
+        "2": {
+          "column": "Community_Group_Outside_of_Neighborhod_Participation:Activity_Participation_Frequency",
+          "options": {
+            "values": [3, 4]
+          }
+        }
+      }
+    },
+    "3": {
+      "questions": {
+        "1": {
+          "column": "Housing:Agreement_Statements_Detroit_Access",
+          "options": {
+            "values": [20, 21]
+          }
+        },
+        "2": {
+          "column": "Financial:Agreement_Statements_Detroit_Access",
+          "options": {
+            "values": [20, 21]
+          }
+        },
+        "3": {
+          "column": "Medical_Care:Agreement_Statements_Detroit_Access",
+          "options": {
+            "values": [20, 21]
+          }
+        },
+        "4": {
+          "column": "Mental_Health_Services:Agreement_Statements_Detroit_Access",
+          "options": {
+            "values": [20, 21]
+          }
+        },
+        "5": {
+          "column": "Human_Services:Agreement_Statements_Detroit_Access",
+          "options": {
+            "values": [20, 21]
+          }
+        }
+      }
+    },
+    "5": {
+      "questions": {
+        "1": {
+          "column": "City government:Community_Engagement_Process_Participation",
+          "options": {
+            "values": [2]
+          }
+        },
+        "2": {
+          "column": "Community development organization(s):Community_Engagement_Process_Participation",
+          "options": {
+            "values": [1]
+          }
+        },
+        "3": {
+          "column": "Other (please describe)::Community_Engagement_Process_Participation",
+          "options": {
+            "values": [4]
+          }
+        }
+      }
+    },
+    "6": {
+      "questions": {
+        "1": {
+          "column": "Purchased a lot or lots near my home:In_The_Last_12_Months",
+          "options": {
+            "values": [4, 5]
+          }
+        },
+        "2": {
+          "column": "Financial:Agreement_Statements_Detroit_Access",
+          "options": {
+            "values": [4, 5]
+          }
+        },
+        "3": {
+          "column": "Medical_Care:Agreement_Statements_Detroit_Access",
+          "options": {
+            "values": [4, 5]
+          }
+        },
+        "4": {
+          "column": "Mental_Health_Services:Agreement_Statements_Detroit_Access",
+          "options": {
+            "values": [4, 5]
+          }
+        },
+        "5": {
+          "column": "Human_Services:Agreement_Statements_Detroit_Access",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "9": {
+      "questions": {
+        "1": {
+          "column": "Detroit_Business_Ownership",
+          "options": {
+            "values": [1, 2]
+          }
+        }
+      }
+    },
+    "16": {
+      "questions": {
+        "1": {
+          "column": "Savings_Account",
+          "options": {
+            "values": [1]
+          }
+        }
+      }
+    },
+    "18": {
+      "questions": {
+        "1": {
+          "column": "Currently_Employed",
+          "options": {
+            "values": [1, 3]
+          }
+        }
+      }
+    },
+    "19": {
+      "questions": {
+        "1": {
+          "column": "Finance_Prevent_Healthcare:Needs_In_Past_12_Months",
+          "options": {
+            "values": [2]
+          }
+        }
+      }
+    },
+    "20": {
+      "questions": {
+        "1": {
+          "column": "Safe_Reliable_Transportation_Access_Frequency",
+          "options": {
+            "values": [2]
+          }
+        }
+      }
+    },
+    "22": {
+      "questions": {
+        "1": {
+          "column": "Detroit:Residence_Length",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "23": {
+      "questions": {
+        "1": {
+          "column": "Condition_of_Vacant_Residential_Buildings:Neighborhood_Satisfaction",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "25": {
+      "questions": {
+        "1": {
+          "column": "Condition_of_Vacant_Lots:Neighborhood_Satisfaction",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "26": {
+      "questions": {
+        "1": {
+          "column": "Neighborhood_Infrastructure:Neighborhood_Satisfaction",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "27": {
+      "questions": {
+        "1": {
+          "column": "Condition_of_Vacant_Commercial_Buildings:Neighborhood_Satisfaction",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "29": {
+      "questions": {
+        "1": {
+          "column": "Neighborhood:Neighborhood_Safety_Perception",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "33": {
+      "questions": {
+        "1": {
+          "column": "Medical_Care:Neighborhood_Health_Related_Access",
+          "options": {
+            "values": [4, 5]
+          }
+        },
+        "2": {
+          "column": "Mental_Health_Services:Neighborhood_Health_Related_Access",
+          "options": {
+            "values": [4, 5]
+          }
+        },
+        "3": {
+          "column": "Places_to_be_Active:Neighborhood_Health_Related_Access",
+          "options": {
+            "values": [4, 5]
+          }
+        },
+        "4": {
+          "column": "Fresh_Healthy_Food:Neighborhood_Health_Related_Access",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "34": {
+      "questions": {
+        "1": {
+          "column": "K_12_Public_Charter_Schools:Neighborhood_Access_Satisfaction",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "35": {
+      "questions": {
+        "1": {
+          "column": "Parks_Playgrounds_and_Public Spaces:Neighborhood_Access_Satisfaction",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "36": {
+      "questions": {
+        "1": {
+          "column": "Amenities:Neighborhood_Access_Satisfaction",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "37": {
+      "questions": {
+        "1": {
+          "column": "Physical:Health_Satisfaction",
+          "options": {
+            "values": [4, 5]
+          }
+        },
+        "2": {
+          "column": "Mental_Health:Health_Satisfaction",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "38": {
+      "questions": {
+        "1": {
+          "column": "SocioEmotional_Support:Health_Satisfaction",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "39": {
+      "questions": {
+        "1": {
+          "column": "QualityLife_Satisfaction",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "40": {
+      "questions": {
+        "1": {
+          "column": "Public_Spaces:Neighborhood_Safety_Perception",
+          "options": {
+            "values": [3, 4]
+          }
+        }
+      }
+    },
+    "41": {
+      "questions": {
+        "1": {
+          "column": "Meets_Needs_Now:Current_Housing",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "42": {
+      "questions": {
+        "1": {
+          "column": "Will_Meet_Needs_10_Years:Current_Housing",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "43": {
+      "questions": {
+        "1": {
+          "column": "Not_Able_Pay_Rent_Mortgage:Rent_Utilities_Past_12_Months",
+          "options": {
+            "values": [2]
+          }
+        },
+        "2": {
+          "column": "Electric_Water_Threatened_Shutoff:Rent_Utilities_Past_12_Months",
+          "options": {
+            "values": [2]
+          }
+        }
+      }
+    },
+    "44": {
+      "questions": {
+        "1": {
+          "column": "No_Money_For_Food_Past_12Mos",
+          "options": {
+            "values": [1, 2]
+          }
+        }
+      }
+    },
+    "45": {
+      "questions": {
+        "1": {
+          "column": "Quality_of_Housing:Neighborhood_Satisfaction",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "46": {
+      "questions": {
+        "1": {
+          "column": "Fam_Incarcerated_YN:Crime_and_COVID_Best_Answer",
+          "options": {
+            "values": [2]
+          }
+        }
+      }
+    },
+    "47": {
+      "questions": {
+        "1": {
+          "column": "Illegal_Dump:Neighborhood_Environmental_Severity",
+          "options": {
+            "values": [4]
+          }
+        },
+        "2": {
+          "column": "Air_Pollution:Neighborhood_Environmental_Severity",
+          "options": {
+            "values": [4]
+          }
+        },
+        "3": {
+          "column": "Lead:Neighborhood_Environmental_Severity",
+          "options": {
+            "values": [4]
+          }
+        },
+        "4": {
+          "column": "Stray_Dogs:Neighborhood_Environmental_Severity",
+          "options": {
+            "values": [4]
+          }
+        },
+        "5": {
+          "column": "Flooding:Neighborhood_Environmental_Severity",
+          "options": {
+            "values": [4]
+          }
+        },
+        "6": {
+          "column": "Water_Quality:Neighborhood_Environmental_Severity",
+          "options": {
+            "values": [4]
+          }
+        },
+        "7": {
+          "column": "Heat:Neighborhood_Environmental_Severity",
+          "options": {
+            "values": [4]
+          }
+        },
+        "8": {
+          "column": "Power-Outages:Neighborhood_Environmental_Severity",
+          "options": {
+            "values": [4]
+          }
+        },
+        "9": {
+          "column": "Brownfields:Neighborhood_Environmental_Severity",
+          "options": {
+            "values": [4]
+          }
+        }
+      }
+    },
+    "48": {
+      "questions": {
+        "1": {
+          "column": "Employment_Impacted_By_COVID",
+          "options": {
+            "values": [3, 4, 5]
+          }
+        }
+      }
+    },
+    "49": {
+      "questions": {
+        "1": {
+          "column": "Racial_Equity1",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "50": {
+      "questions": {
+        "1": {
+          "column": "BRFSS_Work_RaceTreatment",
+          "options": {
+            "values": [2]
+          }
+        }
+      }
+    },
+    "51": {
+      "questions": {
+        "1": {
+          "column": "BRFSS_Healthcare_RaceTreatment",
+          "options": {
+            "values": [2]
+          }
+        }
+      }
+    },
+    "52": {
+      "questions": {
+        "1": {
+          "column": "Yes, I can access the internet at home using my home internet service:Internet_At_Home",
+          "options": {
+            "values": [2]
+          }
+        }
+      }
+    },
+    "53": {
+      "questions": {
+        "1": {
+          "column": "Bail_System:Negatively_Impacted_Or_Harmed_By",
+          "options": {
+            "values": [2]
+          }
+        }
+      }
+    },
+    "54": {
+      "questions": {
+        "1": {
+          "column": "I would not hesitate or avoid reporting crime:Hesitate_Reporting_Crime_Reason",
+          "options": {
+            "values": [6]
+          }
+        }
+      }
+    },
+    "55": {
+      "questions": {
+        "1": {
+          "column": "Victim_Neighborhood_YN:Crime_and_COVID_Best_Answer",
+          "options": {
+            "values": [6]
+          }
+        }
+      }
+    },
+    "56": {
+      "questions": {
+        "1": {
+          "column": "No, none of these issues have prevented me from using the internet or a device:Issues_Prevent_Use_Device",
+          "options": {
+            "values": [8]
+          }
+        }
+      }
+    },
+    "57": {
+      "questions": {
+        "1": {
+          "column": "I do not have any of these concerns:Concerns_Using_Devices",
+          "options": {
+            "values": [8]
+          }
+        }
+      }
+    },
+    "58": {
+      "questions": {
+        "1": {
+          "column": "SchoolProgram_Leadership_Participation:Youth_In_Household_Last_12_Months_Questions",
+          "options": {
+            "values": [1]
+          }
+        }
+      }
+    },
+    "59": {
+      "questions": {
+        "1": {
+          "column": "Neighborhood:Youth_Safety_Perception",
+          "options": {
+            "values": [3, 4]
+          }
+        }
+      }
+    },
+    "60": {
+      "questions": {
+        "1": {
+          "column": "Public_Spaces:Youth_Safety_Perception",
+          "options": {
+            "values": [3, 4]
+          }
+        }
+      }
+    },
+    "61": {
+      "questions": {
+        "1": {
+          "column": "Child_Quality_Recreation:Agreement_Statements_Access_and_Support",
+          "options": {
+            "values": [4, 5]
+          }
+        }
+      }
+    },
+    "62": {
+      "questions": {
+        "1": {
+          "column": "SchoolProgram_Sports_Tutoring_Participation:Youth_In_Household_Last_12_Months_Questions",
+          "options": {
+            "values": [1]
+          }
+        }
+      }
+    },
+    "64": {
+      "questions": {
+        "1": {
+          "column": "Childcare_Prevent_Work_Meetings_Appointments",
+          "options": {
+            "values": [1]
+          }
+        }
+      }
+    }
+  }
 }
