@@ -158,8 +158,10 @@ to append the appropriate start dates. TODO: This can be connected to a package 
 ## Important data dependencies not managed by this repository
 
 - NVI Zones
-  - These were created by had
+  - These were created by hand by Laura, along with the crosswalk
 - ACS Data
     - [d3census](https://github.com/mikevatd3/d3census)
 - IPDS
   - 
+- Michigan School Data mostly managed by [mischooldata_etl](https://github.com/data-driven-detroit/mischooldata_etl.git)
+
