@@ -1,0 +1,11 @@
+{
+    "renames": {},
+    "recodes": {},
+    "column_order": [
+        "geoid",
+        "start_date",
+        "end_date",
+        "square_miles",
+        "geometry"
+    ]
+}
