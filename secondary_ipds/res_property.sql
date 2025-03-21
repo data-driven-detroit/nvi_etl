@@ -20,7 +20,7 @@ from base
          left join (
     select d3_id, count(*) as blight
     from raw.detodp_blight_violations_20250204
-    where extract (year from violation_date::date) > 2021 and d3_id is not null
+    where extract (year from violation_date::date) > 2022 and d3_id is not null
     group by d3_id
 ) bli on base.d3_id = bli.d3_id
 -- 3. flag mcm demo parcels
