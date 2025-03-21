@@ -30,12 +30,3 @@ class NVINeighborhoodZones(pa.DataFrameModel):
     def check_total_sq_mi(cls, square_miles) -> bool:
         return 120 < square_miles.sum() < 140
 
-
-class TractsToNVICrosswalk(pa.DataFrameModel):
-    tract_geoid: str = pa.Field()
-    zone_name: str = pa.Field()
-    district_number: int = pa.Field()
-    tract_start_date: date = pa.Field(coerce=True)
-    tract_end_date: date = pa.Field(coerce=True)
-    zone_start_date: date = pa.Field(coerce=True)
-    zone_end_date: date = pa.Field(coerce=True)
