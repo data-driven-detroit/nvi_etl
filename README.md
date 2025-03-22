@@ -85,7 +85,7 @@ Notes on this:
 ```
 
 
-## Important data dependencies not managed by this repository
+## Data dependencies
 
 - NVI
   - Zones were created by hand by Laura, along with the crosswalk to tracts
