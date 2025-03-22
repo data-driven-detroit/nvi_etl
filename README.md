@@ -21,7 +21,6 @@ from load_data import load_data
 # This is configured in ./logging_config.json
 logger = setup_logging()
 
-#TODO: Add logging
 extract_data(logger)
 transform_data(logger)
 load_data(logger)
