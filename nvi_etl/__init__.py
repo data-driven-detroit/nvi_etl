@@ -5,6 +5,7 @@ import logging.config
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.types import Integer, Float, Numeric
+from sqlalchemy import text
 import tomli
 
 
@@ -145,4 +146,9 @@ def liquefy(df, instructions=pull_instructions(), defaults=dict()):
     return result.astype(type_map)
 
     
+def extract_from_sql_file(filename):
+    q = text((WORKING_DIR / "sql" / filename).read_text())
+
+    return pd.read_sql(q, db_engine)
+
 

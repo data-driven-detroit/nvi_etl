@@ -1,16 +1,9 @@
-from nvi_etl import db_engine, working_dir
+from nvi_etl import working_dir, extract_from_sql_file
 import pandas as pd
-from sqlalchemy import text
 
 
 # Use this path to find sql files
 WORKING_DIR = working_dir(__file__)
-
-
-def extract_from_file(filename):
-    q = text((WORKING_DIR / "sql" / filename).read_text())
-
-    return pd.read_sql(q, db_engine)
 
 
 def extract_mischooldata(logger):
@@ -24,7 +17,7 @@ def extract_mischooldata(logger):
 
     g3_ela_tables = []
     for file in query_files:
-        g3_ela_tables.append(extract_from_file(file))
+        g3_ela_tables.append(extract_from_sql_file(file))
     
     combined = pd.concat(g3_ela_tables)
 
