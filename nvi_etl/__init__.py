@@ -8,7 +8,11 @@ from sqlalchemy.types import Integer, Float, Numeric
 import tomli
 
 
-WORKING_DIR = Path(__file__).resolve().parent
+def working_dir(file):
+    return Path(file).resolve().parent
+
+
+WORKING_DIR = working_dir(__file__)
 
 
 with open(Path().cwd() / "config.toml", "rb") as f:
