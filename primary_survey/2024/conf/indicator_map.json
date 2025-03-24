@@ -26,8 +26,10 @@
         "Rarely": 2,
         "3": 3,
         "Often": 3,
-        "4": 4,
-        "Usually": 4
+        "4": 70,
+        "Usually": 70,
+        "5": 38,
+        "Always": 38
       }
     },
     "Community_Group_Outside_of_Neighborhod_Participation:Activity_Participation_Frequency": {
@@ -39,8 +41,10 @@
         "Rarely": 2,
         "3": 3,
         "Often": 3,
-        "4": 4,
-        "Usually": 4
+        "4": 70,
+        "Usually": 70,
+        "5": 38,
+        "Always": 38
       }
     },
     "Housing:Agreement_Statements_Detroit_Access": {
@@ -130,8 +134,8 @@
     "Savings_Account": {
       "type": "categorical",
       "mapping": {
-        "1": 1,
-        "2": 2
+        "1": 36,
+        "2": 37
       }
     },
     "Safe_Reliable_Transportation_Access_Frequency": {
@@ -891,13 +895,13 @@
         "1": {
           "column": "Block_Neighborhood_Community_Group_Participation:Activity_Participation_Frequency",
           "options": {
-            "values": [3, 4]
+            "values": [3, 70]
           }
         },
         "2": {
           "column": "Community_Group_Outside_of_Neighborhod_Participation:Activity_Participation_Frequency",
           "options": {
-            "values": [3, 4]
+            "values": [3, 70]
           }
         }
       }
