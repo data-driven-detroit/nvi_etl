@@ -125,10 +125,10 @@
     "Currently_Employed": {
       "type": "categorical",
       "mapping": {
-        "4": 4,
-        "3": 3,
-        "2": 2,
-        "1": 1
+        "1": 22,
+        "2": 23,
+        "3": 24,
+        "4": 25
       }
     },
     "Savings_Account": {
@@ -877,6 +877,16 @@
         "1": 1,
         "Worse than some races but better than others": 1
       }
+    },
+    "Detroit_Business_Ownership": {
+        "type": "categorical",
+        "mapping": {
+            "1": 26,
+            "2": 27,
+            "3": 28,
+            "4": 29,
+            "5": 30
+        }
     }
   },
   "indicators": {
