@@ -17,7 +17,7 @@ def extract_mischooldata(logger):
 
     g3_ela_tables = []
     for file in query_files:
-        g3_ela_tables.append(extract_from_sql_file(file))
+        g3_ela_tables.append(extract_from_sql_file(WORKING_DIR / "sql" / file))
     
     combined = pd.concat(g3_ela_tables)
 

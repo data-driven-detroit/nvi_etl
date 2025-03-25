@@ -10,11 +10,13 @@ WITH school AS (
         ON st_intersects(sch.geometry, cb.geom)
     WHERE sch.start_date >= '2023-07-01' AND sch.end_date <= '2024-06-29'
 )
-SELECT sum(number_assessed) AS number_assessed_2023, 
-       sum(total_met) AS met_ela_2023, 
-       (sum(total_met) / sum(number_assessed)) * 100  AS percentage_met_ela_2023
+SELECT 'citywide' AS geo_type,
+       'citywide' AS geography,
+       sum(number_assessed) AS number_assessed, 
+       sum(total_met) AS total_met, 
+       (sum(total_met) / sum(number_assessed)) * 100  AS percent_met,
+       year,
 FROM school AS s
 JOIN education.g3_ela_school AS e
     ON s.building_code = e.building_code
-WHERE year = '2023';
-
+WHERE year = '2023'; -- TODO Once the g3_ela_school table is moved to 'start_date', 'end_date' this will break.
