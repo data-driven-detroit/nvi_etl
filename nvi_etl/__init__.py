@@ -113,7 +113,7 @@ def liquefy(df, instructions=pull_instructions(), defaults=dict()):
 
     collector = {
         col: [] 
-        for col in ["indicator_id"] + instructions["index_cols"] + instructions["dtypes"]
+        for col in ["indicator_id"] + instructions["index_cols"] + list(instructions["dtypes"].keys())
     }
 
     for _, row in df.iterrows():

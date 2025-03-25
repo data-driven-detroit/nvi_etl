@@ -1,4 +1,4 @@
-# Don't commit the python refuse
+# Don't commit the python junk
 env
 __pycache__
 
@@ -25,5 +25,6 @@ config.toml
 
 .vscode/*
 */__pycache__/*
-test.ipynb
-sandbox
+
+# I'm tempted to exclude all ipynbs, but for now we'll leave it
+# *.ipynb

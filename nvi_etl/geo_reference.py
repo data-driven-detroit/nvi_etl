@@ -1,6 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 import geopandas as gpd
+import pandas as pd
 import datetime
 from nvi_etl import db_engine
 
@@ -63,14 +64,14 @@ def pull_tracts_to_nvi_crosswalk(tract_year, district_year):
     q = text("""
     SELECT *
     FROM nvi.tracts_to_nvi_crosswalk
-    WHERE zone_start_date = :zone_start_date;
-    AND tract_start_date = :tract_start_date
+    WHERE zone_start_date = :zone_start_date
+    AND tract_start_date = :tract_start_date;
     """)
 
     try:
-        return gpd.read_postgis(q, db_engine, params={
+        return pd.read_sql(q, db_engine, params={
                 "tract_start_date": tract_start_date, 
-                "district_start_date": zone_start_date
+                "zone_start_date": zone_start_date
         })
     except OperationalError:
         raise NotImplementedError("Run the scripts to load the geography tables in 'aux_geographies'")

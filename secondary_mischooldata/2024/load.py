@@ -1,5 +1,6 @@
 from nvi_etl import working_dir, db_engine
 from nvi_etl.schema import NVIValueTable
+from nvi_etl.destinations import CONTEXT_VALUES_TABLE
 import pandas as pd
 
 
@@ -13,4 +14,10 @@ def load_mischooldata(logger):
 
     NVIValueTable.validate(file)
 
-    file.to_sql("values", db_engine, schema="nvi")
+    file.to_sql(
+        CONTEXT_VALUES_TABLE, 
+        db_engine, 
+        schema="nvi", 
+        if_exists="append", 
+        index=False
+    )

@@ -22,6 +22,7 @@
         "pct_ro_spending_lt_30": {"id": 15, "dtype": "percentage"},
         "pct_over_20_in_lf": {"id": 17, "dtype": "percentage"},
         "pct_16_to_19_in_lf": {"id": 63, "dtype": "percentage"},
-        "hierfindal": {"id": 28, "dtype": "index"}
+        "hierfindal": {"id": 28, "dtype": "index"},
+        "g3_ela_pct_met": {"id": 12, "dtype": "percentage"}
     }
 }

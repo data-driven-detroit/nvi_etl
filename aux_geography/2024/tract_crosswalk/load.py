@@ -15,5 +15,9 @@ def load_2020_tracts_to_2026_nvi_cw(logger):
     validated = TractsToNVICrosswalk.validate(file)
 
     validated.to_sql(
-        "tracts_to_nvi_crosswalk", db_engine, schema="nvi", if_exists="append", index=False
+        "tracts_to_nvi_crosswalk", 
+        db_engine, 
+        schema="nvi",
+        if_exists="replace", 
+        index=False
     )
