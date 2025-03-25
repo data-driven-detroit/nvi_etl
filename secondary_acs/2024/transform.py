@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 
 from nvi_etl import liquefy
-from nvi_etl.geo_reference import pull_cw_tracts_districts
+from nvi_etl.geo_reference import pull_tracts_to_nvi_crosswalk
 
 
 WORKING_DIR = Path(__file__).resolve().parent
@@ -55,48 +55,52 @@ def hierfindal(categories):
 def pct_hs_diploma_ged_plus(df):
     return (df["population_ge_25_with_post_hs_diploma_ged"]) / df[
         "total_population_ge_25"
-    ]
+    ] * 100
 
 
 def pct_post_secondary(df):
     return (
         df["population_ge_25_with_post_sec_degree"]
         / df["total_population_ge_25"]
-    )
+    ) * 100
 
 
 def pct_oo_spending_lt_30(df):
-    return df["oo_hh_spending_lt_30"] / df["owner_occupied_households"]
+    return 100 * df["oo_hh_spending_lt_30"] / df["owner_occupied_households"]
 
 
 def pct_ro_spending_lt_30(df):
-    return df["ro_hh_spending_lt_30"] / df["renter_occupied_households"]
+    return 100 * df["ro_hh_spending_lt_30"] / df["renter_occupied_households"]
 
 
 def pct_over_20_in_lf(df):
-    return df["num_over_20_in_labor_force"] / df["population_over_20"]
+    return 100 * df["num_over_20_in_labor_force"] / df["population_over_20"]
 
 
 def pct_16_to_19_in_lf(df):
-    return df["num_16_to_19_in_labor_force"] / df["population_16_to_19"]
+    return 100 * df["num_16_to_19_in_labor_force"] / df["population_16_to_19"]
 
 
 def pct_owner_occupied(df):
-    return df["owner_occupied_households"] / df["total_households"]
+    return 100 * df["owner_occupied_households"] / df["total_households"]
 
 
 def pct_renter_occupied(df):
-    return df["renter_occupied_households"] / df["total_households"]
+    return 100 * df["renter_occupied_households"] / df["total_households"]
 
 
 def pct_children_below_pov(df):
-    return df["num_children_below_pov"] / (
+    return 100 * df["num_children_below_pov"] / (
         df["num_children_below_pov"] + df["num_children_above_pov"]
     )
 
 
+
 def transform(logger):
     logger.info("Aggregating tract-level ACS data to 2026 Council Districts")
+
+
+
 
     FIELD_DEFAULTS = {
         "year": 2024, 
@@ -113,7 +117,15 @@ def transform(logger):
         (WORKING_DIR / "conf" / "liquefy_instructions.json").read_text()
     )
 
-    districts = pull_cw_tracts_districts(2020, 2026)
+    location_map = json.loads(
+        (WORKING_DIR / "conf" / "location_map.json").read_text()
+    )
+
+    def pin_location(level, row):
+        return location_map[level][str(row.name)]
+
+
+    districts = pull_tracts_to_nvi_crosswalk(2020, 2026)
 
     city_wide = pd.read_parquet(
         WORKING_DIR / "output" / f"nvi_citywide_{YEAR}.parquet.gzip"
@@ -123,10 +135,8 @@ def transform(logger):
         WORKING_DIR / "output" / f"nvi_tracts_{YEAR}.parquet.gzip"
     ).reset_index()
     
-    zone_level = ... # TODO: Implement zone level
     
     # TODO Read this dynamically off of the locations file
-    district_map = lambda dist: dist + 1
 
     # Tract-level
     wide_format = (
@@ -151,7 +161,7 @@ def transform(logger):
             pct_renter_occupied=pct_renter_occupied,
             pct_children_below_pov=pct_children_below_pov,
             hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
-            location_id=lambda df: district_map(df.index)
+            location_id=lambda df: df.apply(lambda row: pin_location('district', row), axis=1)
         )
     )
 
@@ -163,6 +173,42 @@ def transform(logger):
         WORKING_DIR / "output" / f"nvi_districts_{YEAR}.csv", index=False
     )
 
+    # NVI Zones
+
+    wide_format = (
+        districts.rename(
+            columns={
+                "tract_geoid": "geoid",
+                "district_number": "district",
+                "zone_name": "zone",
+            }
+        )
+        .astype({"geoid": "str"})
+        .merge(tract_level, on="geoid")
+        .groupby("zone")
+        .agg(aggregations["aggregations"])
+        .assign(
+            pct_hs_diploma_ged_plus=pct_hs_diploma_ged_plus,
+            pct_post_secondary=pct_post_secondary,
+            pct_oo_spending_lt_30=pct_oo_spending_lt_30,
+            pct_ro_spending_lt_30=pct_ro_spending_lt_30,
+            pct_over_20_in_lf=pct_over_20_in_lf,
+            pct_16_to_19_in_lf=pct_16_to_19_in_lf,
+            pct_owner_occupied=pct_owner_occupied,
+            pct_renter_occupied=pct_renter_occupied,
+            pct_children_below_pov=pct_children_below_pov,
+            hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
+            location_id=lambda df: df.apply(lambda row: pin_location('zone', row), axis=1)
+        )
+    )
+
+    assert len(wide_format) == 22
+
+    result = liquefy(wide_format, instructions, defaults=FIELD_DEFAULTS)
+
+    result.to_csv(
+        WORKING_DIR / "output" / f"nvi_zones_{YEAR}.csv", index=False
+    )
 
     # City-wide
 

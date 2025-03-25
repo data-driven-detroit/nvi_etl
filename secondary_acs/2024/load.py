@@ -5,6 +5,7 @@ from sqlalchemy.exc import ProgrammingError
 
 from nvi_etl import db_engine
 from nvi_etl.schema import NVIValueTable
+from nvi_etl.destinations import CONTEXT_VALUES_TABLE
 
 
 SCHEMA = "nvi"
@@ -19,15 +20,16 @@ def load_acs(logger):
     districts = pd.read_csv(
         WORKING_DIR / "output" / f"nvi_districts_{YEAR}.csv"
     )
+    zones = pd.read_csv(WORKING_DIR / "output" / f"nvi_zones_{YEAR}.csv")
 
-    df = pd.concat([citywide, districts])
+    df = pd.concat([citywide, districts, zones])
 
     validated = NVIValueTable.validate(df)
 
     prev_q = text(
-        """
+        f"""
         SELECT count(*) AS matches_found
-        FROM nvi.values
+        FROM {SCHEMA}.{CONTEXT_VALUES_TABLE}
         WHERE (indicator_id, year, location_id) IN :check_against
     """
     )
@@ -64,5 +66,5 @@ def load_acs(logger):
 
     with db_engine.connect() as db:
         validated.to_sql(
-            "values", db, schema=SCHEMA, index=False, if_exists="append"
+            CONTEXT_VALUES_TABLE, db, schema=SCHEMA, index=False, if_exists="append"
         )

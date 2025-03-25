@@ -13,12 +13,12 @@ WITH school AS (
 )
 SELECT 'neighborhood_zones' AS geo_type,
        s.zone_id as geography, 
-       sum(number_assessed) as number_assessed, 
-       sum(total_met) as total_met, 
-       (sum(total_met) / sum(number_assessed)) * 100  AS percent_met,
+       sum(number_assessed) AS g3_ela_number_assessed, 
+       sum(total_met) AS g3_ela_total_met, 
+       (sum(total_met) / sum(number_assessed)) * 100  AS g3_ela_pct_met,
        year
 FROM school AS s
 JOIN education.g3_ela_school AS e
     ON s.building_code = e.building_code
 WHERE year = '2023'
-GROUP BY s.zone_id;
+GROUP BY s.zone_id, year;

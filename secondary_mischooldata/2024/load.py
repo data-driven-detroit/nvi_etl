@@ -14,4 +14,10 @@ def load_mischooldata(logger):
 
     NVIValueTable.validate(file)
 
-    file.to_sql(CONTEXT_VALUES_TABLE, db_engine, schema="nvi")
+    file.to_sql(
+        CONTEXT_VALUES_TABLE, 
+        db_engine, 
+        schema="nvi", 
+        if_exists="append", 
+        index=False
+    )

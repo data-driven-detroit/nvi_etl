@@ -21,6 +21,6 @@ def extract_mischooldata(logger):
     
     combined = pd.concat(g3_ela_tables)
 
-    combined.to_csv(WORKING_DIR / "output" / "g3_ela_2023.csv")
+    combined.to_csv(WORKING_DIR / "output" / "g3_ela_2023.csv", index=False)
 
 
