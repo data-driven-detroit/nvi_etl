@@ -1,5 +1,5 @@
 {
-  "combine_columns": {
+  l": {
     "Community_Engagement_Process_Participation": [
       "Community development organization(s):Community_Engagement_Process_Participation",
       "City government:Community_Engagement_Process_Participation",
@@ -156,386 +156,386 @@
     "Finance_Prevent_Healthcare:Needs_In_Past_12_Months": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Not_Find_Affordable_Housing:Needs_In_Past_12_Months": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "At_Risk_Losing_Home:Needs_In_Past_12_Months": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Meets_Needs_Now:Current_Housing": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Will_Meet_Needs_10_Years:Current_Housing": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Needs_Major_Improvements_Livable:Current_Housing": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Needs_Major_Improvements_Get_Around:Current_Housing": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Unhoused:Current_Housing": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Own_Or_Rent": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Detroit:Residence_Length": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Current_Neighborhood:Residence_Length": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Quality_of_Housing:Neighborhood_Satisfaction": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Condition_of_Vacant_Residential_Buildings:Neighborhood_Satisfaction": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Condition_of_Vacant_Commercial_Buildings:Neighborhood_Satisfaction": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Condition_of_Vacant_Lots:Neighborhood_Satisfaction": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Neighborhood_Infrastructure:Neighborhood_Satisfaction": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Neighborhood:Neighborhood_Safety_Perception": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Public_Spaces:Neighborhood_Safety_Perception": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Physical:Health_Satisfaction": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Mental_Health:Health_Satisfaction": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "SocioEmotional_Support:Health_Satisfaction": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "QualityLife_Satisfaction": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "K_12_Public_Charter_Schools:Neighborhood_Access_Satisfaction": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Parks_Playgrounds_and_Public Spaces:Neighborhood_Access_Satisfaction": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Amenities:Neighborhood_Access_Satisfaction": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Medical_Care:Neighborhood_Health_Related_Access": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Mental_Health_Services:Neighborhood_Health_Related_Access": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Places_to_be_Active:Neighborhood_Health_Related_Access": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Fresh_Healthy_Food:Neighborhood_Health_Related_Access": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Youth_in_Household_YesNo": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "YouthProgram_Participation_question1": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "YouthProgram_Participation_question2": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Youth_Enrolled_In_Out_Of_School_Or_Recreational_Programs": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Youth_Enrolled_In_More_Than_One_Program": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Childcare_Prevent_Work_Meetings_Appointments": {
       "type": "categorical",
       "mapping": {
-        "Don't Know": 3,
-        "3": 3,
-        "No": 2,
-        "2": 2,
-        "Yes": 1,
-        "1": 1
+        "Don't Know": 39,
+        "3": 30,
+        "No": 37,
+        "2": 37,
+        "Yes": 36,
+        "1": 36
       }
     },
     "Neighborhood:Youth_Safety_Perception": {
