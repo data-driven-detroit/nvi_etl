@@ -2,7 +2,9 @@ import configparser
 from pathlib import Path
 import geopandas as gpd
 import pandas as pd
-import numpy as np
+from sqlalchemy import text
+
+from nvi_etl import db_engine
 
 
 WORKING_DIR = Path(__file__).resolve().parent
@@ -30,9 +32,28 @@ def extract_births(logger):
     births_gdf.to_file(WORKING_DIR / "input" / "births_extracted_2023.geojson")
 
 
-def extract_rms_crime(logger):
-    logger.warning("RMS Crime extract hasn't been written beyond the SQL!")
+def extract_from_queries(logger):
+    logger.warning("Extracting data based on sql query files.")
 
+    filenames = [
+        "auto_crash_cds.sql",
+        "auto_crash_citywide.sql",
+        "auto_crash_zones.sql",
+        "cdo_service_area_percent_cds.sql",
+        "cdo_service_area_percent_citywide.sql",
+        "cdo_service_area_percent_zones.sql",
+        "ped_bike_crash_cds.sql",
+        "ped_bike_crash_citywide.sql",
+        "ped_bike_crash_zones.sql",
+        "rms_incidents_cds.sql",
+        "rms_incidents_citywide.sql",
+        "rms_incidents_zones.sql",
+    ]
+    
+    result = []
+    for filename in filenames:
+        query = text((WORKING_DIR / "sql" / filename).read_text())
+        file = pd.read_sql(query, db_engine)
+        result.append(file)
 
-def extract_cdo_coverage(logger):
-    logger.warning("CDO Coverage extract hasn't been written beyond the SQL!")
+    return pd.concat(result)

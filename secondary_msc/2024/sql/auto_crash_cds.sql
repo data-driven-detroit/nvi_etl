@@ -19,7 +19,8 @@ zone_population AS (
     GROUP BY nvi.council_di
 )
 SELECT
-    acs.council_di as council_districts,
+    "council_districts" as geo_type,
+    acs.council_di as geography,
     COALESCE(cr.crash_count, 0) AS total_crash,
     COALESCE(acs.total_pop, 1) AS total_population,
     (COALESCE(cr.crash_count, 0) * 10000.0 / NULLIF(acs.total_pop, 0)) AS crash_per_10000
