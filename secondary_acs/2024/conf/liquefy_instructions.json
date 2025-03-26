@@ -6,15 +6,15 @@
         "survey_question_id",
         "survey_question_option_id"
     ],
-    "dtypes": [
-        "count",
-        "universe",
-        "percentage",
-        "rate",
-        "rate_per",
-        "dollars",
-        "index"
-    ],
+    "dtypes": {
+        "count": "int",
+        "universe": "int",
+        "percentage": "float",
+        "rate": "float",
+        "rate_per": "float",
+        "dollars": "float",
+        "index": "float"
+    },
     "id_map": {
         "pct_hs_diploma_ged_plus": {"id": 10, "dtype": "percentage"},
         "pct_post_secondary": {"id": 11, "dtype": "percentage"},

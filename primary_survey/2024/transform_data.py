@@ -100,6 +100,29 @@ def aggregate(recoded, indicator_map, geographic_level, logger):
                             "percentage": p,
                         }
                     )
+        # Aggregate indicator level
+        indicator_cols = [q_info["column"] for q_info in indicator_info["questions"].values()]
+        indicator_options = [list(q_info["options"].values()) for q_info in indicator_info["questions"].values()]
+
+        all_indicator_options = [item for sublist in indicator_options for item in sublist]
+        recoded[indicator_id] = recoded[indicator_cols].apply(lambda row: 1 if any(val in row.values for val in all_indicator_options) else 0, axis=1)
+
+        indicator_grouped = recoded.groupby(geographic_level)[indicator_id]
+
+        indicator_universe = indicator_grouped.count()
+        indicator_count = indicator_grouped.sum()
+        indicator_percentage = (indicator_count / indicator_universe * 100).fillna(0)
+
+        for location, c, u, p in zip(indicator_universe.index, indicator_count, indicator_universe, indicator_percentage):
+                    results.append({
+                            "indicator_id": indicator_id,
+                            "survey_question_id": "",
+                            "survey_question_option_id": "",
+                            "location": location,
+                            "count": c,
+                            "universe": u,
+                            "percentage": p,
+                        } )
 
     return pd.DataFrame(results)
 
@@ -122,17 +145,6 @@ def transform_data(logger):
 
     # combining district/zones
     df = df.merge(geo, left_on="Response ID", right_on="id")
-
-    df = df[
-        [
-            "Response ID",
-            "Stay_12_Months:Agreement_Statements_Access_and_Support",
-            "Block_Neighborhood_Community_Group_Participation:Activity_Participation_Frequency",
-            "Community_Group_Outside_of_Neighborhod_Participation:Activity_Participation_Frequency",
-            "zone_id",
-            "district_number",
-        ]
-    ].copy()
     
     # Recode the data to match the ids supplied by Brian
     recoded = recode(df, indicator_map, logger)

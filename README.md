@@ -96,5 +96,5 @@ Notes on this:
 - IPDS
     - 
 - Michigan School Data mostly managed by [mischooldata_etl](https://github.com/data-driven-detroit/mischooldata_etl.git)
-    - `education.eem_schools`
-    - `education.g3_ela_school`
+    - `education.eem_schools` 
+    - `education.g3_ela_school` (old schema)
