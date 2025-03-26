@@ -32,8 +32,8 @@ zone_population AS (
 )
 
 SELECT
-    acs.district_n AS council_districts,
-    acs.zone_id,
+    'neighborhood_zones' as geo_type,
+    acs.zone_id as geography,
     coalesce(cr.ped_crash_count, 0) AS total_ped_crash,
     coalesce(acs.total_pop, 1) AS total_population,
     (

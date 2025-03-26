@@ -21,6 +21,8 @@ acs_population AS (
 )
 
 SELECT
+    'citywide' as geo_type,
+    'citywide' as geography,
     cr.ped_crash_count AS total_ped_crash,
     acs.total_pop AS total_population,
     (cr.ped_crash_count * 10000.0 / nullif(acs.total_pop, 0)) AS crash_per_10000
