@@ -56,4 +56,6 @@ def extract_from_queries(logger):
         file = pd.read_sql(query, db_engine)
         result.append(file)
 
-    return pd.concat(result)
+    all_rows = pd.concat(result)
+
+    all_rows.to_csv(WORKING_DIR / "output" / "all_msc_rows")

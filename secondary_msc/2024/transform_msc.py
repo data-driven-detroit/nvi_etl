@@ -160,9 +160,6 @@ def transform_births(logger):
     tall_format = liquefy(wide_format)
 
 
-def transform_rms_crime(logger):
-    logger.warning("RMS Crime transform has not been written yet!")
+def transform_from_queries(logger):
+    logger.warning("Transformed from queries isn't written yet!")
 
-
-def transform_cdo_coverage(logger):
-    logger.warning("CDO coverage transform has not been written yet!")
