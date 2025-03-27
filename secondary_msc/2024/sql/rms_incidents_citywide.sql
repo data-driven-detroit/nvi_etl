@@ -37,6 +37,8 @@ acs_population AS (
 )
 
 SELECT
+    'citywide' AS geo_type,
+    'citywide' AS geography,
     rms.rms_detroit AS total_violent_crimes,
     acs.total_pop AS total_population,
     (

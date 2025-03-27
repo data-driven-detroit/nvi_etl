@@ -1,4 +1,5 @@
 import configparser
+from collections import defaultdict
 from pathlib import Path
 import geopandas as gpd
 import pandas as pd
@@ -16,6 +17,10 @@ def extract_births(logger):
     parser = configparser.ConfigParser()
     parser.read(WORKING_DIR / "conf" / ".conf")
     data_extract_path = parser.get('nvi_2024_config', 'data_extract_path')
+
+    if Path(data_extract_path).exists():
+        logger.info("File has already been extracted--continuing.")
+        return 0
 
     births_df = pd.read_csv(data_extract_path, low_memory=False)
 
@@ -49,13 +54,27 @@ def extract_from_queries(logger):
         "rms_incidents_citywide.sql",
         "rms_incidents_zones.sql",
     ]
-    
-    result = []
+
+    result = defaultdict(list) 
     for filename in filenames:
-        query = text((WORKING_DIR / "sql" / filename).read_text())
-        file = pd.read_sql(query, db_engine)
-        result.append(file)
+        logger.info(f"Running '{filename}'.")
 
-    all_rows = pd.concat(result)
+        path = WORKING_DIR / "sql" / filename
 
-    all_rows.to_csv(WORKING_DIR / "output" / "all_msc_rows")
+        # Get the stem from the path (basically just the final filename without the '.csv')
+        stem = path.stem
+
+        # Clip off the 'geo_type'
+        *title, _ = stem.split("_")
+
+        query = text(path.read_text())
+        table = pd.read_sql(query, db_engine)
+
+        # Add the file to the list labeled with the dataset
+        result["_".join(title)].append(table)
+
+
+    for clipped_stem, files in result.items():
+        logger.info(f"Saving '{clipped_stem}.csv'")
+        file = pd.concat(files)
+        file.to_csv(WORKING_DIR / "input" / f"{clipped_stem}.csv")
