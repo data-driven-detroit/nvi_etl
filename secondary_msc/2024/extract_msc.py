@@ -73,8 +73,11 @@ def extract_from_queries(logger):
         # Add the file to the list labeled with the dataset
         result["_".join(title)].append(table)
 
-
+    combined_topics = []
     for clipped_stem, files in result.items():
         logger.info(f"Saving '{clipped_stem}.csv'")
         file = pd.concat(files)
-        file.to_csv(WORKING_DIR / "input" / f"{clipped_stem}.csv")
+        combined_topics.append(file.set_index(["geo_type", "geography"]))
+
+    wide_format = pd.concat(combined_topics, axis=1)
+    wide_format.to_csv(WORKING_DIR / "input" / "msc_wide_from_queries.csv")

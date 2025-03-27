@@ -36,7 +36,7 @@ SELECT
     coalesce(acs.total_pop, 1) AS total_population,
     (
         coalesce(cr.ped_crash_count, 0) * 10000.0 / nullif(acs.total_pop, 0)
-    ) AS crash_per_10000
+    ) AS ped_crash_per_10000
 FROM zone_population AS acs
 LEFT JOIN crash AS cr
     ON acs.council_di = cr.council_di
