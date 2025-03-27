@@ -165,6 +165,7 @@ def transform_births(logger):
     wide_format["location_id"] = wide_format.apply(pin_location, axis=1)
 
     tall_format = liquefy(wide_format)
+    tall_format["year"] = 2023
     tall_format.to_csv(WORKING_DIR / "output" / "births_output_tall.csv", index=False)
 
 
@@ -175,5 +176,6 @@ def transform_from_queries(logger):
     msc_wide["location_id"] = msc_wide.apply(pin_location, axis=1)
 
     msc_tall = liquefy(msc_wide)
+    msc_tall["year"] = 2023
     msc_tall.to_csv(WORKING_DIR / "output" / "msc_output_tall.csv", index=False)
 
