@@ -84,6 +84,20 @@ Notes on this:
 └── README.md
 ```
 
+## Notes on data flow for secondary data
+
+All datapulls and other transformations should target the following 'wide' pattern. The `geo_type` and `geography` columns are required to append the database id for that location using the `pin_location` function that can be imported from the `nvi_etl.geo_reference` module.
+
+```
+  geo_type           | geography  |  data_point_1 | data_point_2 | more data ...
+---------------------+------------+---------------+--------------+---------------
+ 'citywide'          | 'citywide' |  ...          | ...          | ...
+ 'council_districts' | '2'        |  ...          | ...          | ...
+ 'neighborhood_zones'| '5a'       |  ...          | ...          | ...
+```
+
+Once the location is 'pinned,' you can use the `liquefy` function (importable directly from nvi_etl) to turn this wide format table into the long format table used by the database.
+
 
 ## Data dependencies
 
