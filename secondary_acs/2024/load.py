@@ -28,7 +28,7 @@ def load_acs(logger):
     prev_q = text(
         f"""
         SELECT count(*) AS matches_found
-        FROM {SCHEMA}.{CONTEXT_VALUES_TABLE}
+        FROM nvi.{CONTEXT_VALUES_TABLE}
         WHERE (indicator_id, year, location_id) IN :check_against
     """
     )
@@ -63,4 +63,7 @@ def load_acs(logger):
                 "First time table is being pushed, so no row-level conflicts."
             )
 
-    validated.to_sql(CONTEXT_VALUES_TABLE, db_engine, schema="nvi", index=False, if_exists="append")
+    validated.to_sql(
+        CONTEXT_VALUES_TABLE, db_engine, 
+        schema="nvi", index=False, if_exists="append"
+    )

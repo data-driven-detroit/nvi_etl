@@ -11,7 +11,7 @@ counts AS (
     GROUP BY district_number
 )
 SELECT
-    'council_districts' AS geo_type,
+    'district' AS geo_type,
     cd.district_number AS geography,
     counts.num_cdos,
     ST_AREA(ST_INTERSECTION(ST_TRANSFORM(cd.geometry, 4326), cov.geom)) * 100

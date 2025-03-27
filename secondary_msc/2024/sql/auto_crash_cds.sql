@@ -29,7 +29,7 @@ zone_population AS (
 )
 
 SELECT
-    'council_districts' AS geo_type,
+    'district' AS geo_type,
     acs.council_di AS geography,
     coalesce(cr.crash_count, 0) AS total_crash,
     coalesce(acs.total_pop, 1) AS total_population,

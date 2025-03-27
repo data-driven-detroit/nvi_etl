@@ -13,7 +13,7 @@ counts AS (
     GROUP BY zone_id
 )
 SELECT
-    'neighborhood_zones' AS geo_type,
+    'zone' AS geo_type,
     zones.zone_id AS geography,
     counts.num_cdos,
     ST_AREA(ST_INTERSECTION(ST_TRANSFORM(zones.geometry, 4326), cov.geom)) * 100
