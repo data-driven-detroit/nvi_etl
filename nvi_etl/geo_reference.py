@@ -1,18 +1,31 @@
+import json
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 import geopandas as gpd
 import pandas as pd
 import datetime
-from nvi_etl import db_engine
+
+from nvi_etl import db_engine, working_dir
+
+
+WORKING_DIR = working_dir(__file__)
+
+
+location_map = json.loads(
+    (WORKING_DIR / "conf" / "location_map.json").read_text()
+)
+
+def pin_location(row):
+    return location_map[row["geo_type"]][row["geography"]]
 
 
 def pull_city_boundary():
     q = text("""
     SELECT *
-    FROM nvi.detroit_city_boundary;
+    FROM nvi.city_boundary;
     """)
     try:
-        return gpd.read_postgis(q, db_engine)
+        return gpd.read_postgis(q, db_engine, geom_col="geometry")
     except OperationalError:
         raise NotImplementedError("Run the scripts to load the geography tables in 'aux_geographies'")
     
@@ -30,7 +43,7 @@ def pull_council_districts(year):
     """)
 
     try:
-        return gpd.read_postgis(q, db_engine, params={"start_date": start_date})
+        return gpd.read_postgis(q, db_engine, params={"start_date": start_date}, geom_col="geometry")
     except OperationalError:
         raise NotImplementedError("Run the scripts to load the geography tables in 'aux_geographies'")
 
@@ -48,7 +61,7 @@ def pull_zones(year):
     """)
 
     try:
-        return gpd.read_postgis(q, db_engine, params={"start_date": start_date})
+        return gpd.read_postgis(q, db_engine, params={"start_date": start_date}, geom_col="geometry")
     except OperationalError:
         raise NotImplementedError("Run the scripts to load the geography tables in 'aux_geographies'")
 

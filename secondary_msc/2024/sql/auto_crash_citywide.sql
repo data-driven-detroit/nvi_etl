@@ -24,6 +24,6 @@ SELECT
     'citywide' AS geography,
     cr.crash_count AS total_crash,
     acs.total_pop AS total_population,
-    (cr.crash_count * 10000.0 / nullif(acs.total_pop, 0)) AS crash_per_10000
+    (cr.crash_count * 10000.0 / nullif(acs.total_pop, 0)) AS auto_crash_per_10000
 FROM crash AS cr
 CROSS JOIN acs_population AS acs;

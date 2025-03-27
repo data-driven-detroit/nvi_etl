@@ -117,14 +117,6 @@ def transform(logger):
         (WORKING_DIR / "conf" / "liquefy_instructions.json").read_text()
     )
 
-    location_map = json.loads(
-        (WORKING_DIR / "conf" / "location_map.json").read_text()
-    )
-
-    def pin_location(level, row):
-        return location_map[level][str(row.name)]
-
-
     districts = pull_tracts_to_nvi_crosswalk(2020, 2026)
 
     city_wide = pd.read_parquet(

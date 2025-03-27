@@ -1,25 +1,23 @@
---- CD 2026
-SELECT *
-FROM shp.becdd_47cdoserviceareas_20220815;
-
--- trying to get the percent of land area covered by the cdo
+WITH coverage AS (
+    -- Combine all geographies into a single shape
+    SELECT st_union(geom) AS geom
+    FROM shp.becdd_47cdoserviceareas_20220815
+),
+counts AS (
+    SELECT district_number, count(*) AS num_cdos
+    FROM nvi.detroit_council_districts cd
+    JOIN shp.becdd_47cdoserviceareas_20220815 orgs
+        ON ST_INTERSECTS(ST_TRANSFORM(cd.geometry, 4326), orgs.geom)
+    GROUP BY district_number
+)
 SELECT
-    cd.*,
-    ST_AREA(ST_INTERSECTION(ST_TRANSFORM(cd.geom, 4326), cdo.geom))
-    / ST_AREA(ST_TRANSFORM(cd.geom, 4326)) AS pcover
-FROM shp."Detroit_City_Council_Districts_2026" AS cd
-LEFT JOIN
-    shp.becdd_47cdoserviceareas_20220815 AS cdo
-    ON ST_INTERSECTS(ST_TRANSFORM(cd.geom, 4326), cdo.geom);
+    'district' AS geo_type,
+    cd.district_number AS geography,
+    counts.num_cdos,
+    ST_AREA(ST_INTERSECTION(ST_TRANSFORM(cd.geometry, 4326), cov.geom)) * 100
+    / ST_AREA(ST_TRANSFORM(cd.geometry, 4326)) AS pct_cdo_coverage
+FROM nvi.detroit_council_districts cd
+    JOIN coverage cov ON TRUE  -- JOIN the combined shape to every for calc
+JOIN counts 
+    ON counts.district_number = cd.district_number;
 
-SELECT
-    orgname,
-    COUNT(*)
-FROM (
-    SELECT *
-    FROM shp."Detroit_City_Council_Districts_2026" AS cd
-    LEFT JOIN
-        shp.becdd_47cdoserviceareas_20220815 AS cdo
-        ON ST_INTERSECTS(ST_TRANSFORM(cd.geom, 4326), cdo.geom)
-) AS q1
-GROUP BY orgname;

@@ -1,27 +1,24 @@
---- Set to Data - Public
---- CDO SERVICE AREA
---- FOR NVI ZONES
-select *
-from shp.becdd_47cdoserviceareas_20220815;
-
--- trying to get the percent of land area covered by the cdo
-select
-    nvi.*,
-    ST_AREA(ST_INTERSECTION(ST_TRANSFORM(nvi.geom, 4326), cdo.geom))
-    / ST_AREA(ST_TRANSFORM(nvi.geom, 4326)) as pcover
-from shp.nvi_neighborhood_zones_temp_2025 as nvi
-left join
-    shp.becdd_47cdoserviceareas_20220815 as cdo
-    on ST_INTERSECTS(ST_TRANSFORM(nvi.geom, 4326), cdo.geom);
-
-select
-    orgname,
-    COUNT(*)
-from (
-    select *
-    from shp.nvi_neighborhood_zones_temp_2025 as nvi
-    left join
-        shp.becdd_47cdoserviceareas_20220815 as cdo
-        on ST_INTERSECTS(ST_TRANSFORM(nvi.geom, 4326), cdo.geom)
-) as q1
-group by orgname;
+WITH coverage AS (
+    -- Combine all geographies into a single shape
+    SELECT st_union(geom) AS geom
+    FROM shp.becdd_47cdoserviceareas_20220815
+),
+counts AS (
+    SELECT 
+        zone_id, 
+        count(*) AS num_cdos
+    FROM nvi.neighborhood_zones zones
+    JOIN shp.becdd_47cdoserviceareas_20220815 orgs
+        ON ST_INTERSECTS(ST_TRANSFORM(zones.geometry, 4326), orgs.geom)
+    GROUP BY zone_id
+)
+SELECT
+    'zone' AS geo_type,
+    zones.zone_id AS geography,
+    counts.num_cdos,
+    ST_AREA(ST_INTERSECTION(ST_TRANSFORM(zones.geometry, 4326), cov.geom)) * 100
+    / ST_AREA(ST_TRANSFORM(zones.geometry, 4326)) AS pct_cdo_coverage
+FROM nvi.neighborhood_zones zones
+    JOIN coverage cov ON TRUE  -- JOIN the combined shape to every for calc
+JOIN counts 
+    ON counts.zone_id = zones.zone_id;

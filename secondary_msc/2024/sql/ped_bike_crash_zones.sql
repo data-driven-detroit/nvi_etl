@@ -32,13 +32,17 @@ zone_population AS (
 )
 
 SELECT
+<<<<<<< HEAD
     'neighborhood_zones' as geo_type,
+=======
+    'zone' as geo_type,
+>>>>>>> main
     acs.zone_id as geography,
     coalesce(cr.ped_crash_count, 0) AS total_ped_crash,
     coalesce(acs.total_pop, 1) AS total_population,
     (
         coalesce(cr.ped_crash_count, 0) * 10000.0 / nullif(acs.total_pop, 0)
-    ) AS crash_per_10000
+    ) AS ped_crash_per_10000
 FROM zone_population AS acs
 LEFT JOIN crash AS cr
     ON acs.district_n = cr.district_n AND acs.zone_id = cr.zone_id
