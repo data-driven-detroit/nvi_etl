@@ -23,6 +23,10 @@
         "pct_over_20_in_lf": {"id": 17, "dtype": "percentage"},
         "pct_16_to_19_in_lf": {"id": 63, "dtype": "percentage"},
         "hierfindal": {"id": 28, "dtype": "index"},
-        "g3_ela_pct_met": {"id": 12, "dtype": "percentage"}
+        "g3_ela_pct_met": {"id": 12, "dtype": "percentage"},
+        "auto_crash_per_10000": {"id": 31, "dtype": "rate"},
+        "pct_cdo_coverage": {"id": 4, "dtype": "percentage"},
+        "ped_crash_per_10000": {"id": 32, "dtype": "rate"},
+        "crime_rate_per_10000": {"id": 30, "dtype": "rate"}
     }
 }

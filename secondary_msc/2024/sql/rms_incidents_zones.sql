@@ -49,8 +49,8 @@ zone_population AS (
 )
 
 SELECT
-    acs.district_n,
-    acs.zone_id AS council_districts,
+    'neighborhood_zones' as geo_type,
+    acs.zone_id AS geography,
     COALESCE(rms.rms_count, 0) AS total_violent_crimes,
     COALESCE(acs.total_pop, 1) AS total_population,
     (

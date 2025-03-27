@@ -155,3 +155,4 @@ def transform_data(logger):
     neighborhood_zones = ...
 
     # transformed_data_district.to_csv("district_test.csv", index=False)
+# '<,'>s/^\s\+\|\s\+|\s\+/\r/g

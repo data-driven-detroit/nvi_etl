@@ -12,7 +12,7 @@ from nvi_etl.geo_reference import (
 WORKING_DIR = Path(__file__).resolve().parent
 
 
-def aggregate_city_wide(births_gdf):
+def aggregate_city_wide(births_gdf, logger):
     city_boundary = pull_city_boundary()
 
     # Ensure both GeoDataFrames have the same CRS
@@ -23,11 +23,16 @@ def aggregate_city_wide(births_gdf):
         births_gdf, city_boundary, how="left", predicate="within"
     )
 
+    logger.info(births_with_geography.columns)
+
     # No of rows in the data
     total_births = (
-        births_with_geography.groupby("name")["KESSNER"].count().reset_index()
+        births_with_geography.groupby("geoid")["KESSNER"].count().reset_index()
     )
-    total_births.columns = ["name", "total_births"]
+    total_births.columns = ["geography", "total_births"]
+
+    total_births["geo_type"] = "citywide"
+    total_births["geography"] = "citywide"
 
     # Filter for births where kesser == 1
     births_kesser_1 = births_with_geography[
@@ -36,12 +41,12 @@ def aggregate_city_wide(births_gdf):
 
     # Aggregate count of kesser = 1 by geographic area (e.g., 'zone' column from shapefile)
     adequate_care_counts = (
-        births_kesser_1.groupby("name")["KESSNER"].count().reset_index()
+        births_kesser_1.groupby("geoid")["KESSNER"].count().reset_index()
     )
-    adequate_care_counts.columns = ["name", "kessner_1_count"]
+    adequate_care_counts.columns = ["geography", "kessner_1_count"]
 
     births_summary = total_births.merge(
-        adequate_care_counts, on="name", how="left"
+        adequate_care_counts, on="geography", how="left"
     )
     births_summary["percentage_adequate"] = (
         births_summary["kessner_1_count"] / births_summary["total_births"]
@@ -50,7 +55,7 @@ def aggregate_city_wide(births_gdf):
     return births_summary
 
 
-def aggregate_to_cds(births_gdf):
+def aggregate_to_cds(births_gdf, logger):
     cds = pull_council_districts(2026)
     # Ensure both GeoDataFrames have the same CRS
     births_gdf_cd = births_gdf.to_crs(cds.crs)
@@ -62,23 +67,24 @@ def aggregate_to_cds(births_gdf):
 
     # No of rows in the data
     total_births_cd = (
-        births_with_cd.groupby("council_di")["KESSNER"].count().reset_index()
+        births_with_cd.groupby("district_number")["KESSNER"].count().reset_index()
     )
-    total_births_cd.columns = ["council_di", "total_births"]
+    total_births_cd.columns = ["geography", "total_births"]
+    total_births_cd["geo_type"] = "council_distrcts"
 
     # Filter for births where kesser == 1
     births_kesser_1_cd = births_with_cd[births_with_cd["KESSNER"] == 1]
 
     # Aggregate count of kesser = 1 by geographic area (e.g., 'zone' column from shapefile)
     adequate_care_counts_cd = (
-        births_kesser_1_cd.groupby("council_di")["KESSNER"]
+        births_kesser_1_cd.groupby("district_number")["KESSNER"]
         .count()
         .reset_index()
     )
-    adequate_care_counts_cd.columns = ["council_di", "kessner_1_count"]
+    adequate_care_counts_cd.columns = ["geography", "kessner_1_count"]
 
     births_summary_cd = total_births_cd.merge(
-        adequate_care_counts_cd, on="council_di", how="left"
+        adequate_care_counts_cd, on="geography", how="left"
     )
     births_summary_cd["percentage_adequate"] = (
         births_summary_cd["kessner_1_count"] / births_summary_cd["total_births"]
@@ -87,7 +93,7 @@ def aggregate_to_cds(births_gdf):
     return births_summary_cd
 
 
-def aggregate_to_zones(births_gdf):
+def aggregate_to_zones(births_gdf, logger):
     nvi_zones = pull_zones(2026)
 
     # Ensure both GeoDataFrames have the same CRS
@@ -100,29 +106,29 @@ def aggregate_to_zones(births_gdf):
 
     # No of rows in the data
     total_births_nvi = (
-        merged_gdf.groupby(["district_n", "zone_id"])["KESSNER"]
+        merged_gdf.groupby("zone_id")["KESSNER"]
         .count()
         .reset_index()
     )
-    total_births_nvi.columns = ["district_n", "zone_id", "total_births"]
+    total_births_nvi.columns = ["geography", "total_births"]
+    total_births_nvi["geo_type"] = "neighborhood_zones"
 
     # Filter for births where kesser == 1
     births_kesser_1_nvi = merged_gdf[merged_gdf["KESSNER"] == 1]
 
     # Aggregate count of kesser = 1 by geographic area (e.g., 'zone' column from shapefile)
     adequate_care_counts_nvi = (
-        births_kesser_1_nvi.groupby(["district_n", "zone_id"])["KESSNER"]
+        births_kesser_1_nvi.groupby("zone_id")["KESSNER"]
         .count()
         .reset_index()
     )
     adequate_care_counts_nvi.columns = [
-        "district_n",
-        "zone_id",
+        "geography",
         "kessner_1_count",
     ]
 
     births_summary_nvi = total_births_nvi.merge(
-        adequate_care_counts_nvi, on=["district_n", "zone_id"], how="left"
+        adequate_care_counts_nvi, on="geography", how="left"
     )
     births_summary_nvi["percentage_adequate"] = (
         births_summary_nvi["kessner_1_count"]
@@ -141,14 +147,10 @@ def transform_births(logger):
 
     # TODO: Combine these with appropriate location_ids and save
 
-    city_wide = aggregate_city_wide(births_gdf)
-    council_districts = aggregate_to_cds(births_gdf)
-    nvi_zones = aggregate_to_zones(births_gdf)
+    city_wide = aggregate_city_wide(births_gdf, logger)
+    council_districts = aggregate_to_cds(births_gdf, logger)
+    nvi_zones = aggregate_to_zones(births_gdf, logger)
 
-    logger.info("\n" + str(city_wide.head())) 
-    logger.info("\n" + str(council_districts.head())) 
-    logger.info("\n" + str(nvi_zones.head())) 
-    
     # Save each of these
     
     wide_format = pd.concat([
@@ -157,12 +159,13 @@ def transform_births(logger):
         nvi_zones,
     ])
 
-    tall_format = liquefy(wide_format)
 
 
-def transform_rms_crime(logger):
-    logger.warning("RMS Crime transform has not been written yet!")
+    # tall_format = liquefy(wide_format)
+
+    wide_format.to_csv(WORKING_DIR / "output" / "births_output_wide.csv")
 
 
-def transform_cdo_coverage(logger):
-    logger.warning("CDO coverage transform has not been written yet!")
+def transform_from_queries(logger):
+    logger.warning("Transformed from queries isn't written yet!")
+
