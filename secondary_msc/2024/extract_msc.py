@@ -45,9 +45,9 @@ def extract_from_queries(logger):
         "auto_crash_cds.sql",
         "auto_crash_citywide.sql",
         "auto_crash_zones.sql",
-        # "cdo_service_area_percent_cds.sql",
-        # "cdo_service_area_percent_citywide.sql",
-        # "cdo_service_area_percent_zones.sql",
+        "cdo_service_area_percent_cds.sql",
+        "cdo_service_area_percent_citywide.sql",
+        "cdo_service_area_percent_zones.sql",
         "ped_bike_crash_cds.sql",
         "ped_bike_crash_citywide.sql",
         "ped_bike_crash_zones.sql",
@@ -76,7 +76,6 @@ def extract_from_queries(logger):
 
     combined_topics = []
     for clipped_stem, files in result.items():
-        logger.info(f"Saving '{clipped_stem}.csv'")
         file = pd.concat(files)
         combined_topics.append(file.astype({"geography": "str"}).set_index(["geo_type", "geography"]))
 

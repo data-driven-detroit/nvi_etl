@@ -108,7 +108,10 @@ Once the location is 'pinned,' you can use the `liquefy` function (importable di
 - ACS Data
     - [d3census](https://github.com/mikevatd3/d3census)
 - IPDS
-    - 
+    - census table b01003 (total population) in public schema
+    - building permits -- which file / table?
+    - blight violations -- which file / table?
+    - raw.valassis_vnefplus_mi_20241017_det
 - Michigan School Data mostly managed by [mischooldata_etl](https://github.com/data-driven-detroit/mischooldata_etl.git)
     - `education.eem_schools` 
     - `education.g3_ela_school` (old schema)

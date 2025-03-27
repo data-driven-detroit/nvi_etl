@@ -9,7 +9,7 @@ WORKING_DIR = working_dir(__file__)
 
 
 conf = configparser.ConfigParser()
-conf.read_file(WORKING_DIR / "conf" / ".conf")
+conf.read(WORKING_DIR / "conf" / ".conf")
 
 
 def transform_foreclosures(logger):
