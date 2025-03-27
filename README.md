@@ -96,7 +96,7 @@ All datapulls and other transformations should target the following 'wide' patte
  'neighborhood_zones'| '5a'       |  ...          | ...          | ...
 ```
 
-Once the location is 'pinned,' you can use the `liquefy` function (importable directly from nvi_etl) to turn this wide format table into the long format table used by the database.
+Once the location is 'pinned,' you can use the `liquefy` function (importable directly from nvi_etl) to turn this wide format table into the long format table used by the database. Make sure that the `nvi_etl/conf/liquefy_instructions.json` has the appropriate data needed to make the transformation.
 
 
 ## Data dependencies

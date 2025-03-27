@@ -8,7 +8,6 @@ from nvi_etl.schema import NVIValueTable
 from nvi_etl.destinations import CONTEXT_VALUES_TABLE
 
 
-SCHEMA = "nvi"
 WORKING_DIR = Path(__file__).resolve().parent
 YEAR = 2023
 
@@ -64,7 +63,4 @@ def load_acs(logger):
                 "First time table is being pushed, so no row-level conflicts."
             )
 
-    with db_engine.connect() as db:
-        validated.to_sql(
-            CONTEXT_VALUES_TABLE, db, schema=SCHEMA, index=False, if_exists="append"
-        )
+    validated.to_sql(CONTEXT_VALUES_TABLE, db_engine, schema="nvi", index=False, if_exists="append")
