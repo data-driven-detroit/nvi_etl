@@ -12,6 +12,7 @@ WORKING_DIR = Path(__file__).resolve().parent
 
 
 def extract_births(logger):
+    logger.info("No extraction necessary for births file--reading directly from source.")
     logger.info("Extracting births data.")
 
     parser = configparser.ConfigParser()
@@ -77,7 +78,7 @@ def extract_from_queries(logger):
     for clipped_stem, files in result.items():
         logger.info(f"Saving '{clipped_stem}.csv'")
         file = pd.concat(files)
-        combined_topics.append(file.set_index(["geo_type", "geography"]))
+        combined_topics.append(file.astype({"geography": "str"}).set_index(["geo_type", "geography"]))
 
     wide_format = pd.concat(combined_topics, axis=1)
     wide_format.to_csv(WORKING_DIR / "input" / "msc_wide_from_queries.csv")

@@ -49,7 +49,7 @@ zone_population AS (
 )
 
 SELECT
-    'neighborhood_zones' as geo_type,
+    'zone' as geo_type,
     acs.zone_id AS geography,
     COALESCE(rms.rms_count, 0) AS total_violent_crimes,
     COALESCE(acs.total_pop, 1) AS total_population,

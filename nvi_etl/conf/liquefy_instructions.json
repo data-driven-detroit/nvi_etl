@@ -27,6 +27,7 @@
         "auto_crash_per_10000": {"id": 31, "dtype": "rate"},
         "pct_cdo_coverage": {"id": 4, "dtype": "percentage"},
         "ped_crash_per_10000": {"id": 32, "dtype": "rate"},
-        "crime_rate_per_10000": {"id": 30, "dtype": "rate"}
+        "crime_rate_per_10000": {"id": 30, "dtype": "rate"},
+        "percentage_adequate": {"id": 13, "dtype": "percentage"}
     }
 }

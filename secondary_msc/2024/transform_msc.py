@@ -3,6 +3,7 @@ import geopandas as gpd
 import pandas as pd
 from nvi_etl import liquefy
 from nvi_etl.geo_reference import (
+    pin_location,
     pull_city_boundary,
     pull_council_districts,
     pull_zones,
@@ -44,6 +45,7 @@ def aggregate_city_wide(births_gdf, logger):
         births_kesser_1.groupby("geoid")["KESSNER"].count().reset_index()
     )
     adequate_care_counts.columns = ["geography", "kessner_1_count"]
+    adequate_care_counts["geography"] = "citywide"
 
     births_summary = total_births.merge(
         adequate_care_counts, on="geography", how="left"
@@ -70,7 +72,7 @@ def aggregate_to_cds(births_gdf, logger):
         births_with_cd.groupby("district_number")["KESSNER"].count().reset_index()
     )
     total_births_cd.columns = ["geography", "total_births"]
-    total_births_cd["geo_type"] = "council_distrcts"
+    total_births_cd["geo_type"] = "district"
 
     # Filter for births where kesser == 1
     births_kesser_1_cd = births_with_cd[births_with_cd["KESSNER"] == 1]
@@ -111,7 +113,7 @@ def aggregate_to_zones(births_gdf, logger):
         .reset_index()
     )
     total_births_nvi.columns = ["geography", "total_births"]
-    total_births_nvi["geo_type"] = "neighborhood_zones"
+    total_births_nvi["geo_type"] = "zone"
 
     # Filter for births where kesser == 1
     births_kesser_1_nvi = merged_gdf[merged_gdf["KESSNER"] == 1]
@@ -159,13 +161,19 @@ def transform_births(logger):
         nvi_zones,
     ])
 
-
-
-    # tall_format = liquefy(wide_format)
-
     wide_format.to_csv(WORKING_DIR / "output" / "births_output_wide.csv")
+    wide_format["location_id"] = wide_format.apply(pin_location, axis=1)
+
+    tall_format = liquefy(wide_format)
+    tall_format.to_csv(WORKING_DIR / "output" / "births_output_tall.csv", index=False)
 
 
 def transform_from_queries(logger):
-    logger.warning("Transformed from queries isn't written yet!")
+    logger.warning("Transforming output from MSC queries.")
+
+    msc_wide = pd.read_csv(WORKING_DIR / "input" / "msc_wide_from_queries.csv")
+    msc_wide["location_id"] = msc_wide.apply(pin_location, axis=1)
+
+    msc_tall = liquefy(msc_wide)
+    msc_tall.to_csv(WORKING_DIR / "output" / "msc_output_tall.csv", index=False)
 
