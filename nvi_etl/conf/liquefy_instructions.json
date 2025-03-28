@@ -28,6 +28,8 @@
         "pct_cdo_coverage": {"id": 4, "dtype": "percentage"},
         "ped_crash_per_10000": {"id": 32, "dtype": "rate"},
         "crime_rate_per_10000": {"id": 30, "dtype": "rate"},
-        "percentage_adequate": {"id": 13, "dtype": "percentage"}
+        "percentage_adequate": {"id": 13, "dtype": "percentage"},
+        "building_permits_per_10000": {"id": 21, "dtype": "rate"},
+        "pct_non_blighted": {"id": 24, "dtype": "percentage"}
     }
 }

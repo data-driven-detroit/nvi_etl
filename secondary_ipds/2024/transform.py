@@ -1,4 +1,5 @@
-from nvi_etl import working_dir
+from nvi_etl import working_dir, liquefy
+from nvi_etl.geo_reference import pin_location
 import configparser
 import pandas as pd
 import geopandas as gpd
@@ -37,4 +38,14 @@ def transform_foreclosures(logger):
 
 
 def transform_from_queries(logger):
-    logger.info("Transform function for ipds not written yet!")
+    logger.info("Transforming IPDS query output into tall format.")
+
+    wide_file = (
+        pd.read_csv(WORKING_DIR / "input" / "ipds_wide_from_queries.csv")
+        .assign(
+            location_id=lambda df: df.apply(pin_location, axis=1)
+        )
+    )
+
+    tall_file = liquefy(wide_file).assign(year=2024) # Too much magic?
+    tall_file.to_csv(WORKING_DIR / "output" / "ipds_tall_from_queries.csv", index=False)
