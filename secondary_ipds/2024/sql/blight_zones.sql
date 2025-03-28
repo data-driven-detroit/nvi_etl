@@ -12,8 +12,9 @@ WITH no_blight AS (
 SELECT
     'zone' AS geo_type,
     zones.zone_id AS geography,
-    (SUM(non_blight) * 100 / COUNT(q1.geom)) AS pct_non_blighted
+    (SUM(non_blight)::FLOAT * 100 / COUNT(non_blight)) AS pct_non_blighted
 FROM no_blight
 JOIN nvi.neighborhood_zones zones
-    ON ST_WITHIN(ST_CENTROID(ST_TRANSFORM(no_blight.geom, 4326)), zones.geometry)
+    ON ST_WITHIN(ST_CENTROID(ST_TRANSFORM(no_blight.geom, 2898)), zones.geometry)
+WHERE zones.start_date = DATE '2026-01-01'
 GROUP BY zones.zone_id;

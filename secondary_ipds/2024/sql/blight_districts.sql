@@ -12,8 +12,9 @@ WITH no_blight AS (
 SELECT
     'district' AS geo_type,
     cds.district_number AS geography,
-    (SUM(non_blight) * 100 / COUNT(q1.geom)) AS pct_non_blighted
+    (SUM(non_blight)::FLOAT * 100 / COUNT(non_blight)) AS pct_non_blighted
 FROM no_blight
-JOIN nvi.detroit_city_council_districts cds
-    ON ST_WITHIN(ST_CENTROID(ST_TRANSFORM(no_blight.geom, 4326)), cds.geometry)
+JOIN nvi.detroit_council_districts cds
+    ON ST_WITHIN(ST_CENTROID(ST_TRANSFORM(no_blight.geom, 2898)), cds.geometry)
+WHERE cds.start_date = DATE '2026-01-01'
 GROUP BY cds.district_number;

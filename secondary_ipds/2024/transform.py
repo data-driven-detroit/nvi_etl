@@ -36,5 +36,5 @@ def transform_foreclosures(logger):
     # City-wide
 
 
-def transform_ipds(logger):
+def transform_from_queries(logger):
     logger.info("Transform function for ipds not written yet!")
