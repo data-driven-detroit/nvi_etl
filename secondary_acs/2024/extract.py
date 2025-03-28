@@ -561,7 +561,7 @@ def pull_tract_level(logger):
         axis=1,
     )
 
-    logger.info("Number of tracks in dataset (should be ~70): ", len(profile))
+    logger.info(f"Number of tracks in dataset (should be ~630): {len(profile)}") 
     profile.to_parquet(WORKING_DIR / "output" / f"nvi_tracts_{YEAR}.parquet.gzip")
 
 
@@ -689,7 +689,7 @@ def pull_city_wide(logger):
         axis=1,
     )
 
-    logger.info("Number of cities in dataset (should be 1): ", len(profile))
+    logger.info(f"Number of cities in dataset (should be 1): {len(profile)}")
     profile.to_parquet(WORKING_DIR / "output" / f"nvi_citywide_{YEAR}.parquet.gzip")
 
 
@@ -700,7 +700,7 @@ def extract(logger):
     hitting the API unnecessairily.
     """
 
-    if (WORKING_DIR / "output" / f"nvi_tracts_{YEAR}.parquet.gzip").exists():
+    if (WORKING_DIR / "input" / f"nvi_tracts_{YEAR}.parquet.gzip").exists():
         logger.info(
             "Tract-level already pulled--remove file from 'output' to pull again."
         )
@@ -708,7 +708,7 @@ def extract(logger):
         logger.info("Pulling the tract level ACS data")
         pull_tract_level(logger)
 
-    if (WORKING_DIR / "output" / f"nvi_citywide_{YEAR}.parquet.gzip").exists():
+    if (WORKING_DIR / "input" / f"nvi_citywide_{YEAR}.parquet.gzip").exists():
         logger.info(
             "City-wide already pulled-- remove file from 'output' to pull again."
         )
