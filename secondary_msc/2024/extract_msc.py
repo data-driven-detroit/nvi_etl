@@ -76,7 +76,6 @@ def extract_from_queries(logger):
 
     combined_topics = []
     for clipped_stem, files in result.items():
-        logger.info(f"Saving '{clipped_stem}.csv'")
         file = pd.concat(files)
         combined_topics.append(file.astype({"geography": "str"}).set_index(["geo_type", "geography"]))
 

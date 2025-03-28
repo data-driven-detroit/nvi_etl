@@ -47,7 +47,11 @@ zone_population AS (
 )
 
 SELECT
+<<<<<<< HEAD
+    'council_districts' as geo_type,
+=======
     'district' AS geo_type,
+>>>>>>> main
     acs.council_di AS geography,
     COALESCE(rms.rms_count, 0) AS total_violent_crimes,
     COALESCE(acs.total_pop, 1) AS total_population,

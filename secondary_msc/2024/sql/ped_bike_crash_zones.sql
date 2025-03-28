@@ -32,7 +32,11 @@ zone_population AS (
 )
 
 SELECT
+<<<<<<< HEAD
+    'neighborhood_zones' as geo_type,
+=======
     'zone' as geo_type,
+>>>>>>> main
     acs.zone_id as geography,
     coalesce(cr.ped_crash_count, 0) AS total_ped_crash,
     coalesce(acs.total_pop, 1) AS total_population,
