@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 
 from nvi_etl import liquefy
-from nvi_etl.geo_reference import pull_tracts_to_nvi_crosswalk
+from nvi_etl.geo_reference import pull_tracts_to_nvi_crosswalk, pin_location
 
 
 WORKING_DIR = Path(__file__).resolve().parent
@@ -135,13 +135,15 @@ def transform(logger):
         districts.rename(
             columns={
                 "tract_geoid": "geoid",
-                "district_number": "district",
+                "district_number": "geography",
             }
         )
         .astype({"geoid": "str"})
         .merge(tract_level, on="geoid")
-        .groupby("district")
+        .groupby("geography")
         .agg(aggregations["aggregations"])
+        .reset_index()
+        .astype({"geography": "str"})
         .assign(
             pct_hs_diploma_ged_plus=pct_hs_diploma_ged_plus,
             pct_post_secondary=pct_post_secondary,
@@ -153,7 +155,8 @@ def transform(logger):
             pct_renter_occupied=pct_renter_occupied,
             pct_children_below_pov=pct_children_below_pov,
             hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
-            location_id=lambda df: df.apply(lambda row: pin_location('district', row), axis=1)
+            geo_type="district",
+            location_id=lambda df: df.apply(pin_location, axis=1)
         )
     )
 
@@ -172,13 +175,15 @@ def transform(logger):
             columns={
                 "tract_geoid": "geoid",
                 "district_number": "district",
-                "zone_name": "zone",
+                "zone_name": "geography",
             }
         )
         .astype({"geoid": "str"})
         .merge(tract_level, on="geoid")
-        .groupby("zone")
+        .groupby("geography")
         .agg(aggregations["aggregations"])
+        .reset_index()
+        .astype({"geography": "str"})
         .assign(
             pct_hs_diploma_ged_plus=pct_hs_diploma_ged_plus,
             pct_post_secondary=pct_post_secondary,
@@ -190,7 +195,8 @@ def transform(logger):
             pct_renter_occupied=pct_renter_occupied,
             pct_children_below_pov=pct_children_below_pov,
             hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
-            location_id=lambda df: df.apply(lambda row: pin_location('zone', row), axis=1)
+            geo_type="zone",
+            location_id=lambda df: df.apply(pin_location, axis=1)
         )
     )
 
