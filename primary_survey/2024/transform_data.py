@@ -152,5 +152,7 @@ def transform_data(logger):
     # transformed_data_district.to_csv("district_test.csv", index=False)
     # Combine final dataframe
     df = pd.concat([citywide, council_district, neighborhood_zones], ignore_index=True)
+    df["survey_id"] = 1
+    df["year"] = '2024'
 
     df.to_csv(WORKING_DIR / "output" / "nvi_survey_2024.csv", index=False)
