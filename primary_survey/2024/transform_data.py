@@ -40,7 +40,7 @@ def recode(survey_data, indicator_map, logger):
         return survey_data
 
 
-def aggregate(df, config, geographic_level, logger):
+def aggregate(df, config, location_map, geographic_level, logger):
     """
     Aggregate the survey data to a given geography level provided the 
     rules given in the indicator_map.
@@ -48,6 +48,11 @@ def aggregate(df, config, geographic_level, logger):
     You can provide any 'geographic_level' that appears as a column on 
     the 'recoded' dataframe.
     """
+    if geographic_level in location_map:
+        location_mapping = location_map[geographic_level]
+    else:
+        logger.warning(f"Geographic level {geographic_level} not found in location_map.")
+        location_mapping = {}
 
     results = []
     for indicator_id, indicator_info in config["indicators"].items():
@@ -132,6 +137,9 @@ def transform_data(logger):
     with open(WORKING_DIR / "indicator_map.json", "r") as f:
         indicator_map = json.load(f)
 
+    with open(WORKING_DIR / "location_map.json", "r") as f:
+        location_map = json.load(f)
+
     # Raw Survey Data
     df = pd.read_csv(config["survey_responses"] , encoding="latin-1")
 
@@ -145,9 +153,9 @@ def transform_data(logger):
     recoded = recode(df, indicator_map, logger)
     
     # Aggregate to the various levels
-    citywide = aggregate(recoded, indicator_map, "city", logger)
-    council_districts = aggregate(recoded, indicator_map, "district_number", logger)
-    neighborhood_zones = aggregate(recoded, indicator_map, "zone_id", logger)
+    citywide = aggregate(recoded, indicator_map, location_map, "city", logger)
+    council_districts = aggregate(recoded, indicator_map, location_map, "district_number", logger)
+    neighborhood_zones = aggregate(recoded, indicator_map, location_map, "zone_id", logger)
 
     # transformed_data_district.to_csv("district_test.csv", index=False)
     # Combine final dataframe
