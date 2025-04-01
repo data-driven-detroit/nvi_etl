@@ -1,5 +1,6 @@
 {
-    "citywide": {"citywide": 1},
+
+    "citywide": {"Detroit": 1},
     "council_districts": {
         "1": 2,
         "2": 3,
