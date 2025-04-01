@@ -3,7 +3,6 @@ from nvi_etl.geo_reference import pin_location
 from nvi_etl.utilities import fix_parcel_id
 import configparser
 import pandas as pd
-import geopandas as gpd
 from shapely import wkb # FIXME Let's depend on the parcel file once it's complete
 
 
