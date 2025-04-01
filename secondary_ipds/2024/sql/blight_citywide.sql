@@ -12,6 +12,6 @@ WITH no_blight AS (
 )
 SELECT
     'citywide' AS geo_type,
-    'citywide' AS geography,
+    'Detroit' AS geography,
     (SUM(non_blight)::FLOAT * 100 / COUNT(non_blight)) AS pct_non_blighted
 FROM no_blight;

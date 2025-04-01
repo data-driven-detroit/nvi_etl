@@ -15,3 +15,8 @@ def load_from_queries(logger):
     validated = NVIValueTable.validate(file)
 
     validated.to_sql(CONTEXT_VALUES_TABLE, db_engine, schema="nvi", index=False, if_exists="append")
+
+
+def load_foreclosures(logger):
+    logger.info("Loading foreclosures dataset into context values table.")
+    logger.warning("NOT WRITTEN YET.")

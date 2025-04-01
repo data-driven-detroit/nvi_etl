@@ -11,7 +11,7 @@ acs_population AS (
 )
 SELECT
     'citywide' AS geo_type,
-    'citywide' AS geography,
+    'Detroit' AS geography,
     -- Should this be people or parcels?
     (
         dp.dp_detroit * 10000.0 / NULLIF(acs.total_pop, 0)
