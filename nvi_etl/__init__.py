@@ -14,9 +14,10 @@ def working_dir(file):
 
 
 WORKING_DIR = working_dir(__file__)
+BASE_DIR = WORKING_DIR.parent
 
-
-with open(Path().cwd() / "config.toml", "rb") as f:
+# Open config.toml from the project base directory
+with open(BASE_DIR / "config.toml", "rb") as f:
     config = tomli.load(f)
 
 
@@ -50,8 +51,11 @@ metadata_engine = create_engine(
 
 
 def setup_logging():
-    with open(Path.cwd() / "logging_config.json") as f:
+    with open(BASE_DIR / "logging_config.json") as f:
         logging_config = json.load(f)
+
+    # Set the file at the base of this dir regardless of where the code is run from.
+    logging_config["handlers"]["file"]["filename"] = str(BASE_DIR / "logs" / "nvi_etl.log")
 
     logging.config.dictConfig(logging_config)
 
