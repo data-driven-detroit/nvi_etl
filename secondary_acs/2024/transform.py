@@ -4,6 +4,7 @@ import pandas as pd
 
 from nvi_etl import liquefy
 from nvi_etl.geo_reference import pull_tracts_to_nvi_crosswalk, pin_location
+from nvi_etl.utilities import estimate_median_from_distribution
 
 
 WORKING_DIR = Path(__file__).resolve().parent
@@ -45,6 +46,10 @@ def roll_up_income_categories(df):
     )
 
 
+def pct_over_200_poverty(df):
+    return df["num_people_above_200_fpl_acs"] * 100 / df["total_population"]
+
+
 def hierfindal(categories):
     ratios = categories.div(
         categories.sum(axis=1), axis=0
@@ -53,9 +58,9 @@ def hierfindal(categories):
 
 
 def pct_hs_diploma_ged_plus(df):
-    return (df["population_ge_25_with_post_hs_diploma_ged"]) / df[
+    return (df["population_ge_25_with_post_hs_diploma_ged"]) * 100 / df[
         "total_population_ge_25"
-    ] * 100
+    ]
 
 
 def pct_post_secondary(df):
@@ -100,38 +105,27 @@ def transform(logger):
     logger.info("Aggregating tract-level ACS data to 2026 Council Districts")
 
 
-
-
-    FIELD_DEFAULTS = {
-        "year": 2024, 
-        "survey_id": pd.NA, 
-        "survey_question_id": pd.NA, 
-        "survey_question_option_id": pd.NA
-    }
-
     aggregations = json.loads(
         (WORKING_DIR / "conf" / "aggregations.json").read_text()
-    )
-
-    instructions = json.loads(
-        (WORKING_DIR / "conf" / "liquefy_instructions.json").read_text()
     )
 
     districts = pull_tracts_to_nvi_crosswalk(2020, 2026)
 
     city_wide = pd.read_parquet(
-        WORKING_DIR / "output" / f"nvi_citywide_{YEAR}.parquet.gzip"
+        WORKING_DIR / "input" / f"nvi_citywide_{YEAR}.parquet.gzip"
     ).reset_index()
 
     tract_level = pd.read_parquet(
-        WORKING_DIR / "output" / f"nvi_tracts_{YEAR}.parquet.gzip"
+        WORKING_DIR / "input" / f"nvi_tracts_{YEAR}.parquet.gzip"
     ).reset_index()
     
     
+
+    # COMPILING 'REGULAR' INDICATORS
     # TODO Read this dynamically off of the locations file
 
     # Tract-level
-    wide_format = (
+    districts_wide = (
         districts.rename(
             columns={
                 "tract_geoid": "geoid",
@@ -160,17 +154,12 @@ def transform(logger):
         )
     )
 
-    assert len(wide_format) == 7
+    assert len(districts_wide) == 7
 
-    result = liquefy(wide_format, instructions, defaults=FIELD_DEFAULTS)
-
-    result.to_csv(
-        WORKING_DIR / "output" / f"nvi_districts_{YEAR}.csv", index=False
-    )
 
     # NVI Zones
 
-    wide_format = (
+    zones_wide = (
         districts.rename(
             columns={
                 "tract_geoid": "geoid",
@@ -200,17 +189,11 @@ def transform(logger):
         )
     )
 
-    assert len(wide_format) == 22
-
-    result = liquefy(wide_format, instructions, defaults=FIELD_DEFAULTS)
-
-    result.to_csv(
-        WORKING_DIR / "output" / f"nvi_zones_{YEAR}.csv", index=False
-    )
+    assert len(zones_wide) == 22
 
     # City-wide
 
-    wide_format = (
+    citywide_wide = (
         city_wide.assign(district=1)
         .groupby("district")
         .agg(aggregations["aggregations"])
@@ -218,6 +201,7 @@ def transform(logger):
             pct_hs_diploma_ged_plus=pct_hs_diploma_ged_plus,
             pct_post_secondary=pct_post_secondary,
             pct_oo_spending_lt_30=pct_oo_spending_lt_30,
+            pct_over_200_poverty=pct_over_200_poverty,
             pct_ro_spending_lt_30=pct_ro_spending_lt_30,
             pct_over_20_in_lf=pct_over_20_in_lf,
             pct_16_to_19_in_lf=pct_16_to_19_in_lf,
@@ -229,9 +213,43 @@ def transform(logger):
         )
     )
 
-    assert len(wide_format) == 1
-    result = liquefy(wide_format, instructions, defaults=FIELD_DEFAULTS)
+    assert len(citywide_wide) == 1
 
-    result.to_csv(
-        WORKING_DIR / "output" / f"nvi_citywide_{YEAR}.csv", index=False
-    )
+    wide_collected = pd.concat([citywide_wide, districts_wide, zones_wide])
+
+    tall = liquefy(wide_collected).assign(year="2023")
+    tall.to_csv(WORKING_DIR / "output" / "acs_indicators_tall.csv", index=False)
+
+
+    # COMPILING CONTEXT INDICATORS
+    def median_home_value_estimate(row):
+        distribution = (
+            ((0, 10_000), row["oo_value_dist_1"]),
+            ((10_000, 14_999), row["oo_value_dist_2"]),
+            ((15_000, 19_999), row["oo_value_dist_3"]),
+            ((20_000, 24_999), row["oo_value_dist_4"]),
+            ((25_000, 29_999), row["oo_value_dist_5"]),
+            ((30_000, 34_999), row["oo_value_dist_6"]),
+            ((35_000, 39_999), row["oo_value_dist_7"]),
+            ((40_000, 49_999), row["oo_value_dist_8"]),
+            ((50_000, 59_999), row["oo_value_dist_9"]),
+            ((60_000, 69_999), row["oo_value_dist_10"]),
+            ((70_000, 79_999), row["oo_value_dist_11"]),
+            ((80_000, 89_999), row["oo_value_dist_12"]),
+            ((90_000, 99_999), row["oo_value_dist_13"]),
+            ((100_000, 124_999), row["oo_value_dist_14"]),
+            ((125_000, 149_999), row["oo_value_dist_15"]),
+            ((150_000, 174_999), row["oo_value_dist_16"]),
+            ((175_000, 199_999), row["oo_value_dist_17"]),
+            ((200_000, 249_999), row["oo_value_dist_18"]),
+            ((250_000, 299_999), row["oo_value_dist_19"]),
+            ((300_000, 399_999), row["oo_value_dist_20"]),
+            ((400_000, 499_999), row["oo_value_dist_21"]),
+            ((500_000, 749_999), row["oo_value_dist_22"]),
+            ((750_000, 999_999), row["oo_value_dist_23"]),
+            ((1_000_000, 1_499_999), row["oo_value_dist_24"]),
+            ((1_500_000, 1_999_999), row["oo_value_dist_25"]),
+            ((2_000_000, float('inf')), row["oo_value_dist_26"]),
+        )
+
+        return estimate_median_from_distribution(distribution)

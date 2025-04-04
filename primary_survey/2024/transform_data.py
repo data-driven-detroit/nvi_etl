@@ -30,11 +30,11 @@ def recode(survey_data, indicator_map, logger):
     for col, recode_info in indicator_map["recode"].items():
         if col not in survey_data.columns:
             # Switching from a nested if to a guard statement + warning (MV).
-            logger.warning(f"{column} not found in current dataset.")
+            logger.warning(f"{col} not found in current dataset.")
             continue
             
-        recoded_df[col] = df[col].apply(lambda x: str(int(x)) if isinstance(x, (int, float)) and x.is_integer() else str(x))
-                recoded_df[col] = recoded_df[col].map(recode_info["mapping"])
+        recoded_df[col] = recoded_df[col].apply(lambda x: str(int(x)) if isinstance(x, (int, float)) and x.is_integer() else str(x))
+        recoded_df[col] = recoded_df[col].map(recode_info["mapping"])
         
 
         return survey_data
@@ -48,29 +48,30 @@ def aggregate(df, config, location_map, geographic_level, logger):
     You can provide any 'geographic_level' that appears as a column on 
     the 'recoded' dataframe.
     """
+
     if geographic_level in location_map:
         location_mapping = location_map[geographic_level]
     else:
-        logger.warning(f"Geographic level {geographic_level} not found in location_map.")
-        location_mapping = {}
+        logger.warning(f"Geographic level '{geographic_level}' not found in location_map.")
+        return 
 
     results = []
     for indicator_id, indicator_info in config["indicators"].items():
-        for question_id, question_info in indicator_info["questions"].items():
+        logger.info(f"loading '{indicator_info['column']}'")
+        for question_info in indicator_info["questions"].values():
             question_col = question_info["column"]
             question_id_config = question_info["question_id"]
-            options = question_info["options"]["values"]
             
-            if question_col not in recoded_df.columns:
+            if question_col not in df.columns:
                 logger.warning(f"'{question_col}' doesn't appear in the recoded file.")
                 continue
 
             # convert to ints
-            recoded_df[question_col] = pd.to_numeric(recoded_df[question_col], errors='coerce')
-            recoded_df[question_col] = recoded_df[question_col].fillna(0).astype(int)
+            df[question_col] = pd.to_numeric(df[question_col], errors='coerce')
+            df[question_col] = df[question_col].fillna(0).astype(int)
             
             try:
-                grouped = recoded_df.groupby(geographic_level)[question_col]
+                grouped = df.groupby(geographic_level)[question_col]
             except KeyError as e:
                 raise KeyError(f"Invalid geography level: '{geographic_level}'!")
 
@@ -86,7 +87,7 @@ def aggregate(df, config, location_map, geographic_level, logger):
                             "indicator_id": indicator_id,
                             "survey_question_id": question_id_config,
                             "survey_question_option_id": option_value,
-                            "location": location,
+                            "location_id": location_mapping[location],
                             "count": c,
                             "universe": u,
                             "percentage": p,
@@ -104,9 +105,9 @@ def aggregate(df, config, location_map, geographic_level, logger):
                     return 0
             return 1
 
-        recoded_df[indicator_id] = recoded_df.apply(indicator_check, axis=1)
+        df[indicator_id] = df.apply(indicator_check, axis=1)
 
-        indicator_grouped = recoded_df.groupby(geographic_level)[indicator_id]
+        indicator_grouped = df.groupby(geographic_level)[indicator_id]
         indicator_count = indicator_grouped.sum()
         indicator_universe = indicator_grouped.count()
         indicator_percentage = (indicator_count / indicator_universe * 100).fillna(0)
@@ -116,7 +117,7 @@ def aggregate(df, config, location_map, geographic_level, logger):
                 "indicator_id": indicator_id,
                 "survey_question_id": "",
                 "survey_question_option_id": "",
-                "location": location,
+                "location_id": location_mapping[location],
                 "count": c,
                 "universe": u,
                 "percentage": p,
@@ -134,17 +135,17 @@ def transform_data(logger):
     config = configparser.ConfigParser()
     config.read(WORKING_DIR / "conf" / ".conf")
 
-    with open(WORKING_DIR / "indicator_map.json", "r") as f:
+    with open(WORKING_DIR / "conf" / "indicator_map.json", "r") as f:
         indicator_map = json.load(f)
 
-    with open(WORKING_DIR / "location_map.json", "r") as f:
+    with open(WORKING_DIR / "conf" / "location_map.json", "r") as f:
         location_map = json.load(f)
 
     # Raw Survey Data
-    df = pd.read_csv(config["survey_responses"] , encoding="latin-1")
+    df = pd.read_csv(config["nvi_2024_config"]["survey_responses"] , encoding="latin-1")
 
     # Geocode with zones
-    geo = pd.read_csv(config["geocoded_info"])
+    geo = pd.read_csv(config["nvi_2024_config"]["geocoded_info"])
 
     # combining district/zones
     df = df.merge(geo, left_on="Response ID", right_on="id")
@@ -152,15 +153,39 @@ def transform_data(logger):
     # Recode the data to match the ids supplied by Brian
     recoded = recode(df, indicator_map, logger)
     
+    logger.info(recoded.head())
+
     # Aggregate to the various levels
-    citywide = aggregate(recoded, indicator_map, location_map, "city", logger)
-    council_districts = aggregate(recoded, indicator_map, location_map, "district_number", logger)
-    neighborhood_zones = aggregate(recoded, indicator_map, location_map, "zone_id", logger)
+    citywide = aggregate(recoded, indicator_map, location_map, "citywide", logger)
+    council_districts = aggregate(recoded, indicator_map, location_map, "district", logger)
+    neighborhood_zones = aggregate(recoded, indicator_map, location_map, "zone", logger)
 
     # transformed_data_district.to_csv("district_test.csv", index=False)
     # Combine final dataframe
-    df = pd.concat([citywide, council_district, neighborhood_zones], ignore_index=True)
+    df = pd.concat([citywide, council_districts, neighborhood_zones], ignore_index=True)
     df["survey_id"] = 1
     df["year"] = '2024'
+
+    required_cols = [
+        "survey_id",
+        "year",
+        "indicator_id",
+        "survey_question_id",
+        "survey_question_option_id",
+        "location_id",
+        "count",
+        "universe",
+        "percentage",
+        "rate",
+        "rate_per",
+        "dollars",
+        "index",
+    ]
+
+    # Add pd.NA to all the columns not in use.
+    missing_cols = df.columns.symmetric_difference(required_cols)
+
+    for col in missing_cols:
+        df[col] = pd.NA
 
     df.to_csv(WORKING_DIR / "output" / "nvi_survey_2024.csv", index=False)

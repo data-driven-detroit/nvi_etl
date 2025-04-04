@@ -3,7 +3,7 @@ import pandas as pd
 from sqlalchemy import text
 from sqlalchemy.exc import ProgrammingError
 
-from nvi_etl import db_engine
+from nvi_etl import make_engine_for
 from nvi_etl.schema import NVIValueTable
 from nvi_etl.destinations import CONTEXT_VALUES_TABLE
 
@@ -13,15 +13,11 @@ YEAR = 2023
 
 
 def load_acs(logger):
+    db_engine = make_engine_for("data")
+
     logger.info("Checking for conflicts and pushing tables to database.")
 
-    citywide = pd.read_csv(WORKING_DIR / "output" / f"nvi_citywide_{YEAR}.csv")
-    districts = pd.read_csv(
-        WORKING_DIR / "output" / f"nvi_districts_{YEAR}.csv"
-    )
-    zones = pd.read_csv(WORKING_DIR / "output" / f"nvi_zones_{YEAR}.csv")
-
-    df = pd.concat([citywide, districts, zones])
+    df = pd.read_csv(WORKING_DIR / "output" / "acs_indicators_tall.csv")
 
     validated = NVIValueTable.validate(df)
 

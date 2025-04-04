@@ -4,7 +4,7 @@ from sqlalchemy import text
 import pandas as pd
 import geopandas as gpd
 from shapely import wkb
-from nvi_etl import working_dir, db_engine
+from nvi_etl import working_dir, make_engine_for
 
 
 WORKING_DIR = working_dir(__file__)
@@ -110,6 +110,8 @@ def extract_foreclosures(logger):
 
 
 def extract_from_queries(logger):
+
+    db_engine = make_engine_for("ipds")
     qs = [
         'bld_permits_citywide.sql',
         'bld_permits_districts.sql',

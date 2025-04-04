@@ -16,9 +16,9 @@ load_in_population_reference(logger)
 create_itermediate_table(logger)
 
 # ETL For queries
-# extract_from_queries(logger)
-# transform_from_queries(logger)
-# load_from_queries(logger)
+extract_from_queries(logger)
+transform_from_queries(logger)
+load_from_queries(logger)
 
 # ETL For foreclosures
 extract_foreclosures(logger)

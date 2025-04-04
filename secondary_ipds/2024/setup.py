@@ -1,4 +1,4 @@
-from nvi_etl import db_engine, working_dir
+from nvi_etl import working_dir, make_engine_for
 import pandas as pd
 from sqlalchemy import text
 from d3census import (
@@ -13,12 +13,16 @@ from d3census import (
 WORKING_DIR = working_dir(__file__)
 
 
+
+
 @variable
 def b01003001(geo: Geography):
     return geo.B01003._001E
 
 
 def load_in_population_reference(logger):
+
+    db_engine = make_engine_for("ipds")
     logger.info("Creating population reference table if it doesn't already exist.")
     try:
         test_q = text("SELECT COUNT(*) FROM nvi.b01003_moe;")
@@ -63,6 +67,7 @@ def load_in_population_reference(logger):
 
 
 def create_itermediate_table(logger):
+    db_engine = make_engine_for("ipds")
     logger.info("Creating 'nvi_prop_conditions_2025' table if it doesn't exist")
 
     test_q = text("SELECT COUNT(*) FROM msc.nvi_prop_conditions_2025;")

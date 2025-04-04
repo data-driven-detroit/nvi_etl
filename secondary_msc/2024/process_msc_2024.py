@@ -14,7 +14,7 @@ transform_births(logger)
 load_births(logger)
 
 
-logger.info("Starting pulls from queries")
-extract_from_queries(logger)
-transform_from_queries(logger)
-load_from_queries(logger)
+# logger.info("Starting pulls from queries")
+# extract_from_queries(logger)
+# transform_from_queries(logger)
+# load_from_queries(logger)

@@ -26,6 +26,22 @@ db_engine = create_engine(
     connect_args={'options': f'-csearch_path={config["app"]["name"]},public'},
 )
 
+
+def make_engine_for(db_name):
+    """
+    This is a wrapper that reads your config to connect to the database 
+    of your choice. 
+    """
+
+    db_engine = create_engine(
+        f"postgresql+psycopg://{config['db']['user']}:{config['db']['password']}"
+        f"@{config['db']['host']}:{config['db']['port']}/{db_name}",
+        connect_args={'options': f'-csearch_path={config["app"]["name"]},public'},
+    )
+
+    return db_engine
+
+
 metadata_engine = create_engine(
     f"postgresql+psycopg://{config['db']['user']}:{config['db']['password']}"
     f"@{config['db']['host']}:{config['db']['port']}/{config['db']['name']}",

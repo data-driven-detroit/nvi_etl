@@ -1230,7 +1230,7 @@
       "questions": {
         "1": {
           "column": "Detroit:Residence_Length", 
-          "question_id": 0,
+          "question_id": 26,
           "options": {
             "values": [52, 53]
           }

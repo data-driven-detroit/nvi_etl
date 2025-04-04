@@ -12,7 +12,7 @@ counts AS (
 )
 SELECT
     'citywide' AS geo_type,
-    'citywide' AS geography,
+    'Detroit' AS geography,
     counts.num_cdos,
     ST_AREA(ST_INTERSECTION(ST_TRANSFORM(city.geometry, 4326), cov.geom)) * 100
     / ST_AREA(ST_TRANSFORM(city.geometry, 4326)) AS pct_cdo_coverage

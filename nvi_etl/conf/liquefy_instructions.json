@@ -31,6 +31,7 @@
         "percentage_adequate": {"id": 13, "dtype": "percentage"},
         "building_permits_per_10000": {"id": 21, "dtype": "rate"},
         "pct_non_blighted": {"id": 24, "dtype": "percentage"},
-        "foreclosure_rate": {"id": 7, "dtype": "percentage"}
+        "foreclosure_rate": {"id": 7, "dtype": "percentage"},
+        "pct_over_200_poverty": {"id": 8, "dtype": "percentage"}
     }
 }

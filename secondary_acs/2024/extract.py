@@ -21,6 +21,361 @@ def num_people_w_det_poverty_status(geo: Geography):
 
 
 @variable
+def owner_occupied_units(geo: Geography):
+    return geo.B25003._002E
+
+
+@variable
+def total_occupied_units(geo: Geography):
+    return geo.B25003._001E
+
+
+@variable
+def total_units(geo: Geography):
+    return geo.B25002._001E
+
+
+@variable
+def population_over_65(geo: Geography):
+    return sum(
+        [
+            geo.B01001._020E,
+            geo.B01001._021E,
+            geo.B01001._022E,
+            geo.B01001._023E,
+            geo.B01001._024E,
+            geo.B01001._025E,
+            geo.B01001._044E,
+            geo.B01001._045E,
+            geo.B01001._046E,
+            geo.B01001._047E,
+            geo.B01001._048E,
+            geo.B01001._049E,
+        ]
+    )
+
+
+@variable
+def married_couple_hhs(geo: Geography):
+    return geo.B11012._002E
+
+
+@variable
+def cohabitating_couple_hhs(geo: Geography):
+    return geo.B11012._005E
+
+
+@variable
+def female_householder_hhs(geo: Geography):
+    return geo.B11012._008E
+
+
+@variable
+def male_householder_hhs(geo: Geography):
+    return geo.B11012._013E
+
+
+@variable
+def age_under_five(geo: Geography):
+    return sum([
+        geo.B01001._003E,
+        geo.B01001._027E
+    ])
+
+
+@variable
+def age_five_to_nine(geo: Geography):
+    return sum([
+        geo.B01001._004E,
+        geo.B01001._028E
+    ])
+
+
+@variable
+def age_ten_to_fourteen(geo: Geography):
+    return sum([
+        geo.B01001._005E,
+        geo.B01001._029E,
+    ])
+
+
+@variable
+def age_fifteen_to_nineteen(geo: Geography):
+    return sum([
+        geo.B01001._006E,
+        geo.B01001._007E,
+        geo.B01001._030E,
+        geo.B01001._031E,
+    ])
+
+
+@variable
+def age_twenty_to_twentyfour(geo: Geography):
+    return sum([
+        geo.B01001._008E,
+        geo.B01001._009E,
+        geo.B01001._010E,
+        geo.B01001._032E,
+        geo.B01001._033E,
+        geo.B01001._034E,
+    ])
+
+
+@variable
+def age_twentyfive_to_twenty_nine(geo: Geography):
+    return sum([
+        geo.B01001._011E,
+        geo.B01001._035E
+    ])
+
+
+@variable
+def age_thirty_to_thirtyfour(geo: Geography):
+    return sum([
+        geo.B01001._012E,
+        geo.B01001._036E
+    ])
+
+
+@variable
+def age_thirtyfive_to_thirtynine(geo: Geography):
+    return sum([
+        geo.B01001._013E,
+        geo.B01001._037E
+    ])
+
+
+@variable
+def age_fourty_to_fourtyfour(geo: Geography):
+    return sum([
+        geo.B01001._014E,
+        geo.B01001._038E
+    ])
+
+
+@variable
+def age_fourtyfive_to_fourtynine(geo: Geography):
+    return sum([
+        geo.B01001._015E,
+        geo.B01001._039E
+    ])
+
+
+@variable
+def age_fifty_to_fiftyfour(geo: Geography):
+    return sum([
+        geo.B01001._016E,
+        geo.B01001._040E
+    ])
+
+
+@variable
+def age_fiftyfive_to_fiftynine(geo: Geography):
+    return sum([
+        geo.B01001._017E,
+        geo.B01001._041E
+    ])
+
+
+@variable
+def age_sixty_to_sixtyfour(geo: Geography):
+    return sum([
+        geo.B01001._018E,
+        geo.B01001._019E,
+        geo.B01001._042E,
+        geo.B01001._043E
+    ])
+
+
+@variable
+def age_sixtyfive_to_sixtynine(geo: Geography):
+    return sum([
+        geo.B01001._020E,
+        geo.B01001._021E,
+        geo.B01001._044E,
+        geo.B01001._045E
+    ])
+
+
+@variable
+def age_seventy_to_seventyfour(geo: Geography):
+    return sum([
+        geo.B01001._022E,
+        geo.B01001._046E,
+    ])
+
+
+@variable
+def age_seventyfive_to_seventynine(geo: Geography):
+    return sum([
+        geo.B01001._023E,
+        geo.B01001._047E,
+    ])
+
+
+@variable
+def age_eighty_to_eightyfour(geo: Geography):
+    return sum([
+        geo.B01001._024E,
+        geo.B01001._048E,
+    ])
+
+
+@variable
+def age_eightyfive_and_up(geo: Geography):
+    return sum([
+        geo.B01001._025E,
+        geo.B01001._049E,
+    ])
+
+
+@variable
+def num_children(geo: Geography):
+    return sum(
+        [
+            geo.B01001._003E,
+            geo.B01001._004E,
+            geo.B01001._005E,
+            geo.B01001._006E,
+            geo.B01001._027E,
+            geo.B01001._028E,
+            geo.B01001._029E,
+            geo.B01001._030E,
+        ]
+    )
+
+
+@variable
+def oo_value_dist_1(geo: Geography):
+    return geo.B25075._002E
+
+
+@variable
+def oo_value_dist_2(geo: Geography):
+    return geo.B25075._003E
+
+
+@variable
+def oo_value_dist_3(geo: Geography):
+    return geo.B25075._004E
+
+
+@variable
+def oo_value_dist_4(geo: Geography):
+    return geo.B25075._005E
+
+
+@variable
+def oo_value_dist_5(geo: Geography):
+    return geo.B25075._006E
+
+
+@variable
+def oo_value_dist_6(geo: Geography):
+    return geo.B25075._007E
+
+
+@variable
+def oo_value_dist_7(geo: Geography):
+    return geo.B25075._008E
+
+
+@variable
+def oo_value_dist_8(geo: Geography):
+    return geo.B25075._009E
+
+
+@variable
+def oo_value_dist_9(geo: Geography):
+    return geo.B25075._010E
+
+
+@variable
+def oo_value_dist_10(geo: Geography):
+    return geo.B25075._011E
+
+
+@variable
+def oo_value_dist_11(geo: Geography):
+    return geo.B25075._012E
+
+
+@variable
+def oo_value_dist_12(geo: Geography):
+    return geo.B25075._013E
+
+
+@variable
+def oo_value_dist_13(geo: Geography):
+    return geo.B25075._014E
+
+
+@variable
+def oo_value_dist_14(geo: Geography):
+    return geo.B25075._015E
+
+
+@variable
+def oo_value_dist_15(geo: Geography):
+    return geo.B25075._016E
+
+
+@variable
+def oo_value_dist_16(geo: Geography):
+    return geo.B25075._017E
+
+
+@variable
+def oo_value_dist_17(geo: Geography):
+    return geo.B25075._018E
+
+
+@variable
+def oo_value_dist_18(geo: Geography):
+    return geo.B25075._019E
+
+
+@variable
+def oo_value_dist_19(geo: Geography):
+    return geo.B25075._020E
+
+
+@variable
+def oo_value_dist_20(geo: Geography):
+    return geo.B25075._021E
+
+
+@variable
+def oo_value_dist_21(geo: Geography):
+    return geo.B25075._022E
+
+
+@variable
+def oo_value_dist_22(geo: Geography):
+    return geo.B25075._023E
+
+
+@variable
+def oo_value_dist_23(geo: Geography):
+    return geo.B25075._024E
+
+
+@variable
+def oo_value_dist_24(geo: Geography):
+    return geo.B25075._025E
+
+
+@variable
+def oo_value_dist_25(geo: Geography):
+    return geo.B25075._026E
+
+
+@variable
+def oo_value_dist_26(geo: Geography):
+    return geo.B25075._027E
+
+
+@variable
 def num_people_below_200_fpl_acs(geo: Geography):
     """
     Universe: Population for whom poverty status is determined.
@@ -562,7 +917,7 @@ def pull_tract_level(logger):
     )
 
     logger.info(f"Number of tracks in dataset (should be ~630): {len(profile)}") 
-    profile.to_parquet(WORKING_DIR / "output" / f"nvi_tracts_{YEAR}.parquet.gzip")
+    profile.to_parquet(WORKING_DIR / "input" / f"nvi_tracts_{YEAR}.parquet.gzip")
 
 
 # City-wide:
@@ -690,7 +1045,7 @@ def pull_city_wide(logger):
     )
 
     logger.info(f"Number of cities in dataset (should be 1): {len(profile)}")
-    profile.to_parquet(WORKING_DIR / "output" / f"nvi_citywide_{YEAR}.parquet.gzip")
+    profile.to_parquet(WORKING_DIR / "input" / f"nvi_citywide_{YEAR}.parquet.gzip")
 
 
 def extract(logger):

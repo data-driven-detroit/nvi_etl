@@ -33,7 +33,7 @@ def aggregate_city_wide(births_gdf, logger):
     total_births.columns = ["geography", "total_births"]
 
     total_births["geo_type"] = "citywide"
-    total_births["geography"] = "citywide"
+    total_births["geography"] = "Detroit"
 
     # Filter for births where kesser == 1
     births_kesser_1 = births_with_geography[
@@ -45,7 +45,7 @@ def aggregate_city_wide(births_gdf, logger):
         births_kesser_1.groupby("geoid")["KESSNER"].count().reset_index()
     )
     adequate_care_counts.columns = ["geography", "kessner_1_count"]
-    adequate_care_counts["geography"] = "citywide"
+    adequate_care_counts["geography"] = "Detroit"
 
     births_summary = total_births.merge(
         adequate_care_counts, on="geography", how="left"

@@ -21,7 +21,7 @@ acs_population AS (
 
 SELECT
     'citywide' AS geo_type,
-    'citywide' AS geography,
+    'Detroit' AS geography,
     cr.crash_count AS total_crash,
     acs.total_pop AS total_population,
     (cr.crash_count * 10000.0 / nullif(acs.total_pop, 0)) AS auto_crash_per_10000

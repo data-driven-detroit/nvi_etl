@@ -1,7 +1,10 @@
 from nvi_etl import working_dir, db_engine
 from nvi_etl.schema import NVIValueTable
-from nvi_etl.destinations import CONTEXT_VALUES_TABLE
+from nvi_etl.destinations import SURVEY_VALUES_TABLE
 import pandas as pd
+
+
+WORKING_DIR = working_dir(__file__)
 
 
 def load_data(logger):
@@ -13,7 +16,7 @@ def load_data(logger):
     NVIValueTable.validate(file) 
     
     file.to_sql(
-        CONTEXT_VALUES_TABLE, 
+        SURVEY_VALUES_TABLE, 
         db_engine, 
         schema="nvi", 
         if_exists="append", 
