@@ -84,19 +84,99 @@ Notes on this:
 └── README.md
 ```
 
-## Notes on data flow for secondary data
 
-All datapulls and other transformations should target the following 'wide' pattern. The `geo_type` and `geography` columns are required to append the database id for that location using the `pin_location` function that can be imported from the `nvi_etl.geo_reference` module.
+## Notes on data flow
+
+For each topic area, the ETL scripts follow the pattern: 
+
+1. *Pull* the data in a 'wide' format, where each row represents a single geography for a single year. The geographies pulled in the 'wide' format include Detroit Overall, Council Districts, and NVI Neighborhood zones. The 'key' for each row in this format are the fields 'geo_type' (either `citywide`, `district`, or `zone`), 'geography, the identifier for that geography type, and 'year' the year the data pertains to.
+
+2. *Transform* the 'wide' file to the 'tall' format where each row is an indicator for a particular geography for a particular year. In the case of the primary_survey data, the 'key' of each row of the tall format also includes the `survey_id`, `survey_question_id`, and `survey_question_option_id`.
+
+
+### The _tall_ output table
+
+The final values table for the NVI website has the following fields:
 
 ```
-  geo_type           | geography  |  data_point_1 | data_point_2 | more data ...
----------------------+------------+---------------+--------------+---------------
- 'citywide'          | 'citywide' |  ...          | ...          | ...
- 'council_districts' | '2'        |  ...          | ...          | ...
- 'neighborhood_zones'| '5a'       |  ...          | ...          | ...
+- id                          ⎤ 
+- indicator_id                ⎥
+- location_id                 ⎥ -- key columns
+- survey_id                   ⎥
+- survey_question_id          ⎥
+- survey_question_option_id   ⎦
+
+- value_type_id               ] -- helper column*
+
+- year                        ⎤
+- count                       ⎥
+- universe                    ⎥
+- percentage                  ⎥ -- value columns
+- rate                        ⎥ 
+- rate_per                    ⎥ 
+- dollars                     ⎥
+- index                       ⎦
 ```
+
+*This might be removed if we move all secondary data to the 'context_value' table.
+
+For any value 'type' a combination of value columns must have values, and the rest will be `null`. For instance, the 'percentage' type must have values in the `percentage` column, but values should also be present in the `count` and `universe` columns. The data field naming scheme described below describes how to correctly assign the 
+
+
+### Part 1. Building the _wide_ table
+
+The wide table can be created in whatever way best suits the analysis. The only requirements are on the fields describing the geography, as well as the naming convention of the data fields. Both are described below.
+
+#### The geography key fields
+
+The wide format for the data should include as a key 'geo_type' and 'geography', where 'geo_type' is one of `citywide`, `district`, or `zone`, and a 'geography' column that will have the label of the given geography. Take a look at `nvi_etl/conf/location_mapping.json` to view the mapping between the geography labels and their database ids on the NVI site.
+
+#### Labeling the data fields
+
+Any data field created *must* adhere to the following standard to be easily transformed into the 'tall' format.
+
+`<indicator_part>_<indicator_name>`
+
+The first part of the data field name is the `indicator_part` and must be one of the following.
+
+- count_*
+- universe_*
+- percentage_*
+- rate_*
+- per_*
+- dollars_*
+- index_*
+
+These stems will be used to place the value in the corresponding column on the output table. 
+
+
+For example, starting with the table below:
+
+  geo_type           | geography  |  count_ | universe_ | percentage_ | ...
+---------------------|------------|------------------|--------------------|----------------------|-----------
+ 'citywide'          | 'citywide' |  ...             | ...                | ...                  | ...
+ 'council_districts' | '2'        |  ...             | ...                | ...                  | ...
+ 'neighborhood_zones'| '5a'       |  ...             | ...                | ...                  | ...
+
+Each data fieldname will be split and the transformation to the 'tall version will be 
+
+
+
+The output table also has the `indicator_id` column. This is an integer on the NVI database, but in the wide file this should be a readable name to identify which groups of columns refer to the same indicator row.
+
+`indicators.json`
+
+```json
+{
+  "below_fpl": 3,
+}
+```
+
+
 
 Once the location is 'pinned,' you can use the `liquefy` function (importable directly from nvi_etl) to turn this wide format table into the long format table used by the database. Make sure that the `nvi_etl/conf/liquefy_instructions.json` has the appropriate data needed to make the transformation.
+
+
 
 
 ## Data dependencies
