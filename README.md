@@ -2,90 +2,10 @@
 
 The home for NVI ETL scripts.
 
-TODO: Capture more notes from meeting with Johnson center about how this ETL package works. (I'm trying to capture as much as possible from mine - MV).
+- Check out [ETL setup instructions](https://github.com/data-driven-detroit/nvi_etl/blob/main/SETUP.md) for help getting the project running locally
+- Checkout [ETL basics](https://github.com/data-driven-detroit/nvi_etl/blob/main/ETL_BASICS.md) for high-level overview of project structure
 
-## Overview
-
-Each year (or quarter, month, etc if ETL is run more than yearly) gets its own folder to deal with any changes in the source dataset. Each year folder has a file that runs the entire pipeline. For the NVI ETL for instance, that file is called nvi_2023_processor.py.
-
-This 'processor' file basically calls a few functions, though Brian suggested that this is where logging, and notification via tools like email or Asana can also be built in. It looks like this:
-
-
-```python
-from nvi_etl import setup_logging
-
-from extract_data import extract_data
-from transform_data import transform_data
-from load_data import load_data
-
-# This is configured in ./logging_config.json
-logger = setup_logging()
-
-extract_data(logger)
-transform_data(logger)
-load_data(logger)
-
-# TODO: Add back validate / archive steps
-```
-
-A short description of each of these steps follows.
-
-
-### Extract
-
-This function opens the data from a source file -- in the example it reads a config file to find the source directory, it then copies that file into the 'input' folder (we should discuss if this copy step is required or if we should just pull directly from the vault).
-
-
-### Validate
-
-This function checks the incoming data for potential issues before any transformation begins.
-
-
-### Transformation
-
-This is where most of the clean-up and transformation work happens.
-
-
-**(We should talk about if we need output validation - MV)**
-
-
-### Load Data
-
-This loads the dataset into the destination database, or saves it to the destination file to be consumed by the next step in analysis.
-
-
-### Archive Data
-
-This step saves the output in cold storage or somewhere on the file system as a backup.
-
-
-## File Structure
-
-Notes on this: 
-
-1. We may not need the 'input' dir since most of our raw files are either in the Vault or saved in DUA.
-    a. Same with output? Let's discuss at the data meeting.
-
-```
-.
-├── <year>
-│   ├── conf
-│   │   └── variable_indicators.csv
-│   ├── input
-│   ├── output
-│   ├── extract_data.py
-│   ├── load_data.py
-│   ├── archive_data.py
-│   ├── nvi_<year>_processor.py
-│   ├── transform_data.py
-│   └── validate_data.py
-├── ... other years
-├── metadata.toml <- (see below)
-└── README.md
-```
-
-
-## Notes on data flow
+## How the NVI ETL works in broad strokes
 
 For each topic area, the ETL scripts follow the pattern: 
 
@@ -133,7 +53,7 @@ The wide format for the data should include as a key 'geo_type' and 'geography',
 
 #### Labeling the data fields
 
-Any data field created *must* adhere to the following standard to be easily transformed into the 'tall' format.
+Any data field created *must* adhere to the following standard to be transformed into the 'tall' format.
 
 `<indicator_part>_<indicator_name>`
 
@@ -147,24 +67,34 @@ The first part of the data field name is the `indicator_part` and must be one of
 - dollars_*
 - index_*
 
-These stems will be used to place the value in the corresponding column on the output table. 
-
+These stems will be used to place the value in the corresponding column on the output table. The `indicator_name` portion of the field name will be placed as a string into a new column `indicator`.
 
 For example, starting with the table below:
 
-  geo_type           | geography  |  count_ | universe_ | percentage_ | ...
----------------------|------------|------------------|--------------------|----------------------|-----------
- 'citywide'          | 'citywide' |  ...             | ...                | ...                  | ...
- 'council_districts' | '2'        |  ...             | ...                | ...                  | ...
- 'neighborhood_zones'| '5a'       |  ...             | ...                | ...                  | ...
-
-Each data fieldname will be split and the transformation to the 'tall version will be 
+  geo_type           | geography  |  count_emp | universe_emp | percentage_emp | count_kids | count_cats
+---------------------|------------|------------|--------------|----------------|------------|------------
+ 'citywide'          | 'citywide' |  ...       | ...          | ...            | ...        | ...
+ 'council_districts' | '2'        |  ...       | ...          | ...            | ...        | ...
+ 'neighborhood_zones'| '5a'       |  ...       | ...          | ...            | ...        | ...
 
 
+The data field names will be split and the transformation of the table table will look like this:
 
-The output table also has the `indicator_id` column. This is an integer on the NVI database, but in the wide file this should be a readable name to identify which groups of columns refer to the same indicator row.
+  geo_type           | geography  | indicator | count | universe | percentage
+---------------------|------------|-----------|-------|----------|------------
+ 'citywide'          | 'citywide' | 'emp'     | ...   | ...      | ...
+ 'citywide'          | 'citywide' | 'kids'    | ...   | null     | null
+ 'citywide'          | 'citywide' | 'cats'    | ...   | null     | null
+ 'council_districts' | '2'        | 'emp'     | ...   | ...      | ...
+ 'council_districts' | '2'        | 'kids'    | ...   | null     | null
+ 'council_districts' | '2'        | 'cats'    | ...   | null     | null
+ 'neighborhood_zones'| '5a'       | 'emp'     | ...   | ...      | ...
+ 'neighborhood_zones'| '5a'       | 'kids'    | ...   | null     | null
+ 'neighborhood_zones'| '5a'       | 'cats'    | ...   | null     | null
 
-`indicators.json`
+
+Before the output table is complete, the `location_id` and `indicator_id` column must be mapped from the `geo_type`, `geography` and `indicator` columns.
+
 
 ```json
 {
@@ -172,9 +102,6 @@ The output table also has the `indicator_id` column. This is an integer on the N
 }
 ```
 
-
-
-Once the location is 'pinned,' you can use the `liquefy` function (importable directly from nvi_etl) to turn this wide format table into the long format table used by the database. Make sure that the `nvi_etl/conf/liquefy_instructions.json` has the appropriate data needed to make the transformation.
 
 
 
