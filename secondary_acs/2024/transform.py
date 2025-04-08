@@ -37,48 +37,6 @@ pct_aggregators = {
 }
 
 
-def roll_up_income_categories(df):
-    return pd.concat(
-        [
-            df[
-                [
-                    "income_lt_10000",
-                    "income_10000_to_14999",
-                    "income_20000_to_24999",
-                ]
-            ].sum(axis=1),
-            df[
-                [
-                    "income_25000_to_29999",
-                    "income_30000_to_34999",
-                    "income_35000_to_39999",
-                    "income_40000_to_44999",
-                    "income_45000_to_49999",
-                    "income_50000_to_59999",
-                    "income_60000_to_74999",
-                ]
-            ].sum(axis=1),
-            df[
-                [
-                    "income_75000_to_99999",
-                    "income_100000_to_124999",
-                    "income_125000_to_149999",
-                    "income_150000_to_199999",
-                    "income_ge_200000",
-                ]
-            ].sum(axis=1),
-        ],
-        axis=1,
-    )
-
-
-def hierfindal(categories):
-    ratios = categories.div(
-        categories.sum(axis=1), axis=0
-    )  # Calculate the percents
-    return 1 - (ratios**2).sum(axis=1)  # 1 minus the sum of squares
-
-
 def transform(logger):
     logger.info("Aggregating tract-level ACS data to 2026 Council Districts")
 
