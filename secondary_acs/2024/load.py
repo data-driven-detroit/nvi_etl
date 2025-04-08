@@ -5,7 +5,7 @@ from sqlalchemy.exc import ProgrammingError
 
 from nvi_etl import make_engine_for
 from nvi_etl.schema import NVIValueTable
-from nvi_etl.destinations import CONTEXT_VALUES_TABLE
+from nvi_etl.destinations import CONTEXT_VALUES_TABLE, SURVEY_VALUES_TABLE
 
 
 WORKING_DIR = Path(__file__).resolve().parent
@@ -17,14 +17,14 @@ def load_acs(logger):
 
     logger.info("Checking for conflicts and pushing tables to database.")
 
-    df = pd.read_csv(WORKING_DIR / "output" / "acs_indicators_tall.csv")
+    df = pd.read_csv(WORKING_DIR / "output" / "acs_primary_indicators_tall.csv")
 
     validated = NVIValueTable.validate(df)
 
     prev_q = text(
         f"""
         SELECT count(*) AS matches_found
-        FROM nvi.{CONTEXT_VALUES_TABLE}
+        FROM nvi.{SURVEY_VALUES_TABLE}
         WHERE (indicator_id, year, location_id) IN :check_against
     """
     )
@@ -60,6 +60,14 @@ def load_acs(logger):
             )
 
     validated.to_sql(
+        SURVEY_VALUES_TABLE, db_engine, 
+        schema="nvi", index=False, if_exists="append"
+    )
+
+
+    df = pd.read_csv(WORKING_DIR / "output" / "acs_context_indicators_tall.csv")
+
+    df.to_sql(
         CONTEXT_VALUES_TABLE, db_engine, 
         schema="nvi", index=False, if_exists="append"
     )

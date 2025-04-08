@@ -9,4 +9,3 @@ logger = setup_logging()
 extract(logger)
 transform(logger)
 load_acs(logger)
-

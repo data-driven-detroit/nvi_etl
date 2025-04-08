@@ -2,13 +2,39 @@ import json
 from pathlib import Path
 import pandas as pd
 
-from nvi_etl import liquefy
 from nvi_etl.geo_reference import pull_tracts_to_nvi_crosswalk, pin_location
 from nvi_etl.utilities import estimate_median_from_distribution
 
 
 WORKING_DIR = Path(__file__).resolve().parent
 YEAR = 2023
+
+primary_indicator_meta = pd.read_csv(WORKING_DIR / "conf" / "primary_indicator_ids.csv", index_col=False)
+context_indicator_meta = pd.read_csv(WORKING_DIR / "conf" / "context_indicator_ids.csv", index_col=False)
+
+# These can be combined until the final step
+all_indicators = pd.concat([
+    primary_indicator_meta,
+    context_indicator_meta,
+])
+
+
+sum_cols = {}
+for indicator, indicator_type in all_indicators[["indicator", "indicator_type"]].values:
+    if indicator_type in {"count", "percentage", "rate"}:
+        sum_cols[f"count_{indicator}"] = "sum"
+
+    if indicator_type == "percentage":
+        sum_cols[f"universe_{indicator}"] = "sum"
+
+
+pct_aggregators = {
+    f"percentage_{indicator}": lambda df, indicator=indicator: (
+        df[f"count_{indicator}"] * 100
+        / df[f"universe_{indicator}"]
+    ) for indicator, indicator_type in all_indicators[["indicator", "indicator_type"]].values
+    if indicator_type == "percentage"
+}
 
 
 def roll_up_income_categories(df):
@@ -46,10 +72,6 @@ def roll_up_income_categories(df):
     )
 
 
-def pct_over_200_poverty(df):
-    return df["num_people_above_200_fpl_acs"] * 100 / df["total_population"]
-
-
 def hierfindal(categories):
     ratios = categories.div(
         categories.sum(axis=1), axis=0
@@ -57,69 +79,11 @@ def hierfindal(categories):
     return 1 - (ratios**2).sum(axis=1)  # 1 minus the sum of squares
 
 
-def pct_hs_diploma_ged_plus(df):
-    return (df["population_ge_25_with_post_hs_diploma_ged"]) * 100 / df[
-        "total_population_ge_25"
-    ]
-
-
-def pct_post_secondary(df):
-    return (
-        df["population_ge_25_with_post_sec_degree"]
-        / df["total_population_ge_25"]
-    ) * 100
-
-
-def pct_oo_spending_lt_30(df):
-    return 100 * df["oo_hh_spending_lt_30"] / df["owner_occupied_households"]
-
-
-def pct_ro_spending_lt_30(df):
-    return 100 * df["ro_hh_spending_lt_30"] / df["renter_occupied_households"]
-
-
-def pct_over_20_in_lf(df):
-    return 100 * df["num_over_20_in_labor_force"] / df["population_over_20"]
-
-
-def pct_16_to_19_in_lf(df):
-    return 100 * df["num_16_to_19_in_labor_force"] / df["population_16_to_19"]
-
-
-def pct_owner_occupied(df):
-    return 100 * df["owner_occupied_households"] / df["total_households"]
-
-
-def pct_renter_occupied(df):
-    return 100 * df["renter_occupied_households"] / df["total_households"]
-
-
-def pct_children_below_pov(df):
-    return 100 * df["num_children_below_pov"] / (
-        df["num_children_below_pov"] + df["num_children_above_pov"]
-    )
-
-
-
 def transform(logger):
     logger.info("Aggregating tract-level ACS data to 2026 Council Districts")
 
-
-    aggregations = json.loads(
-        (WORKING_DIR / "conf" / "aggregations.json").read_text()
-    )
-
     districts = pull_tracts_to_nvi_crosswalk(2020, 2026)
-
-    city_wide = pd.read_parquet(
-        WORKING_DIR / "input" / f"nvi_citywide_{YEAR}.parquet.gzip"
-    ).reset_index()
-
-    tract_level = pd.read_parquet(
-        WORKING_DIR / "input" / f"nvi_tracts_{YEAR}.parquet.gzip"
-    ).reset_index()
-    
-    
+    wide_file = pd.read_parquet(WORKING_DIR / "input" / "nvi_2024_acs.parquet.gzip")
 
     # COMPILING 'REGULAR' INDICATORS
     # TODO Read this dynamically off of the locations file
@@ -133,24 +97,16 @@ def transform(logger):
             }
         )
         .astype({"geoid": "str"})
-        .merge(tract_level, on="geoid")
+        .merge(wide_file, on="geoid", how="left")
         .groupby("geography")
-        .agg(aggregations["aggregations"])
+        .agg(sum_cols)
         .reset_index()
         .astype({"geography": "str"})
         .assign(
-            pct_hs_diploma_ged_plus=pct_hs_diploma_ged_plus,
-            pct_post_secondary=pct_post_secondary,
-            pct_oo_spending_lt_30=pct_oo_spending_lt_30,
-            pct_ro_spending_lt_30=pct_ro_spending_lt_30,
-            pct_over_20_in_lf=pct_over_20_in_lf,
-            pct_16_to_19_in_lf=pct_16_to_19_in_lf,
-            pct_owner_occupied=pct_owner_occupied,
-            pct_renter_occupied=pct_renter_occupied,
-            pct_children_below_pov=pct_children_below_pov,
-            hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
+            **pct_aggregators,
+            # index_hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
             geo_type="district",
-            location_id=lambda df: df.apply(pin_location, axis=1)
+            location_id=lambda df: df.apply(pin_location, axis=1),
         )
     )
 
@@ -168,24 +124,16 @@ def transform(logger):
             }
         )
         .astype({"geoid": "str"})
-        .merge(tract_level, on="geoid")
+        .merge(wide_file, on="geoid", how="left")
         .groupby("geography")
-        .agg(aggregations["aggregations"])
+        .agg(sum_cols)
         .reset_index()
         .astype({"geography": "str"})
         .assign(
-            pct_hs_diploma_ged_plus=pct_hs_diploma_ged_plus,
-            pct_post_secondary=pct_post_secondary,
-            pct_oo_spending_lt_30=pct_oo_spending_lt_30,
-            pct_ro_spending_lt_30=pct_ro_spending_lt_30,
-            pct_over_20_in_lf=pct_over_20_in_lf,
-            pct_16_to_19_in_lf=pct_16_to_19_in_lf,
-            pct_owner_occupied=pct_owner_occupied,
-            pct_renter_occupied=pct_renter_occupied,
-            pct_children_below_pov=pct_children_below_pov,
-            hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
+            **pct_aggregators,
+            # hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
             geo_type="zone",
-            location_id=lambda df: df.apply(pin_location, axis=1)
+            location_id=lambda df: df.apply(pin_location, axis=1),
         )
     )
 
@@ -194,22 +142,16 @@ def transform(logger):
     # City-wide
 
     citywide_wide = (
-        city_wide.assign(district=1)
+        wide_file.query("geoid == '06000US2616322000'")
+        .assign(district=1)
         .groupby("district")
-        .agg(aggregations["aggregations"])
+        .agg(sum_cols)
         .assign(  # Assign the district-level aggs with the functions above
-            pct_hs_diploma_ged_plus=pct_hs_diploma_ged_plus,
-            pct_post_secondary=pct_post_secondary,
-            pct_oo_spending_lt_30=pct_oo_spending_lt_30,
-            pct_over_200_poverty=pct_over_200_poverty,
-            pct_ro_spending_lt_30=pct_ro_spending_lt_30,
-            pct_over_20_in_lf=pct_over_20_in_lf,
-            pct_16_to_19_in_lf=pct_16_to_19_in_lf,
-            pct_owner_occupied=pct_owner_occupied,
-            pct_renter_occupied=pct_renter_occupied,
-            pct_children_below_pov=pct_children_below_pov,
-            hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
-            location_id=1
+            **pct_aggregators,
+            # hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
+            geo_type="citywide",
+            geography="Detroit",
+            location_id=1,
         )
     )
 
@@ -217,9 +159,37 @@ def transform(logger):
 
     wide_collected = pd.concat([citywide_wide, districts_wide, zones_wide])
 
-    tall = liquefy(wide_collected).assign(year="2023")
-    tall.to_csv(WORKING_DIR / "output" / "acs_indicators_tall.csv", index=False)
+    tall = (
+        pd.wide_to_long(
+            wide_collected,
+            stubnames=["count", "universe", "percentage", "rate", "per", "dollars", "index"],
+            i=["location_id"],
+            j="indicator",
+            sep="_",
+            suffix=".*",
+        )
+        .reset_index()
+        .assign(
+            year="2023", 
+        )
+        .rename(columns={"per": "rate_per"})
+    )
 
+    primary_tall = (
+        tall
+        .merge(primary_indicator_meta, on="indicator", how="right")
+        .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
+    )
+    primary_tall.to_csv(WORKING_DIR / "output" / "acs_primary_indicators_tall.csv", index=False)
+
+
+    context_tall = (
+        tall
+        .merge(context_indicator_meta, on="indicator", how="right")
+        .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
+    )
+
+    context_tall.to_csv(WORKING_DIR / "output" / "acs_context_indicators_tall.csv", index=False)
 
     # COMPILING CONTEXT INDICATORS
     def median_home_value_estimate(row):

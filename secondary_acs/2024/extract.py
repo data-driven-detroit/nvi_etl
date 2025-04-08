@@ -14,29 +14,285 @@ WORKING_DIR = Path(__file__).resolve().parent
 YEAR = 2023
 
 
-# Define each indicator as a python function
+# 'VALUE' INDICATORS
+
+# 1. Above 200% Federal Poverty Line
+
 @variable
-def num_people_w_det_poverty_status(geo: Geography):
+def count_above_200_fpl(geo: Geography):
+    """
+    Total 200% and over 
+    """
+    return geo.C17002._008E
+
+
+@variable
+def universe_above_200_fpl(geo: Geography):
+    """
+    People for whom poverty status is determined.
+    """
     return geo.C17002._001E
 
+# 'percentage' calculated on transform step
+
+
+# 2. HS Diploma
 
 @variable
-def owner_occupied_units(geo: Geography):
+def count_hs_diploma(geo: Geography):
+    """
+    Universe: Population 25 years and over.
+    """
+    return sum(
+        [  # type: ignore
+            geo.B15003._017E,
+            geo.B15003._018E,
+            geo.B15003._019E,
+            geo.B15003._020E,
+            geo.B15003._021E,
+            geo.B15003._022E,
+            geo.B15003._023E,
+            geo.B15003._024E,  # Professional school degree (JD? others)
+            geo.B15003._025E,
+        ]
+    )
+
+
+@variable
+def universe_hs_diploma(geo: Geography):
+    """
+    Universe: Population 25 years and over.
+    """
+    return geo.B15003._001E
+
+
+# 3. Post-secondary degree
+
+@variable
+def count_postsecondary(geo: Geography):
+    """
+    Universe: Population 25 years and over.
+    """
+    return sum(
+        [  # type: ignore
+            geo.B15003._021E,
+            geo.B15003._022E,
+            geo.B15003._023E,
+            geo.B15003._024E,  # Professional school degree (JD? others)
+            geo.B15003._025E,
+        ]
+    )
+
+@variable
+def universe_postsecondary(geo: Geography):
+    """
+    Universe: Population 25 years and over.
+    """
+    return geo.B15003._001E
+
+
+# 4. Owner-occupied not cost burdened
+
+@variable
+def count_oo_no_cost_burden(geo: Geography):
+    """
+    Universe: Owner-Occupied Housing Units
+
+    Summing across all income brackets.
+    """
+    return sum(
+        [  # type: ignore
+            geo.B25106._004E,  # Owner Occupied
+            geo.B25106._005E,
+            geo.B25106._008E,
+            geo.B25106._009E,
+            geo.B25106._012E,
+            geo.B25106._013E,
+            geo.B25106._016E,
+            geo.B25106._017E,
+            geo.B25106._020E,
+            geo.B25106._021E,
+        ]
+    )
+
+
+@variable
+def universe_oo_no_cost_burden(geo: Geography):
     return geo.B25003._002E
 
 
-@variable
-def total_occupied_units(geo: Geography):
-    return geo.B25003._001E
-
+# 5. Renter-occupied not cost burdened
 
 @variable
-def total_units(geo: Geography):
-    return geo.B25002._001E
+def count_ro_no_cost_burden(geo: Geography):
+    """
+    Universe: Renter-Occupied Housing Units
+
+    Summing across all income brackets.
+    """
+
+    return sum(
+        [  # type: ignore
+            geo.B25106._026E,
+            geo.B25106._027E,
+            geo.B25106._030E,
+            geo.B25106._031E,
+            geo.B25106._034E,
+            geo.B25106._035E,
+            geo.B25106._038E,
+            geo.B25106._039E,
+            geo.B25106._042E,
+            geo.B25106._043E,
+        ]
+    )
 
 
 @variable
-def population_over_65(geo: Geography):
+def universe_ro_no_cost_burden(geo: Geography):
+    """
+    Universe: Housing Units
+    """
+    return geo.B25106._024E
+
+
+# 6. Over 20 seeking employment
+
+
+@variable
+def count_over_20_seeking_emp(geo: Geography):
+    """
+    Table Universe: Population 16 years and over
+    Indicator Universe: population 20 years and older
+    """
+
+    return sum(
+        [  # type: ignore
+            geo.B23001._011E,  # Male
+            geo.B23001._018E,
+            geo.B23001._025E,
+            geo.B23001._032E,
+            geo.B23001._039E,
+            geo.B23001._046E,
+            geo.B23001._053E,
+            geo.B23001._060E,
+            geo.B23001._067E,
+            geo.B23001._074E,
+            geo.B23001._079E,
+            geo.B23001._084E,
+            geo.B23001._097E,  # Female
+            geo.B23001._104E,
+            geo.B23001._111E,
+            geo.B23001._118E,
+            geo.B23001._125E,
+            geo.B23001._132E,
+            geo.B23001._139E,
+            geo.B23001._146E,
+            geo.B23001._153E,
+            geo.B23001._160E,
+            geo.B23001._165E,
+            geo.B23001._170E,
+        ]
+    )
+
+
+@variable
+def universe_over_20_seeking_emp(geo: Geography):
+    """
+    Table Universe: Population 16 years and over
+    Indicator Universe: population 20 years and older
+    """
+
+    return sum(
+        [  # type: ignore
+            geo.B23001._010E,  # Male
+            geo.B23001._017E,
+            geo.B23001._024E,
+            geo.B23001._031E,
+            geo.B23001._038E,
+            geo.B23001._045E,
+            geo.B23001._052E,
+            geo.B23001._059E,
+            geo.B23001._066E,
+            geo.B23001._073E,
+            geo.B23001._078E,
+            geo.B23001._083E,
+            geo.B23001._096E,  # Female
+            geo.B23001._103E,
+            geo.B23001._110E,
+            geo.B23001._117E,
+            geo.B23001._124E,
+            geo.B23001._131E,
+            geo.B23001._138E,
+            geo.B23001._145E,
+            geo.B23001._152E,
+            geo.B23001._159E,
+            geo.B23001._164E,
+            geo.B23001._169E,
+        ]
+    )
+
+
+# 7. 16-19 seeking employment
+
+@variable
+def count_btwn_16_19_seeking_emp(geo: Geography):
+    """
+    Table Universe: Population 16 years and over
+    Indicator Universe: population 20 years and older
+    """
+
+    return sum(
+        [  # type: ignore
+            geo.B23001._004E,
+            geo.B23001._090E,
+        ]
+    )
+
+
+@variable
+def universe_btwn_16_19_seeking_emp(geo: Geography):
+    """
+    Table Universe: Population 16 years and over
+    Indicator Universe: population 20 years and older
+    """
+
+    return sum(
+        [  # type: ignore
+            geo.B23001._003E,
+            geo.B23001._089E,
+        ]
+    )
+
+
+# 'CONTEXT' Indicators
+
+# 1. Population
+
+@variable
+def count_population(geo: Geography):
+    return geo.B01003._001E
+
+
+# 2. Population under 18
+
+@variable
+def count_population_under_18(geo: Geography):
+    return sum([
+        geo.B01001._003E,
+        geo.B01001._004E,
+        geo.B01001._005E,
+        geo.B01001._006E,
+        geo.B01001._027E,
+        geo.B01001._028E,
+        geo.B01001._029E,
+        geo.B01001._030E,
+    ])
+
+
+# 3. Population over 65
+
+@variable
+def count_population_over_65(geo: Geography):
     return sum(
         [
             geo.B01001._020E,
@@ -55,52 +311,111 @@ def population_over_65(geo: Geography):
     )
 
 
+# 4. Home ownership rate
+
 @variable
-def married_couple_hhs(geo: Geography):
+def count_home_ownership_rate(geo: Geography):
+    return geo.B25003._002E
+
+
+@variable
+def universe_home_ownership_rate(geo: Geography):
+    return geo.B25003._001E
+
+
+# 5. Occupancy
+
+@variable
+def count_occupancy(geo: Geography):
+    return geo.B25003._001E
+
+
+@variable
+def universe_occupancy(geo: Geography):
+    return geo.B25002._001E
+
+
+# 6. Married couples
+
+@variable
+def count_married_couples(geo: Geography):
     return geo.B11012._002E
 
 
 @variable
-def cohabitating_couple_hhs(geo: Geography):
-    return geo.B11012._005E
+def universe_married_couples(geo: Geography):
+    return geo.B11012._001E
 
+
+# 7. Female householder, no spouse present
 
 @variable
-def female_householder_hhs(geo: Geography):
+def count_female_householder(geo: Geography):
     return geo.B11012._008E
 
 
 @variable
-def male_householder_hhs(geo: Geography):
-    return geo.B11012._013E
+def universe_female_householder(geo: Geography):
+    return geo.B11012._001E
 
+
+# 8. Male householder, no spose present
 
 @variable
-def age_under_five(geo: Geography):
+def count_male_householder(geo: Geography):
+    return geo.B11012._013E
+
+@variable
+def universe_male_householder(geo: Geography):
+    return geo.B11012._001E
+
+
+# 9. Non-family household -- Skipping for now!
+# @variable
+# def non_family_hhs(geo: Geography):
+    # return geo.B11012.
+
+
+# 10 - who knows -- Ages
+
+@variable
+def count_age_under_five(geo: Geography):
     return sum([
         geo.B01001._003E,
         geo.B01001._027E
     ])
 
+@variable
+def universe_age_under_file(geo: Geography):
+    return geo.B01001._001E
+
 
 @variable
-def age_five_to_nine(geo: Geography):
+def count_age_five_to_nine(geo: Geography):
     return sum([
         geo.B01001._004E,
         geo.B01001._028E
     ])
 
+@variable
+def count_age_five_to_nine(geo: Geography):
+    return geo.B01001._001E
+
 
 @variable
-def age_ten_to_fourteen(geo: Geography):
+def count_age_ten_to_fourteen(geo: Geography):
     return sum([
         geo.B01001._005E,
         geo.B01001._029E,
     ])
 
+@variable
+def universe_age_ten_to_fourteen(geo: Geography):
+    return geo.B01001._001E
+
 
 @variable
-def age_fifteen_to_nineteen(geo: Geography):
+def count_age_fifteen_to_nineteen(geo: Geography):
     return sum([
         geo.B01001._006E,
         geo.B01001._007E,
@@ -110,7 +425,12 @@ def age_fifteen_to_nineteen(geo: Geography):
 
 
 @variable
-def age_twenty_to_twentyfour(geo: Geography):
+def universe_age_fifteen_to_nineteen(geo: Geography):
+    return geo.B01001._001E 
+
+
+@variable
+def count_age_twenty_to_twentyfour(geo: Geography):
     return sum([
         geo.B01001._008E,
         geo.B01001._009E,
@@ -122,7 +442,12 @@ def age_twenty_to_twentyfour(geo: Geography):
 
 
 @variable
-def age_twentyfive_to_twenty_nine(geo: Geography):
+def universe_age_twenty_to_twentyfour(geo: Geography):
+    return geo.B01001._001E
+
+
+@variable
+def count_age_twentyfive_to_twenty_nine(geo: Geography):
     return sum([
         geo.B01001._011E,
         geo.B01001._035E
@@ -130,7 +455,12 @@ def age_twentyfive_to_twenty_nine(geo: Geography):
 
 
 @variable
-def age_thirty_to_thirtyfour(geo: Geography):
+def universe_age_twentyfive_to_twenty_nine(geo: Geography):
+    return geo.B01001._001E 
+
+
+@variable
+def count_age_thirty_to_thirtyfour(geo: Geography):
     return sum([
         geo.B01001._012E,
         geo.B01001._036E
@@ -138,7 +468,12 @@ def age_thirty_to_thirtyfour(geo: Geography):
 
 
 @variable
-def age_thirtyfive_to_thirtynine(geo: Geography):
+def universe_age_thirty_to_thirtyfour(geo: Geography):
+    return geo.B01001._001E
+
+
+@variable
+def count_age_thirtyfive_to_thirtynine(geo: Geography):
     return sum([
         geo.B01001._013E,
         geo.B01001._037E
@@ -146,7 +481,12 @@ def age_thirtyfive_to_thirtynine(geo: Geography):
 
 
 @variable
-def age_fourty_to_fourtyfour(geo: Geography):
+def universe_age_thirtyfive_to_thirtynine(geo: Geography):
+    return geo.B01001._001E 
+
+
+@variable
+def count_age_fourty_to_fourtyfour(geo: Geography):
     return sum([
         geo.B01001._014E,
         geo.B01001._038E
@@ -154,7 +494,12 @@ def age_fourty_to_fourtyfour(geo: Geography):
 
 
 @variable
-def age_fourtyfive_to_fourtynine(geo: Geography):
+def universe_age_fourty_to_fourtyfour(geo: Geography):
+    return geo.B01001._001E 
+
+
+@variable
+def count_age_fourtyfive_to_fourtynine(geo: Geography):
     return sum([
         geo.B01001._015E,
         geo.B01001._039E
@@ -162,7 +507,12 @@ def age_fourtyfive_to_fourtynine(geo: Geography):
 
 
 @variable
-def age_fifty_to_fiftyfour(geo: Geography):
+def universe_age_fourtyfive_to_fourtynine(geo: Geography):
+    return geo.B01001._001E 
+
+
+@variable
+def count_age_fifty_to_fiftyfour(geo: Geography):
     return sum([
         geo.B01001._016E,
         geo.B01001._040E
@@ -170,7 +520,12 @@ def age_fifty_to_fiftyfour(geo: Geography):
 
 
 @variable
-def age_fiftyfive_to_fiftynine(geo: Geography):
+def universe_age_fifty_to_fiftyfour(geo: Geography):
+    return geo.B01001._001E 
+
+
+@variable
+def count_age_fiftyfive_to_fiftynine(geo: Geography):
     return sum([
         geo.B01001._017E,
         geo.B01001._041E
@@ -178,7 +533,12 @@ def age_fiftyfive_to_fiftynine(geo: Geography):
 
 
 @variable
-def age_sixty_to_sixtyfour(geo: Geography):
+def universe_age_fiftyfive_to_fiftynine(geo: Geography):
+    return geo.B01001._001E 
+
+
+@variable
+def count_age_sixty_to_sixtyfour(geo: Geography):
     return sum([
         geo.B01001._018E,
         geo.B01001._019E,
@@ -188,7 +548,12 @@ def age_sixty_to_sixtyfour(geo: Geography):
 
 
 @variable
-def age_sixtyfive_to_sixtynine(geo: Geography):
+def universe_age_sixty_to_sixtyfour(geo: Geography):
+    return geo.B01001._001E
+
+
+@variable
+def count_age_sixtyfive_to_sixtynine(geo: Geography):
     return sum([
         geo.B01001._020E,
         geo.B01001._021E,
@@ -198,15 +563,24 @@ def age_sixtyfive_to_sixtynine(geo: Geography):
 
 
 @variable
-def age_seventy_to_seventyfour(geo: Geography):
+def universe_age_sixtyfive_to_sixtynine(geo: Geography):
+    return geo.B01001._001E
+
+
+@variable
+def count_age_seventy_to_seventyfour(geo: Geography):
     return sum([
         geo.B01001._022E,
         geo.B01001._046E,
     ])
 
+@variable
+def universe_age_seventy_to_seventyfour(geo: Geography):
+    return geo.B01001._001E
+
 
 @variable
-def age_seventyfive_to_seventynine(geo: Geography):
+def count_age_seventyfive_to_seventynine(geo: Geography):
     return sum([
         geo.B01001._023E,
         geo.B01001._047E,
@@ -214,7 +588,12 @@ def age_seventyfive_to_seventynine(geo: Geography):
 
 
 @variable
-def age_eighty_to_eightyfour(geo: Geography):
+def universe_age_seventyfive_to_seventynine(geo: Geography):
+    return geo.B01001._001E
+
+
+@variable
+def count_age_eighty_to_eightyfour(geo: Geography):
     return sum([
         geo.B01001._024E,
         geo.B01001._048E,
@@ -222,7 +601,12 @@ def age_eighty_to_eightyfour(geo: Geography):
 
 
 @variable
-def age_eightyfive_and_up(geo: Geography):
+def universe_age_eighty_to_eightyfour(geo: Geography):
+    return geo.B01001._001E
+
+
+@variable
+def count_age_eightyfive_and_up(geo: Geography):
     return sum([
         geo.B01001._025E,
         geo.B01001._049E,
@@ -230,20 +614,93 @@ def age_eightyfive_and_up(geo: Geography):
 
 
 @variable
-def num_children(geo: Geography):
-    return sum(
-        [
-            geo.B01001._003E,
-            geo.B01001._004E,
-            geo.B01001._005E,
-            geo.B01001._006E,
-            geo.B01001._027E,
-            geo.B01001._028E,
-            geo.B01001._029E,
-            geo.B01001._030E,
-        ]
-    )
+def universe_age_eightyfive_and_up(geo: Geography):
+    return geo.B01001._001E
 
+
+# Race / Ethnicity
+
+@variable
+def count_aian(geo: Geography):
+    return geo.B03002._005E
+
+
+@variable
+def universe_aian(geo: Geography):
+    return geo.B03002._001E
+
+
+@variable
+def count_asian(geo: Geography):
+    return geo.B03002._006E
+
+
+@variable
+def universe_asian(geo: Geography):
+    return geo.B03002._001E
+
+
+@variable
+def count_black(geo: Geography):
+    return geo.B03002._004E
+
+
+@variable
+def universe_black(geo: Geography):
+    return geo.B03002._001E
+
+
+@variable
+def count_hispanic_latino(geo: Geography):
+    return geo.B03002._012E
+
+
+@variable
+def universe_hispanic_latino(geo: Geography):
+    return geo.B03002._001E
+
+
+@variable
+def count_nhpi(geo: Geography):
+    return geo.B03002._007E
+
+
+@variable
+def universe_nhpi(geo: Geography):
+    return geo.B03002._007E
+
+
+@variable
+def count_white(geo: Geography):
+    return geo.B03002._003E
+
+
+@variable
+def universe_white(geo: Geography):
+    return geo.B03002._001E
+
+
+@variable
+def count_other_race(geo: Geography):
+    return geo.B03002._008E
+
+
+@variable
+def universe_other_race(geo: Geography):
+    return geo.B03002._001E
+
+
+@variable
+def count_two_plus_races(geo: Geography):
+    return geo.B03002._009E
+
+
+@variable
+def universe_two_plus_races(geo: Geography):
+    return geo.B03002._001E
+
+
+# Grabbing these for estimating median housing value
 
 @variable
 def oo_value_dist_1(geo: Geography):
@@ -375,254 +832,9 @@ def oo_value_dist_26(geo: Geography):
     return geo.B25075._027E
 
 
-@variable
-def num_people_below_200_fpl_acs(geo: Geography):
-    """
-    Universe: Population for whom poverty status is determined.
-    """
-    return sum(
-        [  # type: ignore
-            geo.C17002._002E,
-            geo.C17002._003E,
-            geo.C17002._004E,
-            geo.C17002._005E,
-            geo.C17002._006E,
-            geo.C17002._007E,
-        ]
-    )
 
 
-@variable
-def num_people_above_200_fpl_acs(geo: Geography):
-    """
-    Universe: Population for whom poverty status is determined.
-    """
-    return geo.C17002._008E
-
-
-@variable
-def total_population_ge_25(geo: Geography):
-    """
-    Universe: Population 25 years and over.
-    """
-    return geo.B15003._001E
-
-
-@variable
-def population_ge_25_with_post_hs_diploma_ged(geo: Geography):
-    """
-    Universe: Population 25 years and over.
-    """
-    return sum(
-        [  # type: ignore
-            geo.B15003._017E,
-            geo.B15003._018E,
-            geo.B15003._019E,
-            geo.B15003._020E,
-            geo.B15003._021E,
-            geo.B15003._022E,
-            geo.B15003._023E,
-            geo.B15003._024E,  # Professional school degree (JD? others)
-            geo.B15003._025E,
-        ]
-    )
-
-
-@variable
-def population_ge_25_with_post_sec_degree(geo: Geography):
-    """
-    Universe: Population 25 years and over.
-    """
-    return sum(
-        [  # type: ignore
-            geo.B15003._021E,
-            geo.B15003._022E,
-            geo.B15003._023E,
-            geo.B15003._024E,  # Professional school degree (JD? others)
-            geo.B15003._025E,
-        ]
-    )
-
-
-@variable
-def total_households(geo: Geography):
-    """
-    Universe: Housing Units
-    """
-    return geo.B25106._001E
-
-
-@variable
-def owner_occupied_households(geo: Geography):
-    """
-    Universe: Housing Units
-    """
-    return geo.B25106._002E
-
-
-@variable
-def oo_hh_spending_lt_30(geo: Geography):
-    """
-    Universe: Owner-Occupied Housing Units
-
-    Summing across all income brackets.
-    """
-    return sum(
-        [  # type: ignore
-            geo.B25106._004E,  # Owner Occupied
-            geo.B25106._005E,
-            geo.B25106._008E,
-            geo.B25106._009E,
-            geo.B25106._012E,
-            geo.B25106._013E,
-            geo.B25106._016E,
-            geo.B25106._017E,
-            geo.B25106._020E,
-            geo.B25106._021E,
-        ]
-    )
-
-
-@variable
-def renter_occupied_households(geo: Geography):
-    """
-    Universe: Housing Units
-    """
-    return geo.B25106._024E
-
-
-@variable
-def ro_hh_spending_lt_30(geo: Geography):
-    """
-    Universe: Renter-Occupied Housing Units
-
-    Summing across all income brackets.
-    """
-
-    return sum(
-        [  # type: ignore
-            geo.B25106._026E,
-            geo.B25106._027E,
-            geo.B25106._030E,
-            geo.B25106._031E,
-            geo.B25106._034E,
-            geo.B25106._035E,
-            geo.B25106._038E,
-            geo.B25106._039E,
-            geo.B25106._042E,
-            geo.B25106._043E,
-        ]
-    )
-
-
-@variable
-def population_over_20(geo: Geography):
-    """
-    Table Universe: Population 16 years and over
-    Indicator Universe: population 20 years and older
-    """
-
-    return sum(
-        [  # type: ignore
-            geo.B23001._010E,  # Male
-            geo.B23001._017E,
-            geo.B23001._024E,
-            geo.B23001._031E,
-            geo.B23001._038E,
-            geo.B23001._045E,
-            geo.B23001._052E,
-            geo.B23001._059E,
-            geo.B23001._066E,
-            geo.B23001._073E,
-            geo.B23001._078E,
-            geo.B23001._083E,
-            geo.B23001._096E,  # Female
-            geo.B23001._103E,
-            geo.B23001._110E,
-            geo.B23001._117E,
-            geo.B23001._124E,
-            geo.B23001._131E,
-            geo.B23001._138E,
-            geo.B23001._145E,
-            geo.B23001._152E,
-            geo.B23001._159E,
-            geo.B23001._164E,
-            geo.B23001._169E,
-        ]
-    )
-
-
-@variable
-def num_over_20_in_labor_force(geo: Geography):
-    """
-    Table Universe: Population 16 years and over
-    Indicator Universe: population 20 years and older
-    """
-
-    return sum(
-        [  # type: ignore
-            geo.B23001._011E,  # Male
-            geo.B23001._018E,
-            geo.B23001._025E,
-            geo.B23001._032E,
-            geo.B23001._039E,
-            geo.B23001._046E,
-            geo.B23001._053E,
-            geo.B23001._060E,
-            geo.B23001._067E,
-            geo.B23001._074E,
-            geo.B23001._079E,
-            geo.B23001._084E,
-            geo.B23001._097E,  # Female
-            geo.B23001._104E,
-            geo.B23001._111E,
-            geo.B23001._118E,
-            geo.B23001._125E,
-            geo.B23001._132E,
-            geo.B23001._139E,
-            geo.B23001._146E,
-            geo.B23001._153E,
-            geo.B23001._160E,
-            geo.B23001._165E,
-            geo.B23001._170E,
-        ]
-    )
-
-
-@variable
-def population_16_to_19(geo: Geography):
-    """
-    Table Universe: Population 16 years and over
-    Indicator Universe: population 20 years and older
-    """
-
-    return sum(
-        [  # type: ignore
-            geo.B23001._003E,
-            geo.B23001._089E,
-        ]
-    )
-
-
-@variable
-def num_16_to_19_in_labor_force(geo: Geography):
-    """
-    Table Universe: Population 16 years and over
-    Indicator Universe: population 20 years and older
-    """
-
-    return sum(
-        [  # type: ignore
-            geo.B23001._004E,
-            geo.B23001._090E,
-        ]
-    )
-
-
-@variable
-def total_population(geo: Geography):
-    return geo.B01003._001E
-
+# These are for the hierfindal -- not currently calculating
 
 @variable
 def income_lt_10000(geo: Geography):
@@ -705,46 +917,6 @@ def income_ge_200000(geo: Geography):
 
 
 @variable
-def num_white_alone(geo: Geography):
-    return geo.B03002._003E
-
-
-@variable
-def num_black_or_african_american_alone(geo: Geography):
-    return geo.B03002._004E
-
-
-@variable
-def num_american_indian_and_alaska_native_alone(geo: Geography):
-    return geo.B03002._005E
-
-
-@variable
-def num_asian_alone(geo: Geography):
-    return geo.B03002._006E
-
-
-@variable
-def num_native_hawaiian_and_other_pacific_islander_alone(geo: Geography):
-    return geo.B03002._007E
-
-
-@variable
-def num_some_other_race_alone(geo: Geography):
-    return geo.B03002._008E
-
-
-@variable
-def num_two_or_more_races(geo: Geography):
-    return geo.B03002._009E
-
-
-@variable
-def num_hispanic_or_latino(geo: Geography):
-    return geo.B03002._012E
-
-
-@variable
 def hh_children(geo: Geography):
     """
     Universe: Households
@@ -801,253 +973,6 @@ def num_households_with_children(geo: Geography):
 # we have to pull in batches.
 
 
-# Tract-level:
-def pull_tract_level(logger):
-    profile_one = build_profile(
-        variables=[
-            total_population_ge_25,
-            population_ge_25_with_post_hs_diploma_ged,
-            population_ge_25_with_post_sec_degree,
-            num_people_w_det_poverty_status,
-            num_people_below_200_fpl_acs,
-            num_people_above_200_fpl_acs,
-            total_households,
-            owner_occupied_households,
-            oo_hh_spending_lt_30,
-            renter_occupied_households,
-            ro_hh_spending_lt_30,
-        ],
-        geographies=[
-            # Geography(state="26", county="163", county_subdivision="22000"),
-            create_geography(state="26", county="163", tract="*"),
-        ],
-        edition=create_edition("acs5", YEAR),
-    )
-
-    profile_two = build_profile(
-        variables=[
-            population_over_20,
-            num_over_20_in_labor_force,
-        ],
-        geographies=[
-            # Geography(state="26", county="163", county_subdivision="22000"),
-            create_geography(state="26", county="163", tract="*"),
-        ],
-        edition=create_edition("acs5", YEAR),
-    )
-
-    profile_three = build_profile(
-        variables=[
-            population_16_to_19,
-            num_16_to_19_in_labor_force,
-            total_population,
-            num_households_with_children,
-        ],
-        geographies=[
-            # Geography(state="26", county="163", county_subdivision="22000"),
-            create_geography(state="26", county="163", tract="*"),
-        ],
-        edition=create_edition("acs5", YEAR),
-    )
-
-    # Take apart hierfindal for roll-up
-
-    income_profile = build_profile(
-        variables=[
-            income_lt_10000,
-            income_10000_to_14999,
-            income_20000_to_24999,
-            income_25000_to_29999,
-            income_30000_to_34999,
-            income_35000_to_39999,
-            income_40000_to_44999,
-            income_45000_to_49999,
-            income_50000_to_59999,
-            income_60000_to_74999,
-            income_75000_to_99999,
-            income_100000_to_124999,
-            income_125000_to_149999,
-            income_150000_to_199999,
-            income_ge_200000,
-        ],
-        geographies=[
-            create_geography(state="26", county="163", tract="*"),
-        ],
-        edition=create_edition("acs5", YEAR),
-    )
-
-    race_eth_profile = build_profile(
-        variables=[
-            num_white_alone,
-            num_black_or_african_american_alone,
-            num_american_indian_and_alaska_native_alone,
-            num_asian_alone,
-            num_native_hawaiian_and_other_pacific_islander_alone,
-            num_some_other_race_alone,
-            num_two_or_more_races,
-            num_hispanic_or_latino,
-        ],
-        geographies=[
-            create_geography(state="26", county="163", tract="*"),
-        ],
-        edition=create_edition("acs5", YEAR),
-    )
-
-    chilrden_pov_profile = build_profile(
-        variables=[
-            num_children_below_pov,
-            num_children_above_pov,
-        ],
-        geographies=[
-            create_geography(state="26", county="163", tract="*"),
-        ],
-        edition=create_edition("acs5", YEAR),
-    )
-
-    profile = pd.concat(
-        [
-            profile_one.set_index(["geoid", "name"]),
-            profile_two.set_index(["geoid", "name"]),
-            profile_three.set_index(["geoid", "name"]),
-            income_profile.set_index(["geoid", "name"]),
-            race_eth_profile.set_index(["geoid", "name"]),
-            chilrden_pov_profile.set_index(["geoid", "name"]),
-        ],
-        axis=1,
-    )
-
-    logger.info(f"Number of tracks in dataset (should be ~630): {len(profile)}") 
-    profile.to_parquet(WORKING_DIR / "input" / f"nvi_tracts_{YEAR}.parquet.gzip")
-
-
-# City-wide:
-def pull_city_wide(logger):
-    profile_one = build_profile(
-        variables=[
-            total_population_ge_25,
-            population_ge_25_with_post_hs_diploma_ged,
-            population_ge_25_with_post_sec_degree,
-            num_people_w_det_poverty_status,
-            num_people_below_200_fpl_acs,
-            num_people_above_200_fpl_acs,
-            total_households,
-            owner_occupied_households,
-            oo_hh_spending_lt_30,
-            renter_occupied_households,
-            ro_hh_spending_lt_30,
-        ],
-        geographies=[
-            create_geography(
-                state="26", county="163", county_subdivision="22000"
-            ),
-        ],
-        edition=create_edition("acs5", YEAR),
-    )
-
-    profile_two = build_profile(
-        variables=[
-            population_over_20,
-            num_over_20_in_labor_force,
-        ],
-        geographies=[
-            create_geography(
-                state="26", county="163", county_subdivision="22000"
-            ),
-        ],
-        edition=create_edition("acs5", YEAR),
-    )
-
-    profile_three = build_profile(
-        variables=[
-            population_16_to_19,
-            num_16_to_19_in_labor_force,
-            total_population,
-            num_households_with_children,
-        ],
-        geographies=[
-            create_geography(
-                state="26", county="163", county_subdivision="22000"
-            ),
-        ],
-        edition=create_edition("acs5", YEAR),
-    )
-
-    # Take apart hierfindal for roll-up
-
-    income_profile = build_profile(
-        variables=[
-            income_lt_10000,
-            income_10000_to_14999,
-            income_20000_to_24999,
-            income_25000_to_29999,
-            income_30000_to_34999,
-            income_35000_to_39999,
-            income_40000_to_44999,
-            income_45000_to_49999,
-            income_50000_to_59999,
-            income_60000_to_74999,
-            income_75000_to_99999,
-            income_100000_to_124999,
-            income_125000_to_149999,
-            income_150000_to_199999,
-            income_ge_200000,
-        ],
-        geographies=[
-            create_geography(
-                state="26", county="163", county_subdivision="22000"
-            ),
-        ],
-        edition=create_edition("acs5", YEAR),
-    )
-
-    race_eth_profile = build_profile(
-        variables=[
-            num_white_alone,
-            num_black_or_african_american_alone,
-            num_american_indian_and_alaska_native_alone,
-            num_asian_alone,
-            num_native_hawaiian_and_other_pacific_islander_alone,
-            num_some_other_race_alone,
-            num_two_or_more_races,
-            num_hispanic_or_latino,
-        ],
-        geographies=[
-            create_geography(
-                state="26", county="163", county_subdivision="22000"
-            ),
-        ],
-        edition=create_edition("acs5", YEAR),
-    )
-
-    chilrden_pov_profile = build_profile(
-        variables=[
-            num_children_below_pov,
-            num_children_above_pov,
-        ],
-        geographies=[
-            create_geography(
-                state="26", county="163", county_subdivision="22000"
-            ),
-        ],
-        edition=create_edition("acs5", YEAR),
-    )
-
-    profile = pd.concat(
-        [
-            profile_one.set_index(["geoid", "name"]),
-            profile_two.set_index(["geoid", "name"]),
-            profile_three.set_index(["geoid", "name"]),
-            income_profile.set_index(["geoid", "name"]),
-            race_eth_profile.set_index(["geoid", "name"]),
-            chilrden_pov_profile.set_index(["geoid", "name"]),
-        ],
-        axis=1,
-    )
-
-    logger.info(f"Number of cities in dataset (should be 1): {len(profile)}")
-    profile.to_parquet(WORKING_DIR / "input" / f"nvi_citywide_{YEAR}.parquet.gzip")
-
-
 def extract(logger):
     """
     This data doesn't change frequently (if ever), so 'extract' checks 
@@ -1055,19 +980,119 @@ def extract(logger):
     hitting the API unnecessairily.
     """
 
-    if (WORKING_DIR / "input" / f"nvi_tracts_{YEAR}.parquet.gzip").exists():
+    DETROIT = create_geography(state="26", county="163", county_subdivision="22000")
+    WAYNE_TRACTS = create_geography(state="26", county="163", tract="*")
+
+    ACS_5_2023 = create_edition("acs5", 2023)
+
+
+    if (WORKING_DIR / "input" / f"nvi_2024_acs.parquet.gzip").exists():
         logger.info(
             "Tract-level already pulled--remove file from 'output' to pull again."
         )
-    else:
-        logger.info("Pulling the tract level ACS data")
-        pull_tract_level(logger)
+        return
 
-    if (WORKING_DIR / "input" / f"nvi_citywide_{YEAR}.parquet.gzip").exists():
-        logger.info(
-            "City-wide already pulled-- remove file from 'output' to pull again."
-        )
-    else:
-        logger.info("Pulling the city-wide ACS data")
-        pull_city_wide(logger)
 
+    logger.info("Pulling all ACS data")
+
+    all_acs = build_profile(
+        [DETROIT, WAYNE_TRACTS],
+        [
+            count_above_200_fpl,
+            universe_above_200_fpl,
+            count_hs_diploma,
+            universe_hs_diploma,
+            count_postsecondary,
+            universe_postsecondary,
+            count_oo_no_cost_burden,
+            universe_oo_no_cost_burden,
+            count_ro_no_cost_burden,
+            universe_ro_no_cost_burden,
+            count_over_20_seeking_emp,
+            universe_over_20_seeking_emp,
+            count_btwn_16_19_seeking_emp,
+            universe_btwn_16_19_seeking_emp,
+            income_lt_10000,
+            income_10000_to_14999,
+            income_15000_to_19999,
+            income_20000_to_24999,
+            income_25000_to_29999,
+            income_30000_to_34999,
+            income_40000_to_44999,
+            income_50000_to_59999,
+            income_60000_to_74999,
+            income_75000_to_99999,
+            income_100000_to_124999,
+            income_125000_to_149999,
+            income_150000_to_199999,
+            income_ge_200000,
+            oo_value_dist_1,
+            oo_value_dist_2,
+            oo_value_dist_3,
+            oo_value_dist_4,
+            oo_value_dist_5,
+            oo_value_dist_6,
+            oo_value_dist_7,
+            oo_value_dist_8,
+            oo_value_dist_9,
+            oo_value_dist_10,
+            oo_value_dist_11,
+            oo_value_dist_12,
+            oo_value_dist_13,
+            oo_value_dist_14,
+            oo_value_dist_15,
+            oo_value_dist_16,
+            oo_value_dist_17,
+            oo_value_dist_18,
+            oo_value_dist_19,
+            oo_value_dist_20,
+            oo_value_dist_21,
+            oo_value_dist_22,
+            oo_value_dist_23,
+            oo_value_dist_24,
+            oo_value_dist_25,
+            oo_value_dist_26,
+            count_aian,
+            count_asian,
+            count_black,
+            count_hispanic_latino,
+            count_nhpi,
+            count_white,
+            count_other_race,
+            count_two_plus_races,
+            universe_aian,
+            universe_asian,
+            universe_black,
+            universe_hispanic_latino,
+            universe_nhpi,
+            universe_white,
+            universe_other_race,
+            universe_two_plus_races,
+            count_population,
+            count_population_under_18,
+            count_population_over_65,
+            # count_pop_per_sq_mi,
+            count_home_ownership_rate,
+            count_occupancy,
+            count_married_couples,
+            count_male_householder,
+            count_female_householder,
+            # count_non_family,
+            # count_child_below_poverty,
+            # count_median_housing_value,
+            # universe_pop_per_sq_mi,
+            universe_home_ownership_rate,
+            universe_occupancy,
+            universe_married_couples,
+            universe_male_householder,
+            universe_female_householder,
+            # universe_non_family,
+            # universe_child_below_poverty,
+            # universe_median_housing_value,
+        ],
+        ACS_5_2023
+    )
+
+    all_acs.to_parquet(
+        WORKING_DIR / "input" / f"nvi_2024_acs.parquet.gzip"
+    )
