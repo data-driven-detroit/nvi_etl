@@ -1,5 +1,7 @@
 import pandas as pd
 
+from nvi_etl.utilities import estimate_median_from_distribution
+
 
 def roll_up_income_categories(df):
     return pd.concat(
