@@ -133,7 +133,7 @@ def transform(logger):
 
     primary_tall = (
         tall
-        .merge(primary_indicator_meta, on="indicator", how="right")
+        .merge(primary_indicator_meta, on=["indicator", "year"], how="right")
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
     )
     primary_tall.to_csv(WORKING_DIR / "output" / "acs_primary_indicators_tall.csv", index=False)
@@ -141,7 +141,7 @@ def transform(logger):
 
     context_tall = (
         tall
-        .merge(context_indicator_meta, on="indicator", how="right")
+        .merge(context_indicator_meta, on=["indicator", "year"], how="right")
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
     )
 
