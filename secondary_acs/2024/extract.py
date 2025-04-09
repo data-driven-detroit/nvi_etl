@@ -15,7 +15,7 @@ from home_value_distribution import HOME_VALUE_DISTRIBUTION_VARIABLES
 
 WORKING_DIR = Path(__file__).resolve().parent
 YEAR = 2023
-COMPARISON_YEARS = [2013, 2019]
+COMPARISON_YEARS = [2013, 2018]
 
 # 'VALUE' INDICATORS
 

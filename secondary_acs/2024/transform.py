@@ -57,7 +57,7 @@ def transform(logger):
         )
         .astype({"geoid": "str"})
         .merge(wide_file, on="geoid", how="left")
-        .groupby("geography")
+        .groupby(["geography", "year"])
         .agg(sum_cols)
         .reset_index()
         .astype({"geography": "str"})
@@ -68,8 +68,6 @@ def transform(logger):
             location_id=lambda df: df.apply(pin_location, axis=1),
         )
     )
-
-    assert len(districts_wide) == 7
 
 
     # NVI Zones
@@ -84,7 +82,7 @@ def transform(logger):
         )
         .astype({"geoid": "str"})
         .merge(wide_file, on="geoid", how="left")
-        .groupby("geography")
+        .groupby(["geography", "year"])
         .agg(sum_cols)
         .reset_index()
         .astype({"geography": "str"})
@@ -96,15 +94,14 @@ def transform(logger):
         )
     )
 
-    assert len(zones_wide) == 22
 
     # City-wide
 
     citywide_wide = (
         wide_file.query("geoid == '06000US2616322000'")
-        .assign(district=1)
-        .groupby("district")
+        .groupby("year")
         .agg(sum_cols)
+        .reset_index()
         .assign(  # Assign the district-level aggs with the functions above
             **pct_aggregators,
             # hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
@@ -114,15 +111,16 @@ def transform(logger):
         )
     )
 
-    assert len(citywide_wide) == 1
 
     wide_collected = pd.concat([citywide_wide, districts_wide, zones_wide])
+
+    wide_collected.to_csv(WORKING_DIR / "output" / "test_wide_output.csv")
 
     tall = (
         pd.wide_to_long(
             wide_collected,
             stubnames=["count", "universe", "percentage", "rate", "per", "dollars", "index"],
-            i=["location_id"],
+            i=["location_id", "year"],
             j="indicator",
             sep="_",
             suffix=".*",
@@ -142,7 +140,8 @@ def transform(logger):
     context_tall = (
         tall
         .merge(context_indicator_meta, on=["indicator", "year"], how="right")
-        .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
+        .drop(["indicator", "geo_type", "geography", "indicator_type", "year"], axis=1)
+        .dropna(subset="location_id")
     )
 
     context_tall.to_csv(WORKING_DIR / "output" / "acs_context_indicators_tall.csv", index=False)

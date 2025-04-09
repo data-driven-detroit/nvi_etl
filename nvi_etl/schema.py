@@ -46,11 +46,11 @@ class NVIContextValueTable(pa.DataFrameModel):
     NVI survey. They have slightly different structure than the primary 
     indicator
     """
-    location_id: pd.Int64Dtype = pa.Field()
-    indicator_id: pd.Int64Dtype = pa.Field()
+    location_id: pd.Int64Dtype = pa.Field(coerce=True)
+    indicator_id: pd.Int64Dtype = pa.Field(coerce=True)
     filter_type_id: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
     filter_option_id: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
-    source_id: pd.Int64Dtype = pa.Field()
+    source_id: pd.Int64Dtype = pa.Field(coerce=True)
     start_date: date = pa.Field(coerce=True)
     end_date: date = pa.Field(coerce=True)
     count: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
