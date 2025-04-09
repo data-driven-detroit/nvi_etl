@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 indicator,indicator_type,source_id,start_date,end_date,indicator_id,filter_type_id,filter_option_id
 population,count,1,2019-01-01,2023-12-31,1,,
 population_under_18,count,1,2019-01-01,2023-12-31,8,,
@@ -12,3 +13,19 @@ nhpi,percentage,1,2019-01-01,2023-12-31,7,2,7
 white,percentage,1,2019-01-01,2023-12-31,7,2,8
 other_race,percentage,1,2019-01-01,2023-12-31,7,2,9
 two_plus_races,percentage,1,2019-01-01,2023-12-31,7,2,10
+=======
+indicator,indicator_type,indicator_id,filter_type_id,filter_option_id
+population,count,1,,
+population_under_18,count,4,,
+population_over_65,count,9,,
+home_ownership_rate,percentage,10,,
+occupancy,percentage,6,,
+aian,percentage,7,2,3
+asian,percentage,7,2,4
+black,percentage,7,2,5
+hispanic_latino,percentage,7,2,6
+nhpi,percentage,7,2,7
+white,percentage,7,2,8
+other_race,percentage,7,2,9
+two_plus_races,percentage,7,2,10
+>>>>>>> c3073606add9bc20676828b9d8740c71302bab0a
