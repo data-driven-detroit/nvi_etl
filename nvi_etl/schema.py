@@ -26,11 +26,52 @@ class NVIValueTable(pa.DataFrameModel):
     
     class Config:
         strict=True
+        unique=[
+            "indicator_id",
+            "location_id",
+            "survey_id",
+            "survey_question_id",
+            "survey_question_option_id",
+            "year",
+        ]
 
     # TODO: Need to provide the key combo to the Config class, but I 
     # can't remember the syntax
     # [year, location_id, indicator_id] need to be unique
 
+
+class NVIContextValueTable(pa.DataFrameModel):
+    """
+    The NVI Context values are the indicators from sources other than the
+    NVI survey. They have slightly different structure than the primary 
+    indicator
+    """
+    location_id: pd.Int64Dtype = pa.Field()
+    indicator_id: pd.Int64Dtype = pa.Field()
+    filter_type_id: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
+    filter_option_id: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
+    source_id: pd.Int64Dtype = pa.Field()
+    start_date: date = pa.Field(coerce=True)
+    end_date: date = pa.Field(coerce=True)
+    count: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
+    universe: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
+    percentage: float = pa.Field(nullable=True)
+    rate: float = pa.Field(nullable=True)
+    rate_per: float = pa.Field(nullable=True)
+    dollars: float = pa.Field(nullable=True)
+    index: float = pa.Field(nullable=True)
+
+    class Config:
+        strict=True
+        unique=[
+            "location_id",
+            "indicator_id",
+            "filter_type_id",
+            "filter_option_id",
+            "source_id",
+            "start_date",
+            "end_date",
+        ]
 
 # These are for the aux_geography module, for enabling the rest of the ETL
 

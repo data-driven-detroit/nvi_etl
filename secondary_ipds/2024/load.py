@@ -1,7 +1,7 @@
 import pandas as pd
 from nvi_etl import working_dir, make_engine_for
 from nvi_etl.schema import NVIValueTable
-from nvi_etl.destinations import CONTEXT_VALUES_TABLE
+from nvi_etl.destinations import CONTEXT_VALUES_TABLE, SURVEY_VALUES_TABLE
 
 
 WORKING_DIR = working_dir(__file__)
@@ -15,7 +15,7 @@ def load_from_queries(logger):
 
     validated = NVIValueTable.validate(file)
 
-    validated.to_sql(CONTEXT_VALUES_TABLE, db_engine, schema="nvi", index=False, if_exists="append")
+    validated.to_sql(SURVEY_VALUES_TABLE, db_engine, schema="nvi", index=False, if_exists="append")
 
 
 def load_foreclosures(logger):
@@ -26,4 +26,4 @@ def load_foreclosures(logger):
 
     validated = NVIValueTable.validate(file)
 
-    validated.to_sql(CONTEXT_VALUES_TABLE, db_engine, schema="nvi", index=False, if_exists="append")
+    validated.to_sql(SURVEY_VALUES_TABLE, db_engine, schema="nvi", index=False, if_exists="append")

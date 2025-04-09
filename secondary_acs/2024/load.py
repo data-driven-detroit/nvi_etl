@@ -4,7 +4,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import ProgrammingError
 
 from nvi_etl import make_engine_for
-from nvi_etl.schema import NVIValueTable
+from nvi_etl.schema import NVIValueTable, NVIContextValueTable
 from nvi_etl.destinations import CONTEXT_VALUES_TABLE, SURVEY_VALUES_TABLE
 
 
@@ -60,14 +60,17 @@ def load_acs(logger):
             )
 
     validated.to_sql(
-        SURVEY_VALUES_TABLE, db_engine, 
+        SURVEY_VALUES_TABLE, db_engine,
         schema="nvi", index=False, if_exists="append"
     )
 
 
+    logger.info(f"Loading Context variables into {CONTEXT_VALUES_TABLE}")
     df = pd.read_csv(WORKING_DIR / "output" / "acs_context_indicators_tall.csv")
 
-    df.to_sql(
+    validated = NVIContextValueTable.validate(df)
+
+    validated.to_sql(
         CONTEXT_VALUES_TABLE, db_engine, 
         schema="nvi", index=False, if_exists="append"
     )

@@ -38,7 +38,7 @@ def extract_foreclosures(logger):
         tax.aggregate(Detroit=("PARCEL_ID", "count"))
         .assign(geo_type="citywide", geography="Detroit", total_properties=len(detodp))
         .rename(columns={"PARCEL_ID": "num_foreclosures"})
-        .assign(foreclosure_rate=lambda df: 100 * df["num_foreclosures"] / df["total_properties"])
+        .assign(foreclosure_rate=lambda df: 100 * (1 - (df["num_foreclosures"] / df["total_properties"])))
         .reset_index().drop("index", axis=1)
     )
 
@@ -73,7 +73,7 @@ def extract_foreclosures(logger):
     total_properties_nvi = detodp_with_nvi.groupby(["zone_id"]).size().reset_index(name="total_properties")
 
     foreclosure_rate_nvi = num_foreclosures_nvi.merge(total_properties_nvi, on="zone_id", how="left")
-    foreclosure_rate_nvi["foreclosure_rate"] = (foreclosure_rate_nvi["num_foreclosures"] / foreclosure_rate_nvi["total_properties"]) * 100
+    foreclosure_rate_nvi["foreclosure_rate"] = (1 - (foreclosure_rate_nvi["num_foreclosures"] / foreclosure_rate_nvi["total_properties"])) * 100
 
     nvi_zones = foreclosure_rate_nvi.assign(geo_type="zone").rename(columns={"zone_id": "geography"})
 
@@ -90,7 +90,7 @@ def extract_foreclosures(logger):
     total_properties_cd = detodp_with_cd.groupby("district_n").size().reset_index(name="total_properties")
 
     foreclosure_rate_cd = num_foreclosures_cd.merge(total_properties_cd, on="district_n", how="left")
-    foreclosure_rate_cd["foreclosure_rate"] = (foreclosure_rate_cd["num_foreclosures"] / foreclosure_rate_cd["total_properties"]) * 100
+    foreclosure_rate_cd["foreclosure_rate"] = (1 - (foreclosure_rate_cd["num_foreclosures"] / foreclosure_rate_cd["total_properties"])) * 100
 
     council_districts = (
         foreclosure_rate_cd
