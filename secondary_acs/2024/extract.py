@@ -8,11 +8,10 @@ from d3census import (
     build_profile,
 )
 
-import pandas as pd
 
 WORKING_DIR = Path(__file__).resolve().parent
 YEAR = 2023
-
+COMPARISON_YEARS = [2013, 2019]
 
 # 'VALUE' INDICATORS
 
@@ -21,7 +20,7 @@ YEAR = 2023
 @variable
 def count_above_200_fpl(geo: Geography):
     """
-    Total 200% and over 
+    Total 200% and over
     """
     return geo.C17002._008E
 
@@ -33,10 +32,12 @@ def universe_above_200_fpl(geo: Geography):
     """
     return geo.C17002._001E
 
+
 # 'percentage' calculated on transform step
 
 
 # 2. HS Diploma
+
 
 @variable
 def count_hs_diploma(geo: Geography):
@@ -68,6 +69,7 @@ def universe_hs_diploma(geo: Geography):
 
 # 3. Post-secondary degree
 
+
 @variable
 def count_postsecondary(geo: Geography):
     """
@@ -83,6 +85,7 @@ def count_postsecondary(geo: Geography):
         ]
     )
 
+
 @variable
 def universe_postsecondary(geo: Geography):
     """
@@ -92,6 +95,7 @@ def universe_postsecondary(geo: Geography):
 
 
 # 4. Owner-occupied not cost burdened
+
 
 @variable
 def count_oo_no_cost_burden(geo: Geography):
@@ -122,6 +126,7 @@ def universe_oo_no_cost_burden(geo: Geography):
 
 
 # 5. Renter-occupied not cost burdened
+
 
 @variable
 def count_ro_no_cost_burden(geo: Geography):
@@ -234,6 +239,7 @@ def universe_over_20_seeking_emp(geo: Geography):
 
 # 7. 16-19 seeking employment
 
+
 @variable
 def count_btwn_16_19_seeking_emp(geo: Geography):
     """
@@ -268,6 +274,7 @@ def universe_btwn_16_19_seeking_emp(geo: Geography):
 
 # 1. Population
 
+
 @variable
 def count_population(geo: Geography):
     return geo.B01003._001E
@@ -275,21 +282,25 @@ def count_population(geo: Geography):
 
 # 2. Population under 18
 
+
 @variable
 def count_population_under_18(geo: Geography):
-    return sum([
-        geo.B01001._003E,
-        geo.B01001._004E,
-        geo.B01001._005E,
-        geo.B01001._006E,
-        geo.B01001._027E,
-        geo.B01001._028E,
-        geo.B01001._029E,
-        geo.B01001._030E,
-    ])
+    return sum(
+        [
+            geo.B01001._003E,
+            geo.B01001._004E,
+            geo.B01001._005E,
+            geo.B01001._006E,
+            geo.B01001._027E,
+            geo.B01001._028E,
+            geo.B01001._029E,
+            geo.B01001._030E,
+        ]
+    )
 
 
 # 3. Population over 65
+
 
 @variable
 def count_population_over_65(geo: Geography):
@@ -313,6 +324,7 @@ def count_population_over_65(geo: Geography):
 
 # 4. Home ownership rate
 
+
 @variable
 def count_home_ownership_rate(geo: Geography):
     return geo.B25003._002E
@@ -324,6 +336,7 @@ def universe_home_ownership_rate(geo: Geography):
 
 
 # 5. Occupancy
+
 
 @variable
 def count_occupancy(geo: Geography):
@@ -337,6 +350,7 @@ def universe_occupancy(geo: Geography):
 
 # 6. Married couples
 
+
 @variable
 def count_married_couples(geo: Geography):
     return geo.B11012._002E
@@ -348,6 +362,7 @@ def universe_married_couples(geo: Geography):
 
 
 # 7. Female householder, no spouse present
+
 
 @variable
 def count_female_householder(geo: Geography):
@@ -361,9 +376,11 @@ def universe_female_householder(geo: Geography):
 
 # 8. Male householder, no spose present
 
+
 @variable
 def count_male_householder(geo: Geography):
     return geo.B11012._013E
+
 
 @variable
 def universe_male_householder(geo: Geography):
@@ -373,17 +390,16 @@ def universe_male_householder(geo: Geography):
 # 9. Non-family household -- Skipping for now!
 # @variable
 # def non_family_hhs(geo: Geography):
-    # return geo.B11012.
+# return geo.B11012.
 
 
 # 10 - who knows -- Ages
 
+
 @variable
 def count_age_under_five(geo: Geography):
-    return sum([
-        geo.B01001._003E,
-        geo.B01001._027E
-    ])
+    return sum([geo.B01001._003E, geo.B01001._027E])
+
 
 @variable
 def universe_age_under_file(geo: Geography):
@@ -392,10 +408,8 @@ def universe_age_under_file(geo: Geography):
 
 @variable
 def count_age_five_to_nine(geo: Geography):
-    return sum([
-        geo.B01001._004E,
-        geo.B01001._028E
-    ])
+    return sum([geo.B01001._004E, geo.B01001._028E])
+
 
 @variable
 def count_age_five_to_nine(geo: Geography):
@@ -404,10 +418,13 @@ def count_age_five_to_nine(geo: Geography):
 
 @variable
 def count_age_ten_to_fourteen(geo: Geography):
-    return sum([
-        geo.B01001._005E,
-        geo.B01001._029E,
-    ])
+    return sum(
+        [
+            geo.B01001._005E,
+            geo.B01001._029E,
+        ]
+    )
+
 
 @variable
 def universe_age_ten_to_fourteen(geo: Geography):
@@ -416,29 +433,33 @@ def universe_age_ten_to_fourteen(geo: Geography):
 
 @variable
 def count_age_fifteen_to_nineteen(geo: Geography):
-    return sum([
-        geo.B01001._006E,
-        geo.B01001._007E,
-        geo.B01001._030E,
-        geo.B01001._031E,
-    ])
+    return sum(
+        [
+            geo.B01001._006E,
+            geo.B01001._007E,
+            geo.B01001._030E,
+            geo.B01001._031E,
+        ]
+    )
 
 
 @variable
 def universe_age_fifteen_to_nineteen(geo: Geography):
-    return geo.B01001._001E 
+    return geo.B01001._001E
 
 
 @variable
 def count_age_twenty_to_twentyfour(geo: Geography):
-    return sum([
-        geo.B01001._008E,
-        geo.B01001._009E,
-        geo.B01001._010E,
-        geo.B01001._032E,
-        geo.B01001._033E,
-        geo.B01001._034E,
-    ])
+    return sum(
+        [
+            geo.B01001._008E,
+            geo.B01001._009E,
+            geo.B01001._010E,
+            geo.B01001._032E,
+            geo.B01001._033E,
+            geo.B01001._034E,
+        ]
+    )
 
 
 @variable
@@ -448,23 +469,17 @@ def universe_age_twenty_to_twentyfour(geo: Geography):
 
 @variable
 def count_age_twentyfive_to_twenty_nine(geo: Geography):
-    return sum([
-        geo.B01001._011E,
-        geo.B01001._035E
-    ])
+    return sum([geo.B01001._011E, geo.B01001._035E])
 
 
 @variable
 def universe_age_twentyfive_to_twenty_nine(geo: Geography):
-    return geo.B01001._001E 
+    return geo.B01001._001E
 
 
 @variable
 def count_age_thirty_to_thirtyfour(geo: Geography):
-    return sum([
-        geo.B01001._012E,
-        geo.B01001._036E
-    ])
+    return sum([geo.B01001._012E, geo.B01001._036E])
 
 
 @variable
@@ -474,77 +489,59 @@ def universe_age_thirty_to_thirtyfour(geo: Geography):
 
 @variable
 def count_age_thirtyfive_to_thirtynine(geo: Geography):
-    return sum([
-        geo.B01001._013E,
-        geo.B01001._037E
-    ])
+    return sum([geo.B01001._013E, geo.B01001._037E])
 
 
 @variable
 def universe_age_thirtyfive_to_thirtynine(geo: Geography):
-    return geo.B01001._001E 
+    return geo.B01001._001E
 
 
 @variable
 def count_age_fourty_to_fourtyfour(geo: Geography):
-    return sum([
-        geo.B01001._014E,
-        geo.B01001._038E
-    ])
+    return sum([geo.B01001._014E, geo.B01001._038E])
 
 
 @variable
 def universe_age_fourty_to_fourtyfour(geo: Geography):
-    return geo.B01001._001E 
+    return geo.B01001._001E
 
 
 @variable
 def count_age_fourtyfive_to_fourtynine(geo: Geography):
-    return sum([
-        geo.B01001._015E,
-        geo.B01001._039E
-    ])
+    return sum([geo.B01001._015E, geo.B01001._039E])
 
 
 @variable
 def universe_age_fourtyfive_to_fourtynine(geo: Geography):
-    return geo.B01001._001E 
+    return geo.B01001._001E
 
 
 @variable
 def count_age_fifty_to_fiftyfour(geo: Geography):
-    return sum([
-        geo.B01001._016E,
-        geo.B01001._040E
-    ])
+    return sum([geo.B01001._016E, geo.B01001._040E])
 
 
 @variable
 def universe_age_fifty_to_fiftyfour(geo: Geography):
-    return geo.B01001._001E 
+    return geo.B01001._001E
 
 
 @variable
 def count_age_fiftyfive_to_fiftynine(geo: Geography):
-    return sum([
-        geo.B01001._017E,
-        geo.B01001._041E
-    ])
+    return sum([geo.B01001._017E, geo.B01001._041E])
 
 
 @variable
 def universe_age_fiftyfive_to_fiftynine(geo: Geography):
-    return geo.B01001._001E 
+    return geo.B01001._001E
 
 
 @variable
 def count_age_sixty_to_sixtyfour(geo: Geography):
-    return sum([
-        geo.B01001._018E,
-        geo.B01001._019E,
-        geo.B01001._042E,
-        geo.B01001._043E
-    ])
+    return sum(
+        [geo.B01001._018E, geo.B01001._019E, geo.B01001._042E, geo.B01001._043E]
+    )
 
 
 @variable
@@ -554,12 +551,9 @@ def universe_age_sixty_to_sixtyfour(geo: Geography):
 
 @variable
 def count_age_sixtyfive_to_sixtynine(geo: Geography):
-    return sum([
-        geo.B01001._020E,
-        geo.B01001._021E,
-        geo.B01001._044E,
-        geo.B01001._045E
-    ])
+    return sum(
+        [geo.B01001._020E, geo.B01001._021E, geo.B01001._044E, geo.B01001._045E]
+    )
 
 
 @variable
@@ -569,10 +563,13 @@ def universe_age_sixtyfive_to_sixtynine(geo: Geography):
 
 @variable
 def count_age_seventy_to_seventyfour(geo: Geography):
-    return sum([
-        geo.B01001._022E,
-        geo.B01001._046E,
-    ])
+    return sum(
+        [
+            geo.B01001._022E,
+            geo.B01001._046E,
+        ]
+    )
+
 
 @variable
 def universe_age_seventy_to_seventyfour(geo: Geography):
@@ -581,10 +578,12 @@ def universe_age_seventy_to_seventyfour(geo: Geography):
 
 @variable
 def count_age_seventyfive_to_seventynine(geo: Geography):
-    return sum([
-        geo.B01001._023E,
-        geo.B01001._047E,
-    ])
+    return sum(
+        [
+            geo.B01001._023E,
+            geo.B01001._047E,
+        ]
+    )
 
 
 @variable
@@ -594,10 +593,12 @@ def universe_age_seventyfive_to_seventynine(geo: Geography):
 
 @variable
 def count_age_eighty_to_eightyfour(geo: Geography):
-    return sum([
-        geo.B01001._024E,
-        geo.B01001._048E,
-    ])
+    return sum(
+        [
+            geo.B01001._024E,
+            geo.B01001._048E,
+        ]
+    )
 
 
 @variable
@@ -607,10 +608,12 @@ def universe_age_eighty_to_eightyfour(geo: Geography):
 
 @variable
 def count_age_eightyfive_and_up(geo: Geography):
-    return sum([
-        geo.B01001._025E,
-        geo.B01001._049E,
-    ])
+    return sum(
+        [
+            geo.B01001._025E,
+            geo.B01001._049E,
+        ]
+    )
 
 
 @variable
@@ -619,6 +622,7 @@ def universe_age_eightyfive_and_up(geo: Geography):
 
 
 # Race / Ethnicity
+
 
 @variable
 def count_aian(geo: Geography):
@@ -701,6 +705,7 @@ def universe_two_plus_races(geo: Geography):
 
 
 # Grabbing these for estimating median housing value
+
 
 @variable
 def oo_value_dist_1(geo: Geography):
@@ -832,9 +837,8 @@ def oo_value_dist_26(geo: Geography):
     return geo.B25075._027E
 
 
-
-
 # These are for the hierfindal -- not currently calculating
+
 
 @variable
 def income_lt_10000(geo: Geography):
@@ -975,16 +979,15 @@ def num_households_with_children(geo: Geography):
 
 def extract(logger):
     """
-    This data doesn't change frequently (if ever), so 'extract' checks 
+    This data doesn't change frequently (if ever), so 'extract' checks
     to see if there are files from previous extracts available to avoid
     hitting the API unnecessairily.
     """
 
-    DETROIT = create_geography(state="26", county="163", county_subdivision="22000")
+    DETROIT = create_geography(
+        state="26", county="163", county_subdivision="22000"
+    )
     WAYNE_TRACTS = create_geography(state="26", county="163", tract="*")
-
-    ACS_5_2023 = create_edition("acs5", 2023)
-
 
     if (WORKING_DIR / "input" / f"nvi_2024_acs.parquet.gzip").exists():
         logger.info(
@@ -992,10 +995,10 @@ def extract(logger):
         )
         return
 
+    logger.info(f"Pulling all ACS data for {YEAR}")
 
-    logger.info("Pulling all ACS data")
-
-    all_acs = build_profile(
+    edition = create_edition("acs5", YEAR)
+    acs_present = build_profile(
         [DETROIT, WAYNE_TRACTS],
         [
             count_above_200_fpl,
@@ -1090,9 +1093,74 @@ def extract(logger):
             # universe_child_below_poverty,
             # universe_median_housing_value,
         ],
-        ACS_5_2023
+        edition,
+    ).assign(
+        year=YEAR,
     )
 
-    all_acs.to_parquet(
+    
+    comparisons = [acs_present]
+    for year in COMPARISON_YEARS:
+        edition = create_edition("acs5", year)
+        profile = build_profile(
+            [DETROIT, WAYNE_TRACTS],
+            [
+                count_above_200_fpl,
+                universe_above_200_fpl,
+                count_hs_diploma,
+                universe_hs_diploma,
+                count_postsecondary,
+                universe_postsecondary,
+                count_oo_no_cost_burden,
+                universe_oo_no_cost_burden,
+                count_ro_no_cost_burden,
+                universe_ro_no_cost_burden,
+                count_over_20_seeking_emp,
+                universe_over_20_seeking_emp,
+                count_btwn_16_19_seeking_emp,
+                universe_btwn_16_19_seeking_emp,
+                count_aian,
+                count_asian,
+                count_black,
+                count_hispanic_latino,
+                count_nhpi,
+                count_white,
+                count_other_race,
+                count_two_plus_races,
+                universe_aian,
+                universe_asian,
+                universe_black,
+                universe_hispanic_latino,
+                universe_nhpi,
+                universe_white,
+                universe_other_race,
+                universe_two_plus_races,
+                count_population,
+                count_population_under_18,
+                count_population_over_65,
+                # count_pop_per_sq_mi,
+                count_home_ownership_rate,
+                count_occupancy,
+                count_married_couples,
+                count_male_householder,
+                count_female_householder,
+                # count_non_family,
+                # count_child_below_poverty,
+                # count_median_housing_value,
+                # universe_pop_per_sq_mi,
+                universe_home_ownership_rate,
+                universe_occupancy,
+                universe_married_couples,
+                universe_male_householder,
+                universe_female_householder,
+                # universe_non_family,
+                # universe_child_below_poverty,
+                # universe_median_housing_value,
+            ],
+            edition,
+        ).assign(year=year)
+        comparisons.append(profile)
+
+    pd.concat(comparisons).to_parquet(
         WORKING_DIR / "input" / f"nvi_2024_acs.parquet.gzip"
     )
