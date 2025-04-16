@@ -1106,21 +1106,21 @@
           "column": "City government:Community_Engagement_Process_Participation",
           "question_id": 4,
           "options": {
-            "values": [6]
+            "values": [36]
           }
         },
         "2": {
           "column": "Community development organization(s):Community_Engagement_Process_Participation",
           "question_id": 4,
           "options": {
-            "values": [5]
+            "values": [36]
           }
         },
         "3": {
           "column": "Other (please describe)::Community_Engagement_Process_Participation",
           "question_id": 4,
           "options": {
-            "values": [8]
+            "values": [36]
           }
         }
       }
