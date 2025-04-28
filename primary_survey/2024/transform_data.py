@@ -4,6 +4,7 @@ import os
 import json
 import pandas as pd
 import geopandas as gpd
+import shapely.geometry import Point
 
 WORKING_DIR = Path(__file__).parent
 
@@ -144,7 +145,7 @@ def transform_data(logger):
     df = pd.read_csv(config["nvi_2024_config"]["survey_responses"] , encoding="latin-1")
 
     # Load the Shapefiles
-    zones = gpd.read_file("P:/2024_Projects/NVI24/Development/Workspace/Abhi Workspace/Secondary Data Pull/NVI Zones/nvi_neighborhood_zones_temp_2025.shp")
+    zones = gpd.read_file("P:/2024_Projects/NVI24/Development/Workspace/Abhi Workspace/Secondary Data Pull/NVI Zones/nvi_neighborhood_zones_temp_2025.shp") # TODO Switch these to aux geography eventually
     city = gpd.read_file("P:/2024_Projects/NVI24/Development/Workspace/Abhi Workspace/Secondary Data Pull/City_of_Detroit_Boundary/City_of_Detroit_Boundary.shp")
     districts = gpd.read_file("P:/2024_Projects/NVI24/Development/Workspace/Abhi Workspace/Secondary Data Pull/Detroit_City_Council_Districts_2026/Detroit_City_Council_Districts_2026.shp")
 
