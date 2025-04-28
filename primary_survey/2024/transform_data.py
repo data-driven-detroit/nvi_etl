@@ -4,7 +4,7 @@ import os
 import json
 import pandas as pd
 import geopandas as gpd
-import shapely.geometry import Point
+from shapely.geometry import Point
 
 WORKING_DIR = Path(__file__).parent
 
