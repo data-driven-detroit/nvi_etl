@@ -3,14 +3,14 @@ import configparser
 import os
 import json
 import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Point
 
 WORKING_DIR = Path(__file__).parent
 
-# This was commented out, check reviewing to see if this is captured in the later aggregation step?
-# Columns that need to be combined
-# for combined_col, cols_to_combine in config['combine_columns'].items():
-#     survey_data[combined_col] = survey_data[cols_to_combine].apply(lambda row: ''.join(row.dropna().astype(str)), axis=1)
-#     survey_data.drop(columns=cols_to_combine, inplace = True)
+
+def assign_geo():
+    
 
 def recode(survey_data, indicator_map, logger):
     """
@@ -144,11 +144,29 @@ def transform_data(logger):
     # Raw Survey Data
     df = pd.read_csv(config["nvi_2024_config"]["survey_responses"] , encoding="latin-1")
 
-    # Geocode with zones
-    geo = pd.read_csv(config["nvi_2024_config"]["geocoded_info"])
+    # Load the Shapefiles
+    zones = gpd.read_file("P:/2024_Projects/NVI24/Development/Workspace/Abhi Workspace/Secondary Data Pull/NVI Zones/nvi_neighborhood_zones_temp_2025.shp") # TODO Switch these to aux geography eventually
+    city = gpd.read_file("P:/2024_Projects/NVI24/Development/Workspace/Abhi Workspace/Secondary Data Pull/City_of_Detroit_Boundary/City_of_Detroit_Boundary.shp")
+    districts = gpd.read_file("P:/2024_Projects/NVI24/Development/Workspace/Abhi Workspace/Secondary Data Pull/Detroit_City_Council_Districts_2026/Detroit_City_Council_Districts_2026.shp")
 
-    # combining district/zones
-    df = df.merge(geo, left_on="Response ID", right_on="id")
+    # Create GeoDataframe from CSV
+    geometry = [Point(xy) for xy in zip(df['long'], df['lat])]
+    gdf = gpd.GeoDataFrame(df, geometry, crs=districts.crs)
+
+    # Joins for City, District, and Zones
+    gdf = gpd.sjoin(gdf, city[['geometry', 'city_name']], how='left, predicate='within') # TODO check column name
+    gdf = gdf.rename(columns={'city': 'citywide'} # the column here should be 'citywide and filled with detroit, need to check shapefile name
+    gdf = gdf.drop(columns='index_right')
+
+    gdf = gpd.sjoin(gdf, district[['geometry', 'district_number']], how='left, predicate='within')
+    gdf = gdf.rename(columns='district_n': 'district_number'})
+    gdf = gdf.drop(columns='index_right')
+
+    gdf = gdp.sjoin(gdf, zones[['geom', 'zone']], how ='left', predicate='within')
+    gdf = gdf.drop(columns='index_right')
+
+    # convert back to df -- with citywide, district, and zone columns
+    df = pd.DataFrame(df.drop(columns='geometry))
     
     # Recode the data to match the ids supplied by Brian
     recoded = recode(df, indicator_map, logger)
