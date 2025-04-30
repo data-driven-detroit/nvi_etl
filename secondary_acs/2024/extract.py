@@ -1,22 +1,17 @@
 from pathlib import Path
 import pandas as pd
-from d3census import (
-    variable,
-    Geography,
-    create_geography,
-    create_edition,
-    build_profile,
-)
-from age_distribution import AGE_DISTRIBUTION_VARIABLES
-from income_distribution import INCOME_DISTRIBUTION_VARIABLES
-from race_ethnicity import RACE_ETHNICITY_VARIABLES
-from home_value_distribution import HOME_VALUE_DISTRIBUTION_VARIABLES
-from other_indicators import OTHER_INDICATORS
+from d3census import create_geography, create_edition, build_profile
+
+from variables.age_distribution import AGE_DISTRIBUTION_VARIABLES
+from variables.income_distribution import INCOME_DISTRIBUTION_VARIABLES
+from variables.race_ethnicity import RACE_ETHNICITY_VARIABLES
+from variables.home_value_distribution import HOME_VALUE_DISTRIBUTION_VARIABLES
+from variables.other_indicators import OTHER_INDICATORS
+from variables.over_time import OVERTIME_INDICATORS
 
 
 WORKING_DIR = Path(__file__).resolve().parent
-YEAR = 2023
-COMPARISON_YEARS = [2013, 2018]
+YEARS = [2013, 2018, 2023]
 
 # 'VALUE' INDICATORS
 
@@ -41,9 +36,11 @@ def extract(logger):
         )
         return
 
-    logger.info(f"Pulling all ACS data for {YEAR}")
 
-    edition = create_edition("acs5", YEAR)
+    # Some indicators we're only pulling for one year
+    logger.info(f"Pulling all ACS data for {YEARS[-1]}")
+
+    edition = create_edition("acs5", YEARS[-1])
     acs_present = build_profile(
         [DETROIT, WAYNE_TRACTS],
         [
@@ -51,25 +48,24 @@ def extract(logger):
             *RACE_ETHNICITY_VARIABLES,
             *INCOME_DISTRIBUTION_VARIABLES,
             *HOME_VALUE_DISTRIBUTION_VARIABLES,
-            *OTHER_INDICATORS,
+            *OTHER_INDICATORS
         ],
         edition,
-    ).assign(
-        year=YEAR,
-    )
+    ).assign(year=YEARS[-1])
 
+    # Other indicators are pulled over time
     comparisons = [acs_present]
-    for year in COMPARISON_YEARS:
+    for year in YEARS:
+        logger.info(f"Pulling overtime data for {year}")
         edition = create_edition("acs5", year)
         profile = build_profile(
             [DETROIT, WAYNE_TRACTS],
-            [
-                *OTHER_INDICATORS
-            ],
+            OVERTIME_INDICATORS,
             edition,
         ).assign(year=year)
         comparisons.append(profile)
 
+    # Save everything compiled into one document
     pd.concat(comparisons).to_parquet(
         WORKING_DIR / "input" / f"nvi_2024_acs.parquet.gzip"
     )

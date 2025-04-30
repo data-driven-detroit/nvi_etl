@@ -13,8 +13,6 @@ from d3census import (
 WORKING_DIR = working_dir(__file__)
 
 
-
-
 @variable
 def b01003001(geo: Geography):
     return geo.B01003._001E
