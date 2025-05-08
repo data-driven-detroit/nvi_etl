@@ -1,0 +1,17 @@
+{
+    "renames": {
+        "GEOID20": "__tract_geoid",
+        "DistrictNu": "district_number",
+        "ZoneName": "zone_name"
+    },
+    "recodes": {},
+    "column_order": [
+        "tract_geoid",
+        "zone_name",
+        "district_number",
+        "tract_start_date",
+        "tract_end_date",
+        "zone_start_date",
+        "zone_end_date"
+    ]
+}

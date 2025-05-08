@@ -1,0 +1,13 @@
+{
+    "renames": {
+        "DistrictNu": "district_number",
+        "sqmi": "square_miles"
+    },
+    "column_order": [
+        "district_number",
+        "square_miles",
+        "start_date",
+        "end_date",
+        "geometry"
+    ]
+}

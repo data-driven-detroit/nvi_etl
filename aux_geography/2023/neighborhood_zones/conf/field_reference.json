@@ -1,0 +1,14 @@
+{
+    "rename": {
+        "ZoneName": "zone_id",
+        "DistrictNu": "district_number"
+    },
+    "order": [
+        "zone_id",
+        "district_number",
+        "square_miles",
+        "start_date",
+        "end_date",
+        "geometry"
+    ]
+}
