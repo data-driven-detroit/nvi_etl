@@ -1,0 +1,319 @@
+column_name,value,indicator_id,question_id,question_option_id
+Block_Neighborhood_Community_Group_Participation:Activity_Participation_Frequency,1,2,1,1
+Block_Neighborhood_Community_Group_Participation:Activity_Participation_Frequency,2,2,1,2
+Block_Neighborhood_Community_Group_Participation:Activity_Participation_Frequency,3,2,1,3
+Block_Neighborhood_Community_Group_Participation:Activity_Participation_Frequency,4,2,1,4
+Community_Group_Outside_of_Neighborhod_Participation:Activity_Participation_Frequency,1,2,2,1
+Community_Group_Outside_of_Neighborhod_Participation:Activity_Participation_Frequency,2,2,2,2
+Community_Group_Outside_of_Neighborhod_Participation:Activity_Participation_Frequency,3,2,2,3
+Community_Group_Outside_of_Neighborhod_Participation:Activity_Participation_Frequency,4,2,2,4
+Child_Quality_Recreation:Agreement_Statements_Access_and_Support,0,61,61,16
+Child_Quality_Recreation:Agreement_Statements_Access_and_Support,1,61,61,17
+Child_Quality_Recreation:Agreement_Statements_Access_and_Support,2,61,61,18
+Child_Quality_Recreation:Agreement_Statements_Access_and_Support,3,61,61,19
+Child_Quality_Recreation:Agreement_Statements_Access_and_Support,4,61,61,20
+Child_Quality_Recreation:Agreement_Statements_Access_and_Support,5,61,61,21
+Stay_12_Months:Agreement_Statements_Access_and_Support,0,1,1,16
+Stay_12_Months:Agreement_Statements_Access_and_Support,1,1,1,17
+Stay_12_Months:Agreement_Statements_Access_and_Support,2,1,1,18
+Stay_12_Months:Agreement_Statements_Access_and_Support,3,1,1,19
+Stay_12_Months:Agreement_Statements_Access_and_Support,4,1,1,20
+Stay_12_Months:Agreement_Statements_Access_and_Support,5,1,1,21
+Financial:Agreement_Statements_Detroit_Access,0,3,7,16
+Financial:Agreement_Statements_Detroit_Access,1,3,7,17
+Financial:Agreement_Statements_Detroit_Access,2,3,7,18
+Financial:Agreement_Statements_Detroit_Access,3,3,7,19
+Financial:Agreement_Statements_Detroit_Access,4,3,7,20
+Financial:Agreement_Statements_Detroit_Access,5,3,7,21
+Housing:Agreement_Statements_Detroit_Access,0,3,6,16
+Housing:Agreement_Statements_Detroit_Access,1,3,6,17
+Housing:Agreement_Statements_Detroit_Access,2,3,6,18
+Housing:Agreement_Statements_Detroit_Access,3,3,6,19
+Housing:Agreement_Statements_Detroit_Access,4,3,6,20
+Housing:Agreement_Statements_Detroit_Access,5,3,6,21
+Human_Services:Agreement_Statements_Detroit_Access,0,3,10,16
+Human_Services:Agreement_Statements_Detroit_Access,1,3,10,17
+Human_Services:Agreement_Statements_Detroit_Access,2,3,10,18
+Human_Services:Agreement_Statements_Detroit_Access,3,3,10,19
+Human_Services:Agreement_Statements_Detroit_Access,4,3,10,20
+Human_Services:Agreement_Statements_Detroit_Access,5,3,10,21
+Medical_Care:Agreement_Statements_Detroit_Access,0,3,8,16
+Medical_Care:Agreement_Statements_Detroit_Access,1,3,8,17
+Medical_Care:Agreement_Statements_Detroit_Access,2,3,8,18
+Medical_Care:Agreement_Statements_Detroit_Access,3,3,8,19
+Medical_Care:Agreement_Statements_Detroit_Access,4,3,8,20
+Medical_Care:Agreement_Statements_Detroit_Access,5,3,8,21
+Mental_Health_Services:Agreement_Statements_Detroit_Access,0,3,9,16
+Mental_Health_Services:Agreement_Statements_Detroit_Access,1,3,9,17
+Mental_Health_Services:Agreement_Statements_Detroit_Access,2,3,9,18
+Mental_Health_Services:Agreement_Statements_Detroit_Access,3,3,9,19
+Mental_Health_Services:Agreement_Statements_Detroit_Access,4,3,9,20
+Mental_Health_Services:Agreement_Statements_Detroit_Access,5,3,9,21
+BRFSS_Healthcare_RaceTreatment,1,51,115,158
+BRFSS_Healthcare_RaceTreatment,2,51,115,159
+BRFSS_Healthcare_RaceTreatment,3,51,115,160
+BRFSS_Healthcare_RaceTreatment,4,51,115,161
+BRFSS_Work_RaceTreatment,1,50,114,158
+BRFSS_Work_RaceTreatment,2,50,114,159
+BRFSS_Work_RaceTreatment,3,50,114,160
+BRFSS_Work_RaceTreatment,4,50,114,161
+Childcare_Prevent_Work_Meetings_Appointments,1,64,52,1
+Childcare_Prevent_Work_Meetings_Appointments,2,64,52,2
+Childcare_Prevent_Work_Meetings_Appointments,3,64,52,3
+Childcare_Prevent_Work_Meetings_Appointments,4,64,52,4
+Childcare_Prevent_Work_Meetings_Appointments,5,64,52,38
+City government:Community_Engagement_Process_Participation,2,5,4,6
+Community development organization(s):Community_Engagement_Process_Participation,1,5,4,5
+Other (please describe)::Community_Engagement_Process_Participation,4,5,4,8
+I have not participated in a community engagement process:Community_Engagement_Process_Participation,3,5,4,7
+Concerns about my ability to protect personal information online:Concerns_Using_Devices,1,57,95,111
+Concerns about protecting my financial information:Concerns_Using_Devices,2,57,95,112
+Worries about online security or cyber threats:Concerns_Using_Devices,3,57,95,113
+Fear of being hacked or getting a virus:Concerns_Using_Devices,4,57,95,114
+Worries about tracking and surveillance by companies:Concerns_Using_Devices,5,57,95,115
+Worries about tracking and surveillance by the government:Concerns_Using_Devices,6,57,95,116
+Concerns about being able to determine if online content is real:Concerns_Using_Devices,7,57,95,117
+I do not have any of these concerns:Concerns_Using_Devices,8,57,95,118
+Fam_Incarcerated_YN:Crime_and_COVID_Best_Answer,0,46,65,39
+Fam_Incarcerated_YN:Crime_and_COVID_Best_Answer,1,46,65,36
+Fam_Incarcerated_YN:Crime_and_COVID_Best_Answer,2,46,65,37
+Victim_Neighborhood_YN:Crime_and_COVID_Best_Answer,0,55,66,39
+Victim_Neighborhood_YN:Crime_and_COVID_Best_Answer,1,55,66,36
+Victim_Neighborhood_YN:Crime_and_COVID_Best_Answer,2,55,66,37
+Meets_Needs_Now:Current_Housing,1,41,19,17
+Meets_Needs_Now:Current_Housing,2,41,19,18
+Meets_Needs_Now:Current_Housing,3,41,19,19
+Meets_Needs_Now:Current_Housing,4,41,19,20
+Meets_Needs_Now:Current_Housing,5,41,19,21
+Will_Meet_Needs_10_Years:Current_Housing,1,42,20,17
+Will_Meet_Needs_10_Years:Current_Housing,2,42,20,18
+Will_Meet_Needs_10_Years:Current_Housing,3,42,20,19
+Will_Meet_Needs_10_Years:Current_Housing,4,42,20,20
+Will_Meet_Needs_10_Years:Current_Housing,5,42,20,21
+Currently_Employed,1,18,11,22
+Currently_Employed,2,18,11,23
+Currently_Employed,3,18,11,24
+Currently_Employed,4,18,11,25
+Detroit_Business_Ownership,1,9,12,26
+Detroit_Business_Ownership,2,9,12,27
+Detroit_Business_Ownership,3,9,12,28
+Detroit_Business_Ownership,4,9,12,29
+Detroit_Business_Ownership,5,9,12,30
+Employment_Impacted_By_COVID,1,48,110,151
+Employment_Impacted_By_COVID,2,48,110,152
+Employment_Impacted_By_COVID,3,48,110,153
+Employment_Impacted_By_COVID,4,48,110,154
+Employment_Impacted_By_COVID,5,48,110,155
+Employment_Impacted_By_COVID,9,48,110,150
+Mental_Health:Health_Satisfaction,1,37,36,55
+Mental_Health:Health_Satisfaction,2,37,36,56
+Mental_Health:Health_Satisfaction,3,37,36,57
+Mental_Health:Health_Satisfaction,4,37,36,58
+Mental_Health:Health_Satisfaction,5,37,36,59
+Physical:Health_Satisfaction,1,37,35,55
+Physical:Health_Satisfaction,2,37,35,56
+Physical:Health_Satisfaction,3,37,35,57
+Physical:Health_Satisfaction,4,37,35,58
+Physical:Health_Satisfaction,5,37,35,59
+SocioEmotional_Support:Health_Satisfaction,1,38,37,55
+SocioEmotional_Support:Health_Satisfaction,2,38,37,56
+SocioEmotional_Support:Health_Satisfaction,3,38,37,57
+SocioEmotional_Support:Health_Satisfaction,4,38,37,58
+SocioEmotional_Support:Health_Satisfaction,5,38,37,59
+General distrust of law enforcement:Hesitate_Reporting_Crime_Reason,1,54,71,71
+"Concern that I won\u2019t be taken seriously, or no action will be taken:Hesitate_Reporting_Crime_Reason",2,54,71,72
+Fear of retaliation:Hesitate_Reporting_Crime_Reason,3,54,71,73
+Risk of consequences from immigration (such as deportation):Hesitate_Reporting_Crime_Reason,4,54,71,74
+Other:Hesitate_Reporting_Crime_Reason,5,54,71,75
+I would not hesitate or avoid reporting crime:Hesitate_Reporting_Crime_Reason,6,54,71,76
+I have not participated in any of these activities:In_The_Last_12_Months,0,6,5,9
+Cleaned up or improved park/open spaces:In_The_Last_12_Months,1,6,5,10
+Cleaned up or improved alley ways:In_The_Last_12_Months,2,6,5,11
+Secured or improved vacant housing:In_The_Last_12_Months,3,6,5,12
+Cleaned up or improved lot(s) <u>that I do <b>not</b> own</u>:In_The_Last_12_Months,4,6,5,13
+Cleaned up or improved lot(s) <u>that I own</u>:In_The_Last_12_Months,5,6,5,14
+Purchased a lot or lots near my home:In_The_Last_12_Months,6,6,5,15
+"Yes, I can access the internet at home using a mobile data plan (on my cell phone or via hotspot):Internet_At_Home",1,52,92,91
+"Yes, I can access the internet at home using my home internet service:Internet_At_Home",2,52,92,92
+"Yes, I can access the internet at home but I\u2019m unsure which of these apply:Internet_At_Home",3,52,92,93
+"Yes, I can access the internet at home but I need assistance from a friend or family member to do so:Internet_At_Home",4,52,92,94
+"No, I cannot access the internet at home:Internet_At_Home",5,52,92,95
+"No, none of these issues have prevented me from using the internet or a device:Issues_Prevent_Use_Device",8,56,94,96
+Finance_Prevent_Healthcare:Needs_In_Past_12_Months,1,19,16,36
+Finance_Prevent_Healthcare:Needs_In_Past_12_Months,2,19,16,37
+Finance_Prevent_Healthcare:Needs_In_Past_12_Months,3,19,16,39
+Bail_System:Negatively_Impacted_Or_Harmed_By,0,53,69,39
+Bail_System:Negatively_Impacted_Or_Harmed_By,1,53,69,36
+Bail_System:Negatively_Impacted_Or_Harmed_By,2,53,69,37
+Amenities:Neighborhood_Access_Satisfaction,0,36,41,54
+Amenities:Neighborhood_Access_Satisfaction,1,36,41,55
+Amenities:Neighborhood_Access_Satisfaction,2,36,41,56
+Amenities:Neighborhood_Access_Satisfaction,3,36,41,57
+Amenities:Neighborhood_Access_Satisfaction,4,36,41,58
+Amenities:Neighborhood_Access_Satisfaction,5,36,41,59
+K_12_Public_Charter_Schools:Neighborhood_Access_Satisfaction,0,34,39,54
+K_12_Public_Charter_Schools:Neighborhood_Access_Satisfaction,1,34,39,55
+K_12_Public_Charter_Schools:Neighborhood_Access_Satisfaction,2,34,39,56
+K_12_Public_Charter_Schools:Neighborhood_Access_Satisfaction,3,34,39,57
+K_12_Public_Charter_Schools:Neighborhood_Access_Satisfaction,4,34,39,58
+K_12_Public_Charter_Schools:Neighborhood_Access_Satisfaction,5,34,39,59
+Parks_Playgrounds_and_Public Spaces:Neighborhood_Access_Satisfaction,0,35,40,54
+Parks_Playgrounds_and_Public Spaces:Neighborhood_Access_Satisfaction,1,35,40,55
+Parks_Playgrounds_and_Public Spaces:Neighborhood_Access_Satisfaction,2,35,40,56
+Parks_Playgrounds_and_Public Spaces:Neighborhood_Access_Satisfaction,3,35,40,57
+Parks_Playgrounds_and_Public Spaces:Neighborhood_Access_Satisfaction,4,35,40,58
+Parks_Playgrounds_and_Public Spaces:Neighborhood_Access_Satisfaction,5,35,40,59
+Air_Pollution:Neighborhood_Environmental_Severity,0,47,73,77
+Air_Pollution:Neighborhood_Environmental_Severity,1,47,73,78
+Air_Pollution:Neighborhood_Environmental_Severity,2,47,73,79
+Air_Pollution:Neighborhood_Environmental_Severity,3,47,73,80
+Air_Pollution:Neighborhood_Environmental_Severity,4,47,73,81
+Brownfields:Neighborhood_Environmental_Severity,0,47,80,77
+Brownfields:Neighborhood_Environmental_Severity,1,47,80,78
+Brownfields:Neighborhood_Environmental_Severity,2,47,80,79
+Brownfields:Neighborhood_Environmental_Severity,3,47,80,80
+Brownfields:Neighborhood_Environmental_Severity,4,47,80,81
+Flooding:Neighborhood_Environmental_Severity,0,47,76,77
+Flooding:Neighborhood_Environmental_Severity,1,47,76,78
+Flooding:Neighborhood_Environmental_Severity,2,47,76,79
+Flooding:Neighborhood_Environmental_Severity,3,47,76,80
+Flooding:Neighborhood_Environmental_Severity,4,47,76,81
+Heat:Neighborhood_Environmental_Severity,0,47,78,77
+Heat:Neighborhood_Environmental_Severity,1,47,78,78
+Heat:Neighborhood_Environmental_Severity,2,47,78,79
+Heat:Neighborhood_Environmental_Severity,3,47,78,80
+Heat:Neighborhood_Environmental_Severity,4,47,78,81
+Illegal_Dump:Neighborhood_Environmental_Severity,0,47,72,77
+Illegal_Dump:Neighborhood_Environmental_Severity,1,47,72,78
+Illegal_Dump:Neighborhood_Environmental_Severity,2,47,72,79
+Illegal_Dump:Neighborhood_Environmental_Severity,3,47,72,80
+Illegal_Dump:Neighborhood_Environmental_Severity,4,47,72,81
+Lead:Neighborhood_Environmental_Severity,0,47,74,77
+Lead:Neighborhood_Environmental_Severity,1,47,74,78
+Lead:Neighborhood_Environmental_Severity,2,47,74,79
+Lead:Neighborhood_Environmental_Severity,3,47,74,80
+Lead:Neighborhood_Environmental_Severity,4,47,74,81
+Power-Outages:Neighborhood_Environmental_Severity,0,47,79,77
+Power-Outages:Neighborhood_Environmental_Severity,1,47,79,78
+Power-Outages:Neighborhood_Environmental_Severity,2,47,79,79
+Power-Outages:Neighborhood_Environmental_Severity,3,47,79,80
+Power-Outages:Neighborhood_Environmental_Severity,4,47,79,81
+Stray_Dogs:Neighborhood_Environmental_Severity,0,47,75,77
+Stray_Dogs:Neighborhood_Environmental_Severity,1,47,75,78
+Stray_Dogs:Neighborhood_Environmental_Severity,2,47,75,79
+Stray_Dogs:Neighborhood_Environmental_Severity,3,47,75,80
+Stray_Dogs:Neighborhood_Environmental_Severity,4,47,75,81
+Water_Quality:Neighborhood_Environmental_Severity,0,47,77,77
+Water_Quality:Neighborhood_Environmental_Severity,1,47,77,78
+Water_Quality:Neighborhood_Environmental_Severity,2,47,77,79
+Water_Quality:Neighborhood_Environmental_Severity,3,47,77,80
+Water_Quality:Neighborhood_Environmental_Severity,4,47,77,81
+Fresh_Healthy_Food:Neighborhood_Health_Related_Access,0,33,45,54
+Fresh_Healthy_Food:Neighborhood_Health_Related_Access,1,33,45,55
+Fresh_Healthy_Food:Neighborhood_Health_Related_Access,2,33,45,56
+Fresh_Healthy_Food:Neighborhood_Health_Related_Access,3,33,45,57
+Fresh_Healthy_Food:Neighborhood_Health_Related_Access,4,33,45,58
+Fresh_Healthy_Food:Neighborhood_Health_Related_Access,5,33,45,59
+Medical_Care:Neighborhood_Health_Related_Access,0,33,42,54
+Medical_Care:Neighborhood_Health_Related_Access,1,33,42,55
+Medical_Care:Neighborhood_Health_Related_Access,2,33,42,56
+Medical_Care:Neighborhood_Health_Related_Access,3,33,42,57
+Medical_Care:Neighborhood_Health_Related_Access,4,33,42,58
+Medical_Care:Neighborhood_Health_Related_Access,5,33,42,59
+Mental_Health_Services:Neighborhood_Health_Related_Access,0,33,43,54
+Mental_Health_Services:Neighborhood_Health_Related_Access,1,33,43,55
+Mental_Health_Services:Neighborhood_Health_Related_Access,2,33,43,56
+Mental_Health_Services:Neighborhood_Health_Related_Access,3,33,43,57
+Mental_Health_Services:Neighborhood_Health_Related_Access,4,33,43,58
+Mental_Health_Services:Neighborhood_Health_Related_Access,5,33,43,59
+Places_to_be_Active:Neighborhood_Health_Related_Access,0,33,44,54
+Places_to_be_Active:Neighborhood_Health_Related_Access,1,33,44,55
+Places_to_be_Active:Neighborhood_Health_Related_Access,2,33,44,56
+Places_to_be_Active:Neighborhood_Health_Related_Access,3,33,44,57
+Places_to_be_Active:Neighborhood_Health_Related_Access,4,33,44,58
+Places_to_be_Active:Neighborhood_Health_Related_Access,5,33,44,59
+Neighborhood:Neighborhood_Safety_Perception,0,29,33,61
+Neighborhood:Neighborhood_Safety_Perception,1,29,33,62
+Neighborhood:Neighborhood_Safety_Perception,2,29,33,63
+Neighborhood:Neighborhood_Safety_Perception,3,29,33,64
+Neighborhood:Neighborhood_Safety_Perception,4,29,33,65
+Public_Spaces:Neighborhood_Safety_Perception,0,40,40,61
+Public_Spaces:Neighborhood_Safety_Perception,1,40,40,62
+Public_Spaces:Neighborhood_Safety_Perception,2,40,40,63
+Public_Spaces:Neighborhood_Safety_Perception,3,40,40,64
+Public_Spaces:Neighborhood_Safety_Perception,4,40,40,65
+Condition_of_Vacant_Commercial_Buildings:Neighborhood_Satisfaction,0,27,30,54
+Condition_of_Vacant_Commercial_Buildings:Neighborhood_Satisfaction,1,27,30,55
+Condition_of_Vacant_Commercial_Buildings:Neighborhood_Satisfaction,2,27,30,56
+Condition_of_Vacant_Commercial_Buildings:Neighborhood_Satisfaction,3,27,30,57
+Condition_of_Vacant_Commercial_Buildings:Neighborhood_Satisfaction,4,27,30,58
+Condition_of_Vacant_Commercial_Buildings:Neighborhood_Satisfaction,5,27,30,59
+Condition_of_Vacant_Lots:Neighborhood_Satisfaction,0,25,31,54
+Condition_of_Vacant_Lots:Neighborhood_Satisfaction,1,25,31,55
+Condition_of_Vacant_Lots:Neighborhood_Satisfaction,2,25,31,56
+Condition_of_Vacant_Lots:Neighborhood_Satisfaction,3,25,31,57
+Condition_of_Vacant_Lots:Neighborhood_Satisfaction,4,25,31,58
+Condition_of_Vacant_Lots:Neighborhood_Satisfaction,5,25,31,59
+Condition_of_Vacant_Residential_Buildings:Neighborhood_Satisfaction,0,23,29,54
+Condition_of_Vacant_Residential_Buildings:Neighborhood_Satisfaction,1,23,29,55
+Condition_of_Vacant_Residential_Buildings:Neighborhood_Satisfaction,2,23,29,56
+Condition_of_Vacant_Residential_Buildings:Neighborhood_Satisfaction,3,23,29,57
+Condition_of_Vacant_Residential_Buildings:Neighborhood_Satisfaction,4,23,29,58
+Condition_of_Vacant_Residential_Buildings:Neighborhood_Satisfaction,5,23,29,59
+Neighborhood_Infrastructure:Neighborhood_Satisfaction,0,26,32,54
+Neighborhood_Infrastructure:Neighborhood_Satisfaction,1,26,32,55
+Neighborhood_Infrastructure:Neighborhood_Satisfaction,2,26,32,56
+Neighborhood_Infrastructure:Neighborhood_Satisfaction,3,26,32,57
+Neighborhood_Infrastructure:Neighborhood_Satisfaction,4,26,32,58
+Neighborhood_Infrastructure:Neighborhood_Satisfaction,5,26,32,59
+Quality_of_Housing:Neighborhood_Satisfaction,0,45,28,54
+Quality_of_Housing:Neighborhood_Satisfaction,1,45,28,55
+Quality_of_Housing:Neighborhood_Satisfaction,2,45,28,56
+Quality_of_Housing:Neighborhood_Satisfaction,3,45,28,57
+Quality_of_Housing:Neighborhood_Satisfaction,4,45,28,58
+Quality_of_Housing:Neighborhood_Satisfaction,5,45,28,59
+No_Money_For_Food_Past_12Mos,1,44,64,1
+No_Money_For_Food_Past_12Mos,2,44,64,2
+No_Money_For_Food_Past_12Mos,3,44,64,3
+No_Money_For_Food_Past_12Mos,4,44,64,70
+No_Money_For_Food_Past_12Mos,5,44,64,38
+QualityLife_Satisfaction,1,39,38,55
+QualityLife_Satisfaction,2,39,38,56
+QualityLife_Satisfaction,3,39,38,57
+QualityLife_Satisfaction,4,39,38,58
+QualityLife_Satisfaction,5,39,38,59
+Racial_Equity1,1,49,111,17
+Racial_Equity1,2,49,111,18
+Racial_Equity1,3,49,111,19
+Racial_Equity1,4,49,111,20
+Racial_Equity1,5,49,111,21
+Electric_Water_Threatened_Shutoff:Rent_Utilities_Past_12_Months,1,43,63,36
+Electric_Water_Threatened_Shutoff:Rent_Utilities_Past_12_Months,2,43,63,37
+Not_Able_Pay_Rent_Mortgage:Rent_Utilities_Past_12_Months,1,43,62,36
+Not_Able_Pay_Rent_Mortgage:Rent_Utilities_Past_12_Months,2,43,62,37
+Detroit:Residence_Length,1,22,26,49
+Detroit:Residence_Length,2,22,26,50
+Detroit:Residence_Length,3,22,26,51
+Detroit:Residence_Length,4,22,26,52
+Detroit:Residence_Length,5,22,26,53
+Safe_Reliable_Transportation_Access_Frequency,1,20,15,1
+Safe_Reliable_Transportation_Access_Frequency,2,20,15,2
+Safe_Reliable_Transportation_Access_Frequency,3,20,15,3
+Safe_Reliable_Transportation_Access_Frequency,4,20,15,4
+Safe_Reliable_Transportation_Access_Frequency,5,20,15,38
+Savings_Account,1,16,14,36
+Savings_Account,2,16,14,37
+SchoolProgram_Sports_Tutoring_Participation:Youth_In_Household_Last_12_Months_Questions4,1,62,48,36
+SchoolProgram_Sports_Tutoring_Participation:Youth_In_Household_Last_12_Months_Questions4,2,62,48,37
+SchoolProgram_Sports_Tutoring_Participation:Youth_In_Household_Last_12_Months_Questions,1,58,49,36
+SchoolProgram_Sports_Tutoring_Participation:Youth_In_Household_Last_12_Months_Questions,2,58,49,37
+Neighborhood:Youth_Safety_Perception,0,59,33,60
+Neighborhood:Youth_Safety_Perception,1,59,33,61
+Neighborhood:Youth_Safety_Perception,2,59,33,62
+Neighborhood:Youth_Safety_Perception,3,59,33,63
+Neighborhood:Youth_Safety_Perception,4,59,33,64
+Public_Spaces:Youth_Safety_Perception,0,60,34,60
+Public_Spaces:Youth_Safety_Perception,1,60,34,61
+Public_Spaces:Youth_Safety_Perception,2,60,34,62
+Public_Spaces:Youth_Safety_Perception,3,60,34,63
+Public_Spaces:Youth_Safety_Perception,4,60,34,64
