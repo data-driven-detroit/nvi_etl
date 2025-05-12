@@ -1,0 +1,8 @@
+indicator,indicator_type,indicator_id,survey_id,survey_question_id,survey_question_option_id,year
+above_200_fpl,percentage,8,,,,2023
+hs_diploma,percentage,10,,,,2023
+postsecondary,percentage,11,,,,2023
+oo_no_cost_burden,percentage,14,,,,2023
+ro_no_cost_burden,percentage,15,,,,2023
+over_20_seeking_emp,percentage,17,,,,2023
+btwn_16_19_seeking_emp,percentage,63,,,,2023

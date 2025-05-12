@@ -248,7 +248,7 @@ def transform_data(logger, districts_year=2026, zones_year=2026):
     recoded = (
         recode(successful_geocode, recode_map, logger)
         .rename(columns={
-            col: col.replace("::", ":") for col in successful_geocode.columns
+            col: col.replace("::", ":").replace("’", "'") for col in successful_geocode.columns
         })
         .rename(columns={
             'Cleaned up or improved lot(s) <u>that I own</u>:In_The_Last_12_Months': 'Cleaned up or improved lot(s) that I own:In_The_Last_12_Months',
@@ -259,10 +259,12 @@ def transform_data(logger, districts_year=2026, zones_year=2026):
 
     recoded.to_csv(WORKING_DIR / "output" / "nvi_2024_analysis_source.csv", index=False)
 
-
     # 4. CREATE QUESTION-LEVEL WIDE TABLE ------------------------------------
+
     # 5. ROLL UP QUESTIONS INTO INDICATORS -----------------------------------
+
     # 5. SAVE NECESSARY ROLL UPS FOR FURTHER ANALYSIS ------------------------
+
     # 6. FLIP WIDE TO LONG FOR DATABASE --------------------------------------
 
 
