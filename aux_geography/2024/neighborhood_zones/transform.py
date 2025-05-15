@@ -29,6 +29,6 @@ def transform_neighborhood_zones(logger):
             square_miles=calculate_square_miles
         )
     )[field_reference["order"]]
-    
+
     nzs.to_file(WORKING_DIR / "output" / "neighborhood_zones_2026.geojson")
 

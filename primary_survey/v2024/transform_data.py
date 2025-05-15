@@ -3,11 +3,14 @@ import configparser
 import json
 import pandas as pd
 import geopandas as gpd
+import datetime
 
 from nvi_etl.geo_reference import pull_city_boundary, pull_council_districts, pull_zones
+from nvi_survey import create_nvi_survey
 
 
 WORKING_DIR = Path(__file__).parent
+
 
 
 def recode(survey_data, recode_map, logger):
@@ -165,8 +168,8 @@ def transform_data(logger, districts_year=2026, zones_year=2026):
     )
         
     city = pull_city_boundary()
-    districts = pull_council_districts(2014)
-    zones = pull_zones(2022)
+    districts = pull_council_districts(districts_year)
+    zones = pull_zones(zones_year)
 
     # Check that the 'pull' functions returned rows
     assert len(districts) > 0, "No districts available for the requested year."
@@ -253,13 +256,24 @@ def transform_data(logger, districts_year=2026, zones_year=2026):
         .rename(columns={
             'Cleaned up or improved lot(s) <u>that I own</u>:In_The_Last_12_Months': 'Cleaned up or improved lot(s) that I own:In_The_Last_12_Months',
             'Cleaned up or improved lot(s) <u>that I do <b>not</b> own</u>:In_The_Last_12_Months': 'Cleaned up or improved lot(s) that I do not own:In_The_Last_12_Months',
-            # 'SchoolProgram_Sports_Tutoring_Participation:Youth_In_Household_Last_12_Months_Questions4': 'SchoolProgram_Sports_Tutoring_Participation:Youth_In_Household_Last_12_Months_Questions',
+            'SchoolProgram_Sports_Tutoring_Participation:Youth_In_Household_Last_12_Months_Questions4': 'SchoolProgram_Leadership_Participation:Youth_In_Household_Last_12_Months_Questions',
         })
     )
 
-    recoded.to_csv(WORKING_DIR / "output" / "nvi_2024_analysis_source.csv", index=False)
+    today = datetime.date.today().strftime("%Y%m%d")
+
+    survey_file_path = (
+        WORKING_DIR / 
+        "output" / 
+        f"nvi_2024_analysis_source_{districts_year}_{zones_year}_{today}.csv"
+    )
+
+    recoded.to_csv(survey_file_path, index=False)
+
 
     # 4. CREATE QUESTION-LEVEL WIDE TABLE ------------------------------------
+    survey = create_nvi_survey(survey_file_path)
+
 
     # 5. ROLL UP QUESTIONS INTO INDICATORS -----------------------------------
 

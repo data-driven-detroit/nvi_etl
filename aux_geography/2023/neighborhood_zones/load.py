@@ -16,6 +16,6 @@ def load_neighborhood_zones(logger):
     validated = NVINeighborhoodZones.validate(file)
 
     validated.to_postgis(
-        "neighborhood_zones", db_engine, schema="nvi", if_exists="replace"
+        "neighborhood_zones", db_engine, schema="nvi", if_exists="append"
     )
 

@@ -1,7 +1,7 @@
 {
     "rename": {
-        "ZoneName": "zone_id",
-        "DistrictNu": "district_number"
+        "NVIzone202": "zone_id",
+        "district_n": "district_number"
     },
     "order": [
         "zone_id",
