@@ -11,7 +11,7 @@ def main():
 
     extract_mischooldata(logger)
     transform_mischooldata(logger)
-    load_mischooldata(logger)
+    # load_mischooldata(logger)
 
 if __name__ == "__main__":
     main()

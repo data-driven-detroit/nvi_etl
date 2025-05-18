@@ -29,11 +29,14 @@ district_pop AS (
 SELECT
     'district' AS geo_type,
     district_pop.district_number AS geography,
+    permits.building_permit_count AS count_bld_permits,
+    NULLIF(district_pop.total_pop, 0) AS universe_bld_permits,
     (
         COALESCE(permits.building_permit_count, 0)
         * 10000.0
         / NULLIF(district_pop.total_pop, 0)
-    ) AS building_permits_per_10000
+    ) AS rate_bld_permits,
+    10000 AS per_bld_permits
 FROM district_pop
 LEFT JOIN building_permits permits
     ON district_pop.district_number::TEXT = permits.district_number;

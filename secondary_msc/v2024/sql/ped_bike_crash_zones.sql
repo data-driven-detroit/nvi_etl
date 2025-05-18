@@ -1,45 +1,61 @@
--- PED BIKE CRASH - NVI ZONES
-
-WITH crash AS (
-    SELECT
-        nvi.district_n,
-        nvi.zone_id,
-        count(*) AS ped_crash_count
-    FROM semcog_crash_20250317 AS cr
-    INNER JOIN shp.nvi_neighborhood_zones_temp_2025 AS nvi
-        ON
-            st_intersects(
-                st_transform(nvi.geom, 4326),
-                st_setsrid(st_point(cr.xcord::numeric, cr.ycord::numeric), 4326)
+WITH
+    neighborhood_zones AS (
+        SELECT
+            *
+        FROM
+            nvi.neighborhood_zones
+        WHERE
+            start_date = DATE '2026-01-01'
+    ),
+    crash AS (
+        SELECT
+            zones.zone_id,
+            COUNT(*) AS crash_count
+        FROM
+            semcog_crash_20250317 AS cr
+            INNER JOIN neighborhood_zones zones
+            ON st_within(
+                st_transform(st_setsrid (st_point (cr.xcord::NUMERIC, cr.ycord::NUMERIC), 4326), 2898),
+                zones.geometry
             )
-    WHERE
-        right(cr.date_full, 4) = '2023'
-        AND (cr.pedestrian = '1' OR cr.bicycle = '1')
-    GROUP BY nvi.district_n, nvi.zone_id
-),
-
-zone_population AS (
-    SELECT
-        nvi.district_n,
-        nvi.zone_id,
-        sum(b01003001) AS total_pop
-    FROM public.b01003_moe AS acs
-    INNER JOIN shp.tiger_census_2020_tract_mi AS tract
-        ON right(acs.geoid, 11) = tract.geoid
-    INNER JOIN shp.nvi_neighborhood_zones_temp_2025 AS nvi
-        ON st_intersects(st_centroid(tract.geom), st_transform(nvi.geom, 4326))
-    GROUP BY nvi.district_n, nvi.zone_id
-)
-
+        WHERE
+            RIGHT(cr.date_full, 4) = '2023'
+            AND (
+                cr.pedestrian = '1'
+                OR cr.bicycle = '1'
+            )
+        GROUP BY
+            zones.zone_id
+    ),
+    zone_crosswalk AS (
+        SELECT DISTINCT
+            tract_geoid,
+            zone_name
+        FROM
+            nvi.tracts_to_nvi_crosswalk
+        WHERE
+            zone_start_date = DATE '2026-01-01'
+    ),
+    zone_population AS (
+        SELECT
+            zonec.zone_name,
+            SUM(b01003001) AS total_pop
+        FROM
+            public.b01003_moe AS acs
+            INNER JOIN zone_crosswalk zonec
+                ON acs.geoid = zonec.tract_geoid
+        GROUP BY
+            zonec.zone_name
+    )
 SELECT
-    'zone' as geo_type,
-    acs.zone_id as geography,
-    coalesce(cr.ped_crash_count, 0) AS total_ped_crash,
-    coalesce(acs.total_pop, 1) AS total_population,
-    (
-        coalesce(cr.ped_crash_count, 0) * 10000.0 / nullif(acs.total_pop, 0)
-    ) AS ped_crash_per_10000
-FROM zone_population AS acs
-LEFT JOIN crash AS cr
-    ON acs.district_n = cr.district_n AND acs.zone_id = cr.zone_id
-ORDER BY acs.district_n, acs.zone_id;
+    'zone' AS geo_type,
+    acs.zone_name AS geography,
+    COALESCE(cr.crash_count, 0) AS count_ped_bike_crash,
+    COALESCE(acs.total_pop, 1) AS universe_ped_bike_crash,
+    (COALESCE(cr.crash_count, 0) * 10000.0 / NULLIF(acs.total_pop, 0)) AS rate_ped_bike_crash,
+    10000 AS per_ped_bike_crash
+FROM
+    zone_population AS acs
+    LEFT JOIN crash AS cr ON acs.zone_name = cr.zone_id
+ORDER BY
+    acs.zone_name;

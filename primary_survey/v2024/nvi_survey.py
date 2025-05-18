@@ -106,10 +106,11 @@ class Survey:
 
         if readable:
             index_renamer = self.make_renamer(group_var, group_var)
+            column_renamer = self.make_renamer(question, question_group)
         else:
             index_renamer = {}
+            column_renamer = {}
 
-        column_renamer = self.make_renamer(question, question_group)
 
         return (
             self.survey_data[[group_var, question_meta["full_column"]]]
@@ -132,7 +133,7 @@ class Survey:
             .fillna(0)
         )
 
-    def tabulate_multiselect(self, group_var, question_group, readable=True):
+    def tabulate_multiselect(self, group_var, _, question_group, readable=True):
         questions = self.answer_key[
             self.answer_key["group"] == question_group
         ]
@@ -145,12 +146,17 @@ class Survey:
 
         aggregations = []
         for _, question in questions.iterrows():
+            if readable:
+                col_name = question["question"]
+            else:
+                col_name = question["db_answer_code"]
+
             try:
                 aggregations.append(
                     self.survey_data
                     .groupby(group_var, dropna=False)[question["full_column"]]
                     .count()
-                    .rename(question["question"])
+                    .rename(col_name)
                 )
             except KeyError:
                 print(f"{question["full_column"]} missing")
@@ -245,7 +251,7 @@ class Survey:
             )
         )
 
-    def compile_multi_response_indicator(self, indicator_id, group_var):
+    def compile_multi_response_indicator(self, indicator_id, group_var, readable=True):
         indicator_rows = self.answer_key[
             (self.answer_key["indicator_db_id"] == indicator_id)
             & self.answer_key["indicator_include"]
@@ -254,7 +260,10 @@ class Survey:
         indicator_meta = indicator_rows.iloc[0]
         universe = self.survey_data.query(indicator_meta["universe_query"])
 
-        index_renamer = self.make_renamer(group_var, group_var)
+        if readable:
+            index_renamer = self.make_renamer(group_var, group_var)
+        else:
+            index_renamer = {}
 
         labeled = pd.concat([
             universe[group_var],
@@ -290,6 +299,7 @@ def create_nvi_survey(filepath):
         WORKING_DIR / "conf" / "nvi_answer_key.xlsx", 
         dtype={
             "indicator_db_id": pd.Int64Dtype(),
+            "db_question_code": pd.Int64Dtype(),
             "survey_code": pd.Int64Dtype(),
         }
     )

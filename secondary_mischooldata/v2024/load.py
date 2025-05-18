@@ -8,7 +8,7 @@ WORKING_DIR = working_dir(__file__)
 
 
 def load_mischooldata(logger):
-    logger.warning("Loading mischooldata datasets!")
+    logger.info("Loading mischooldata datasets!")
 
     file = pd.read_csv(WORKING_DIR / "output" / "g3_ela_2023_melted.csv")
 

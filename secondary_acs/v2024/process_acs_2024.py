@@ -9,7 +9,7 @@ def main():
 
     extract(logger)
     transform(logger)
-    load_acs(logger)
+    # load_acs(logger)
 
 
 if __name__ == "__main__":

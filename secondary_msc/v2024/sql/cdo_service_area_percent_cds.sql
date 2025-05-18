@@ -3,21 +3,18 @@ WITH coverage AS (
     SELECT st_union(geom) AS geom
     FROM shp.becdd_47cdoserviceareas_20220815
 ),
-counts AS (
-    SELECT district_number, count(*) AS num_cdos
-    FROM nvi.detroit_council_districts cd
-    JOIN shp.becdd_47cdoserviceareas_20220815 orgs
-        ON ST_INTERSECTS(ST_TRANSFORM(cd.geometry, 4326), orgs.geom)
-    GROUP BY district_number
+detroit_council_districts AS (
+        SELECT
+            *
+        FROM
+            nvi.detroit_council_districts
+        WHERE
+            start_date = DATE '2026-01-01'
 )
 SELECT
     'district' AS geo_type,
     cd.district_number AS geography,
-    counts.num_cdos,
-    ST_AREA(ST_INTERSECTION(ST_TRANSFORM(cd.geometry, 4326), cov.geom)) * 100
-    / ST_AREA(ST_TRANSFORM(cd.geometry, 4326)) AS pct_cdo_coverage
-FROM nvi.detroit_council_districts cd
-    JOIN coverage cov ON TRUE  -- JOIN the combined shape to every for calc
-JOIN counts 
-    ON counts.district_number = cd.district_number;
-
+    ST_AREA(ST_INTERSECTION(ST_TRANSFORM(cd.geometry, 4326), cov.geom))
+    / ST_AREA(ST_TRANSFORM(cd.geometry, 4326)) AS percentage_cdo_coverage
+FROM detroit_council_districts cd
+CROSS JOIN coverage cov;  -- JOIN the combined shape to every for calc

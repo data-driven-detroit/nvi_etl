@@ -76,8 +76,17 @@ def extract_from_queries(logger):
 
     combined_topics = []
     for clipped_stem, files in result.items():
-        file = pd.concat(files)
-        combined_topics.append(file.astype({"geography": "str"}).set_index(["geo_type", "geography"]))
+        file = pd.concat(files).astype({"geography": "str"}).set_index(["geo_type", "geography"])
+        combined_topics.append(file)
 
     wide_format = pd.concat(combined_topics, axis=1)
     wide_format.to_csv(WORKING_DIR / "input" / "msc_wide_from_queries.csv")
+
+
+if __name__ == "__main__":
+    from nvi_etl import setup_logging
+
+    logger = setup_logging()
+
+    extract_births(logger)
+    extract_from_queries(logger)

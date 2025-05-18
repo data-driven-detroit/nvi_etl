@@ -1,5 +1,12 @@
 --- Council District 2026
-WITH crime_incidents AS (
+WITH detroit_council_districts AS (
+    SELECT *
+    FROM
+        nvi.detroit_council_districts
+    WHERE
+        start_date = DATE '2026-01-01'
+),
+crime_incidents AS (
     SELECT *
     FROM rms_crime_incidents_20250311
     WHERE
@@ -18,43 +25,46 @@ WITH crime_incidents AS (
             'ROBBERY - UNARMED'
         )
 ),
-
 rms_crime_count AS (
     SELECT
-        nvi.council_di,
+        districts.district_number,
         COUNT(*) AS rms_count
     FROM crime_incidents AS ci
-    INNER JOIN shp."Detroit_City_Council_Districts_2026" AS nvi
+    INNER JOIN detroit_council_districts districts
         ON
             ST_INTERSECTS(
-                ST_TRANSFORM(nvi.geom, 4326),
-                ST_SETSRID(ST_POINT(ci.longitude, ci.latitude), 4326)
+                districts.geometry,
+                ST_TRANSFORM(ST_SETSRID(ST_POINT(ci.longitude, ci.latitude), 4326), 2898)
             )
-    GROUP BY nvi.council_di
+    GROUP BY districts.district_number
 ),
-
+district_crosswalk AS (
+    SELECT DISTINCT
+        tract_geoid,
+        district_number::TEXT
+    FROM
+        nvi.tracts_to_nvi_crosswalk
+    WHERE
+        zone_start_date = DATE '2026-01-01'
+),
 zone_population AS (
     SELECT
-        nvi.council_di,
+        dc.district_number,
         SUM(b01003001) AS total_pop
-    FROM public.b01003_moe AS acs
-    INNER JOIN shp.tiger_census_2020_tract_mi AS tract
-        ON RIGHT(acs.geoid, 11) = tract.geoid
-    INNER JOIN shp."Detroit_City_Council_Districts_2026" AS nvi
-        -- Census tract population assigned to council districts
-        ON ST_INTERSECTS(ST_CENTROID(tract.geom), ST_TRANSFORM(nvi.geom, 4326))
-    GROUP BY nvi.council_di
+    FROM
+        public.b01003_moe AS acs
+        INNER JOIN district_crosswalk dc ON acs.geoid = dc.tract_geoid
+    GROUP BY
+        dc.district_number
 )
-
 SELECT
     'district' AS geo_type,
-    acs.council_di AS geography,
-    COALESCE(rms.rms_count, 0) AS total_violent_crimes,
-    COALESCE(acs.total_pop, 1) AS total_population,
-    (
-        COALESCE(rms.rms_count, 0) * 10000.0 / NULLIF(acs.total_pop, 0)
-    ) AS crime_rate_per_10000
+    acs.district_number AS geography,
+    COALESCE(rms.rms_count, 0) AS count_violent_crime,
+    COALESCE(acs.total_pop, 1) AS universe_violent_crime,
+    COALESCE(rms.rms_count, 0) * 10000.0 / NULLIF(acs.total_pop, 0) AS rate_violent_crime,
+    10000 AS per_violent_crime
 FROM zone_population AS acs
 LEFT JOIN rms_crime_count AS rms
-    ON acs.council_di = rms.council_di
-ORDER BY acs.council_di;
+    ON acs.district_number = rms.district_number
+ORDER BY acs.district_number;

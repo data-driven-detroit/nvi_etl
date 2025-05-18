@@ -1,4 +1,4 @@
---- City of Detroit
+-- City of Detroit
 WITH building_permits AS (
     -- no need to filter because the detroit building department only reports on Detroit
     SELECT COUNT(*) AS dp_detroit
@@ -13,9 +13,10 @@ SELECT
     'citywide' AS geo_type,
     'Detroit' AS geography,
     -- Should this be people or parcels?
-    (
-        dp.dp_detroit * 10000.0 / NULLIF(acs.total_pop, 0)
-    ) AS building_permits_per_10000
+    dp.dp_detroit AS count_bld_permits,
+    NULLIF(acs_population.total_pop, 0) AS universe_bld_permits,
+    (dp.dp_detroit * 10000.0 / NULLIF(acs_population.total_pop, 0)) AS rate_bld_permits,
+    10000 AS per_bld_permits
 FROM building_permits AS dp
-CROSS JOIN acs_population AS acs;
+CROSS JOIN acs_population;
 

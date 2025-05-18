@@ -1,4 +1,6 @@
+import configparser
 from nvi_etl.utilities import fix_parcel_id
+from nvi_etl.geo_reference import pull_zones, pull_council_districts
 from collections import defaultdict
 from sqlalchemy import text
 import pandas as pd
@@ -9,108 +11,90 @@ from nvi_etl import working_dir, make_engine_for
 
 WORKING_DIR = working_dir(__file__)
 
+EVERYTHING = lambda _: "Detroit" # This is used later to take entire df as a single group
+
 
 def extract_foreclosures(logger):
     logger.info("Extracting forclosures from various files and combining phase one.")
 
-    # FIXME This isn't really an extract -- lot of transform code here.
-    tax = pd.read_csv("V:/IPDS/Wayne County Tax Foreclosures/Data/2024/Prepared/wcto_foreclosed_05092024.csv")
-    detodp = pd.read_csv("P:/2024_Projects/NVI24/Development/Workspace/Abhi Workspace/Secondary Data Pull/detodp_assessor_20240205.csv")
+    config = configparser.ConfigParser()
+    config.read(WORKING_DIR / "conf" / ".conf")
 
-
-    tax = tax[tax["CITY"] == 'DETROIT']
-
-    # Convert WKB to Geometry
-    detodp["geometry"] = detodp["geom"].apply(wkb.loads)
+    # Load the various geometry files
+    # FIXME -- pull this from the database as native geopandas
+    parcels = (
+        pd.read_csv(config["source_files"]["assessors_file"], low_memory=False)
+        .assign(
+            geometry=lambda df: df["geom"].apply(wkb.loads)
+        )
+    )
 
     # Convert to a GeoDataFrame
-    detodp_gdf = gpd.GeoDataFrame(detodp, geometry="geometry", crs="EPSG:4326")
+    parcels = (
+        gpd.GeoDataFrame(parcels, geometry="geometry", crs="EPSG:4326")
+        .drop(columns=["geom"])
+        .to_crs(2898)
+    )
 
-    # Drop the old WKB column if not needed
-    detodp_gdf.drop(columns=["geom"], inplace=True)
+    nvi_zones = pull_zones(2026)
+    council_districts = pull_council_districts(2026)
 
 
-    # Apply the function to the PARCEL_ID column
-    tax = tax.dropna(subset=["PARCEL_ID"])
-    tax["PARCEL_ID"] = tax["PARCEL_ID"].astype(str).apply(fix_parcel_id)
+    # Load the main dataset and conduct some clean-up
+    tax_foreclosures = (
+        pd.read_csv(config["source_files"]["foreclosures_file"])
+        .query("CITY == 'DETROIT'")
+        .dropna(subset=["PARCEL_ID"])
+        .astype({"PARCEL_ID": "str"})
+        .assign(
+            parcel_num=lambda df: df["PARCEL_ID"].apply(fix_parcel_id)
+        )
+    )
 
-    citywide = (
-        tax.aggregate(Detroit=("PARCEL_ID", "count"))
-        .assign(geo_type="citywide", geography="Detroit", total_properties=len(detodp))
-        .rename(columns={"PARCEL_ID": "num_foreclosures"})
-        .assign(foreclosure_rate=lambda df: 100 * (1 - (df["num_foreclosures"] / df["total_properties"])))
-        .reset_index().drop("index", axis=1)
+    stamped = (
+        parcels
+        .merge(tax_foreclosures, on="parcel_num", how="left")
+        .assign(not_in_foreclosure=lambda df: df["PARCEL_ID"].isna())
+        .sjoin(council_districts[["district_number", "geometry"]], predicate="within", how="left")
+        .drop("index_right", axis=1)
+        .sjoin(nvi_zones[["zone_id", "geometry"]], predicate="within", how="left")
+        .drop("index_right", axis=1)
     )
 
 
-    nvi_shp = gpd.read_file("P:/2024_Projects/NVI24/Development/Workspace/Abhi Workspace/Secondary Data Pull/NVI Zones/nvi_neighborhood_zones_temp_2025.shp")
-    detroit_shp = gpd.read_file("P:/2024_Projects/NVI24/Development/Workspace/Abhi Workspace/Secondary Data Pull/City_of_Detroit_Boundary/City_of_Detroit_Boundary.shp")
-    cd_shp = gpd.read_file("P:/2024_Projects/NVI24/Development/Workspace/Abhi Workspace/Secondary Data Pull/Detroit_City_Council_Districts_2026/Detroit_City_Council_Districts_2026.shp")
+    def calc_foreclosure_pct(df):
+        return df["count_non_foreclosures"] / df["universe_non_foreclosures"]
 
-    merged = pd.merge(tax, detodp, left_on="PARCEL_ID", right_on="parcel_num", how="inner")
+    group_strategies = [
+        ("citywide", EVERYTHING), 
+        ("district", "district_number"), 
+        ("zone", "zone_id")
+    ]
 
-
-    # Convert WKB to Geometry
-    merged["geometry"] = merged["geom"].apply(wkb.loads)
-
-    # Convert to a GeoDataFrame
-    merged_gdf = gpd.GeoDataFrame(merged, geometry="geometry", crs="EPSG:4326")
-
-    # Drop the old WKB column if not needed
-    merged_gdf.drop(columns=["geom"], inplace=True)
-
-    # NVI ZONES
-
-    merged_nvi = merged_gdf.to_crs(nvi_shp.crs)
-    merged_with_nvi = gpd.sjoin(merged_nvi, nvi_shp, how="left", predicate="within")
-    detodp_nvi= detodp_gdf.to_crs(nvi_shp.crs)
-    detodp_with_nvi = gpd.sjoin(detodp_nvi, nvi_shp, how="left", predicate="within")
-
-    # Total number of properties in foreclosure, grouped by district_n and zone_id
-    num_foreclosures_nvi = merged_with_nvi.groupby(["zone_id"]).size().reset_index(name="num_foreclosures")
-
-    # Total number of properties (from detodp with geography), grouped by district_n and zone_id
-    total_properties_nvi = detodp_with_nvi.groupby(["zone_id"]).size().reset_index(name="total_properties")
-
-    foreclosure_rate_nvi = num_foreclosures_nvi.merge(total_properties_nvi, on="zone_id", how="left")
-    foreclosure_rate_nvi["foreclosure_rate"] = (1 - (foreclosure_rate_nvi["num_foreclosures"] / foreclosure_rate_nvi["total_properties"])) * 100
-
-    nvi_zones = foreclosure_rate_nvi.assign(geo_type="zone").rename(columns={"zone_id": "geography"})
-
-    ## COUNCIL DISTRICTS
-    merged_cd = merged_gdf.to_crs(cd_shp.crs)
-    merged_with_cd = gpd.sjoin(merged_cd, cd_shp, how="left", predicate="within")
-    detodp_cd= detodp_gdf.to_crs(cd_shp.crs)
-    detodp_with_cd = gpd.sjoin(detodp_cd, cd_shp, how="left", predicate="within")
-
-    # Total number of properties in foreclosure, grouped by district_n and zone_id
-    num_foreclosures_cd = merged_with_cd.groupby("district_n").size().reset_index(name="num_foreclosures")
-
-    # Total number of properties (from detodp with geography), grouped by district_n and zone_id
-    total_properties_cd = detodp_with_cd.groupby("district_n").size().reset_index(name="total_properties")
-
-    foreclosure_rate_cd = num_foreclosures_cd.merge(total_properties_cd, on="district_n", how="left")
-    foreclosure_rate_cd["foreclosure_rate"] = (1 - (foreclosure_rate_cd["num_foreclosures"] / foreclosure_rate_cd["total_properties"])) * 100
-
-    council_districts = (
-        foreclosure_rate_cd
-        .assign(geo_type="district")
-        .rename(columns={"district_n": "geography"})
-        .astype({"geography": "int"})
-        .astype({"geography": "str"})
+    (
+        pd.concat(
+            [
+                stamped
+                .groupby(strat)
+                .aggregate(
+                    count_non_foreclosures=("not_in_foreclosure", "sum"),
+                    universe_non_foreclosures=("not_in_foreclosure", "size"),
+                )
+                .assign(
+                    percentage_non_foreclosures=calc_foreclosure_pct,
+                    geo_type=geo_type,
+                    year=2024
+                )
+                for geo_type, strat in group_strategies
+            ]
+        )
+        .reset_index()
+        .rename(columns={"index": "geography"})
+        .to_csv(WORKING_DIR / "input" / "foreclosures_wide.csv", index=False)
     )
-
-    combined = pd.concat([
-        citywide,
-        nvi_zones,
-        council_districts,
-    ])
-
-    combined.to_csv(WORKING_DIR / "input" / "foreclosures_wide.csv")
 
 
 def extract_from_queries(logger):
-
     db_engine = make_engine_for("ipds")
     qs = [
         'bld_permits_citywide.sql',
@@ -144,5 +128,13 @@ def extract_from_queries(logger):
         file = pd.concat(files)
         combined_topics.append(file.astype({"geography": "str"}).set_index(["geo_type", "geography"]))
 
-    wide_format = pd.concat(combined_topics, axis=1)
+    wide_format = pd.concat(combined_topics, axis=1).assign(year=2024)
     wide_format.to_csv(WORKING_DIR / "input" / "ipds_wide_from_queries.csv")
+
+if __name__ == "__main__":
+    from nvi_etl import setup_logging
+
+    logger = setup_logging()
+
+    extract_foreclosures(logger)
+    extract_from_queries(logger)

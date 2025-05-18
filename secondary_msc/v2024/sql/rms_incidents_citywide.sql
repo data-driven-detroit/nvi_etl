@@ -21,7 +21,7 @@ WITH crime_incidents AS (
 ),
 
 rms_crime_count AS (
-    SELECT count(*) AS rms_detroit
+    SELECT count(*) AS rms_count
     FROM crime_incidents AS ci
     INNER JOIN shp.detroit_city_boundary_01182023 AS det
         ON
@@ -39,10 +39,11 @@ acs_population AS (
 SELECT
     'citywide' AS geo_type,
     'Detroit' AS geography,
-    rms.rms_detroit AS total_violent_crimes,
-    acs.total_pop AS total_population,
+    COALESCE(rms.rms_count, 0) AS count_violent_crime,
+    COALESCE(acs.total_pop, 1) AS universe_violent_crime,
     (
-        rms.rms_detroit * 10000.0 / nullif(acs.total_pop, 0)
-    ) AS crime_rate_per_10000
+        COALESCE(rms.rms_count, 0) * 10000.0 / NULLIF(acs.total_pop, 0)
+    ) AS rate_violent_crime,
+    10000 AS per_violent_crime
 FROM rms_crime_count AS rms
 CROSS JOIN acs_population AS acs;

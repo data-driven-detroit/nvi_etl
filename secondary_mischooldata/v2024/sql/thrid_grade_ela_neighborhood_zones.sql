@@ -13,10 +13,10 @@ WITH school AS (
 )
 SELECT 'neighborhood_zones' AS geo_type,
        s.zone_id as geography, 
-       sum(number_assessed) AS g3_ela_number_assessed, 
-       sum(total_met) AS g3_ela_total_met, 
-       (sum(total_met) / sum(number_assessed)) * 100  AS g3_ela_pct_met,
-       year
+       sum(number_assessed) AS universe_g3_ela, 
+       sum(total_met) AS count_g3_ela, 
+       sum(total_met) / sum(number_assessed) AS percentage_g3_ela,
+       2024 AS year -- FIXME: THIS NEEDS TO BE CHANGED
 FROM school AS s
 JOIN education.g3_ela_school AS e
     ON s.building_code = e.building_code

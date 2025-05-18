@@ -50,7 +50,7 @@ def aggregate_city_wide(births_gdf, logger):
     )
     births_summary["percentage_adequate"] = (
         births_summary["kessner_1_count"] / births_summary["total_births"]
-    ) * 100
+    )
 
     return births_summary
 
@@ -88,7 +88,7 @@ def aggregate_to_cds(births_gdf, logger):
     )
     births_summary_cd["percentage_adequate"] = (
         births_summary_cd["kessner_1_count"] / births_summary_cd["total_births"]
-    ) * 100
+    )
 
     return births_summary_cd
 
@@ -133,7 +133,7 @@ def aggregate_to_zones(births_gdf, logger):
     births_summary_nvi["percentage_adequate"] = (
         births_summary_nvi["kessner_1_count"]
         / births_summary_nvi["total_births"]
-    ) * 100
+    )
 
     return births_summary_nvi
 
@@ -163,17 +163,41 @@ def transform_births(logger):
     wide_format["location_id"] = wide_format.apply(pin_location, axis=1)
 
     tall_format = liquefy(wide_format)
-    tall_format["year"] = 2023
+    tall_format["year"] = 2024 # FIXME
     tall_format.to_csv(WORKING_DIR / "output" / "births_output_tall.csv", index=False)
 
 
 def transform_from_queries(logger):
-    logger.warning("Transforming output from MSC queries.")
+    logger.info("Transforming output from MSC queries.")
+
+    primary_indicators = pd.read_csv(WORKING_DIR / "conf" / "primary_indicator_ids.csv")
 
     msc_wide = pd.read_csv(WORKING_DIR / "input" / "msc_wide_from_queries.csv")
     msc_wide["location_id"] = msc_wide.apply(pin_location, axis=1)
+    msc_wide["year"] = 2024
 
-    msc_tall = liquefy(msc_wide)
-    msc_tall["year"] = 2023
-    msc_tall.to_csv(WORKING_DIR / "output" / "msc_output_tall.csv", index=False)
+    melted = (
+        pd.wide_to_long(
+            msc_wide,
+            stubnames=["count", "universe", "percentage", "rate", "per", "dollars", "index"],
+            i=["location_id", "year"],
+            j="indicator",
+            sep="_",
+            suffix=".*",
+        )
+        .reset_index()
+        .rename(columns={"per": "rate_per"})
+        .merge(primary_indicators, on=["indicator", "year"], how="left")
+        .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
+    )
 
+    melted.to_csv(WORKING_DIR / "output" / "msc_output_tall.csv", index=False)
+
+
+if __name__ == "__main__":
+    from nvi_etl import setup_logging
+
+    logger = setup_logging()
+
+    # transform_births(logger)
+    transform_from_queries(logger)

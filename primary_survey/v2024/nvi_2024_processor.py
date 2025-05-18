@@ -10,7 +10,7 @@ def main():
 
     extract_data(logger)
     transform_data(logger)
-    load_data(logger)
+    # load_data(logger)
 
 
 if __name__ == "__main__":

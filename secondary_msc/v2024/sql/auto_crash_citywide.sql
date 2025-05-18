@@ -22,8 +22,9 @@ acs_population AS (
 SELECT
     'citywide' AS geo_type,
     'Detroit' AS geography,
-    cr.crash_count AS total_crash,
-    acs.total_pop AS total_population,
-    (cr.crash_count * 10000.0 / nullif(acs.total_pop, 0)) AS auto_crash_per_10000
+    COALESCE(cr.crash_count, 0) AS count_auto_crash,
+    COALESCE(acs.total_pop, 1) AS universe_auto_crash,
+    (COALESCE(cr.crash_count, 0) * 10000.0 / NULLIF(acs.total_pop, 0)) AS rate_auto_crash,
+    10000 AS per_auto_crash
 FROM crash AS cr
 CROSS JOIN acs_population AS acs;

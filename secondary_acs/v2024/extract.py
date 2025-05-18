@@ -23,6 +23,11 @@ def extract(logger):
     This data doesn't change frequently (if ever), so 'extract' checks
     to see if there are files from previous extracts available to avoid
     hitting the API unnecessairily.
+
+    KEEP IN MIND: none of these function in the 'extract' step should
+    be turned into percentages or combined in any other non-additive way.
+    Those aggregations will happen after the roll up to neighborhood 
+    zones or council districts.
     """
 
     DETROIT = create_geography(
@@ -30,7 +35,7 @@ def extract(logger):
     )
     WAYNE_TRACTS = create_geography(state="26", county="163", tract="*")
 
-    if (WORKING_DIR / "input" / f"nvi_2024_acs.parquet.gzip").exists():
+    if (WORKING_DIR / "input" / f"nvi_2024_acs.csv").exists():
         logger.info(
             "Tract-level already pulled--remove file from 'output' to pull again."
         )
@@ -66,6 +71,14 @@ def extract(logger):
         comparisons.append(profile)
 
     # Save everything compiled into one document
-    pd.concat(comparisons).to_parquet(
-        WORKING_DIR / "input" / f"nvi_2024_acs.parquet.gzip"
+    pd.concat(comparisons).to_csv(
+        WORKING_DIR / "input" / f"nvi_2024_acs.csv", index=False
     )
+
+
+if __name__ == "__main__":
+    from nvi_etl import setup_logging
+
+    logger = setup_logging()
+
+    extract(logger)

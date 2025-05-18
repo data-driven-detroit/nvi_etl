@@ -19,12 +19,12 @@ def main():
     # ETL For queries
     extract_from_queries(logger)
     transform_from_queries(logger)
-    load_from_queries(logger)
+    # load_from_queries(logger)
 
     # ETL For foreclosures
     extract_foreclosures(logger)
     transform_foreclosures(logger)
-    load_foreclosures(logger)
+    # load_foreclosures(logger)
 
 
 if __name__ == "__main__":

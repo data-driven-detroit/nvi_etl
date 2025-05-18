@@ -205,6 +205,9 @@ def transform_data(logger, districts_year=2026, zones_year=2026):
 
     # 2. JOINS FOR CITY, DISTRICT, AND ZONES ---------------------------------
 
+    # Unless you let the boundary out a lot, you only add a few responses
+    # city["geometry"] = city["geometry"].buffer(5120)
+
     gdf = gdf.sjoin(city[["geometry", "geoid"]], predicate="within")
     gdf["citywide"] = gdf["geoid"].map(location_map["citywide"]).astype(pd.Int64Dtype())
     gdf = gdf.drop(columns=["index_right", "geoid"])
@@ -265,21 +268,161 @@ def transform_data(logger, districts_year=2026, zones_year=2026):
     survey_file_path = (
         WORKING_DIR / 
         "output" / 
-        f"nvi_2024_analysis_source_{districts_year}_{zones_year}_{today}.csv"
+        f"nvi_2024_analysis_source_buf_{districts_year}_{zones_year}_{today}.csv"
     )
 
     recoded.to_csv(survey_file_path, index=False)
 
+    # ROLL UP ALL INDICATORS
 
-    # 4. CREATE QUESTION-LEVEL WIDE TABLE ------------------------------------
-    survey = create_nvi_survey(survey_file_path)
+    nvi = create_nvi_survey(survey_file_path)
+
+    indicators = (
+        nvi.answer_key[["indicator_db_id", "response_type"]]
+        .dropna(subset="indicator_db_id")
+        .drop_duplicates()
+    )
+
+    result = []
+    for _, indicator in indicators.iterrows():
+        if indicator["response_type"] in {"GROUPED-SINGLE", "SINGLE"}:
+            method = 'compile_single_response_indicator'
+        elif indicator["response_type"] == "MULTI-SELECT":
+            method = 'compile_multi_response_indicator'
+        else:
+            raise ValueError(
+                f"Indicator {indicator["indicator_db_id"]}:'{indicator["response_type"]}' "
+                "is not a valid response type."
+            )
+        aggregations = ["citywide", "district", "zone"]
+        result.append(
+            pd.concat(
+                [
+                    nvi.__getattribute__(method)(
+                        indicator["indicator_db_id"], 
+                        agg, 
+                        readable=False
+                    )
+                    .reset_index()
+                    .rename(columns={agg: "location_id"})
+                    .assign(
+                        indicator_id=indicator["indicator_db_id"],
+                        year=2024
+                    )
+                    for agg in aggregations
+                ]
+            )
+        )
 
 
-    # 5. ROLL UP QUESTIONS INTO INDICATORS -----------------------------------
+    indicators_tall = pd.concat(result)
 
-    # 5. SAVE NECESSARY ROLL UPS FOR FURTHER ANALYSIS ------------------------
 
-    # 6. FLIP WIDE TO LONG FOR DATABASE --------------------------------------
+    # ROLL UP ALL QUESTIONS
+
+    questions = pd.concat([
+        nvi.answer_key[
+            nvi.answer_key["indicator_db_id"].notna()
+            & (nvi.answer_key["response_type"].isin({"SINGLE", "GROUPED-SINGLE"}))
+        ][["group", "question", "response_type", "indicator_db_id"]].drop_duplicates(),
+        nvi.answer_key[
+            nvi.answer_key["indicator_db_id"].notna()
+            & (nvi.answer_key["response_type"] == "MULTI-SELECT")
+        ][["group", "question", "response_type", "indicator_db_id"]].drop_duplicates(subset=["group", "response_type"])
+    ])
+
+    aggs = ["citywide", "district", "zone"]
+
+    result = []
+    for _, question in questions.iterrows():
+        if question["response_type"] in {"SINGLE", "GROUPED-SINGLE"}:
+            question = nvi.answer_key[
+                (nvi.answer_key["group"] == question["group"])
+                & (nvi.answer_key["question"] == question["question"])
+            ][
+                [
+                    "indicator_db_id", 
+                    "full_column", 
+                    "survey_code", 
+                    "db_question_code", 
+                    "db_answer_code", 
+                    "response_type"
+                ]
+            ].drop_duplicates()
+
+
+            for agg in aggs:
+                indicator_id = question["indicator_db_id"].iloc[0]
+                survey_question_id = question["db_question_code"].iloc[0]
+                column = question["full_column"].iloc[0]
+
+                recoder = {
+                    row["survey_code"]: row["db_answer_code"]
+                    for _, row in question.iterrows()
+                }
+
+                result.append(
+                    nvi.survey_data[[agg, column]]
+                    .groupby(agg)
+                    .value_counts()
+                    .reset_index()
+                    .rename(columns={agg: "location_id"})
+                    .assign(
+                        indicator_id=indicator_id,
+                        survey_question_id=survey_question_id,
+                        survey_question_option_id=lambda df: df[column].map(lambda v: recoder.get(v)),
+                        universe=lambda df: df.groupby("location_id")["count"].transform("sum"),
+                        percentage=lambda df: df["count"] / df["universe"],
+                    )
+                    .drop(column, axis=1)
+                )
+            
+        elif question["response_type"] == "MULTI-SELECT":
+            group = nvi.answer_key[
+                nvi.answer_key["indicator_db_id"].notna()
+                & (nvi.answer_key["group"] == question["group"])
+            ]
+
+            rename = {
+                row["full_column"]: (row["db_question_code"], row["db_answer_code"])
+                for _, row in group.iterrows()
+            }
+
+            for agg in aggs:
+                result.append(
+                    nvi.survey_data[[agg] + list(group["full_column"])]
+                    .rename(columns=rename)
+                    .groupby(agg)
+                    .agg(["count", "size"])
+                    .stack(level=[0,1], future_stack=True)
+                    .reset_index()
+                    .rename(columns={
+                        agg: "location_id",
+                        "level_1": "survey_question_id",
+                        "level_2": "survey_question_option_id",
+                        "size": "universe"
+                    })
+                    .assign(
+                        indicator_id=question["indicator_db_id"],
+                        percentage=lambda df: df["count"] / df["universe"]
+                    )
+                )
+        else:
+            raise ValueError(f"'{question["response_type"]}' is not a valid response type.")
+
+    answers_tall = pd.concat(result)
+
+    (
+        pd.concat([indicators_tall, answers_tall])
+        .assign(
+            year=2024,
+            dollars=pd.NA,
+            rate=pd.NA,
+            rate_per=pd.NA,
+            index=pd.NA,
+        )
+        .to_csv(WORKING_DIR / "output" / "primary_survey_tall.csv")
+    )
 
 
 if __name__ == "__main__":

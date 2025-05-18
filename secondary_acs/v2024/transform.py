@@ -1,53 +1,49 @@
-import json
 from pathlib import Path
 import pandas as pd
-from datetime import date
 
 from nvi_etl.geo_reference import pull_tracts_to_nvi_crosswalk, pin_location
-from nvi_etl.utilities import estimate_median_from_distribution
+from secondary_acs.v2024.aggregations import compile_indicators
 
 
 WORKING_DIR = Path(__file__).resolve().parent
 YEAR = 2023
-
-primary_indicator_meta = pd.read_csv(WORKING_DIR / "conf" / "primary_indicator_ids.csv", index_col=False)
-context_indicator_meta = pd.read_csv(WORKING_DIR / "conf" / "context_indicator_ids.csv", index_col=False)
-
-# These can be combined until the final step
-all_indicators = pd.concat([
-    primary_indicator_meta,
-    context_indicator_meta,
-])
-
-
-sum_cols = {}
-for indicator, indicator_type in all_indicators[["indicator", "indicator_type"]].values:
-    if indicator_type in {"count", "percentage", "rate"}:
-        sum_cols[f"count_{indicator}"] = "sum"
-
-    if indicator_type == "percentage":
-        sum_cols[f"universe_{indicator}"] = "sum"
-
-
-pct_aggregators = {
-    f"percentage_{indicator}": lambda df, indicator=indicator: (
-        df[f"count_{indicator}"] * 100
-        / df[f"universe_{indicator}"]
-    ) for indicator, indicator_type in all_indicators[["indicator", "indicator_type"]].values
-    if indicator_type == "percentage"
-}
 
 
 def transform(logger):
     logger.info("Aggregating tract-level ACS data to 2026 Council Districts")
 
     districts = pull_tracts_to_nvi_crosswalk(2020, 2026)
-    wide_file = pd.read_parquet(WORKING_DIR / "input" / "nvi_2024_acs.parquet.gzip")
+    wide_file = pd.read_csv(WORKING_DIR / "input" / "nvi_2024_acs.csv")
 
-    # COMPILING 'REGULAR' INDICATORS
-    # TODO Read this dynamically off of the locations file
+    sum_cols = {col: "sum" for col in wide_file.columns if col not in {"name", "year", "geoid"}}
 
-    # Tract-level
+    primary_indicators = pd.read_csv(WORKING_DIR / "conf" / "primary_indicator_ids.csv", index_col=False)
+    indicators = compile_indicators(primary_indicators, logger)
+
+    # NVI Zones
+
+    zones_wide = (
+        districts.rename(
+            columns={
+                "tract_geoid": "geoid",
+                "zone_name": "geography",
+            }
+        )
+        .astype({"geoid": "str"})
+        .merge(wide_file, on="geoid", how="left")
+        .groupby(["geography", "year"])
+        .agg(sum_cols)
+        .reset_index()
+        .astype({"geography": "str"})
+        .assign(
+            **indicators,
+            geo_type="zone",
+            location_id=lambda df: df.apply(pin_location, axis=1),
+        )
+    )
+
+    # Detroit Council Districts
+
     districts_wide = (
         districts.rename(
             columns={
@@ -62,38 +58,12 @@ def transform(logger):
         .reset_index()
         .astype({"geography": "str"})
         .assign(
-            **pct_aggregators,
+            **indicators,
             # index_hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
             geo_type="district",
             location_id=lambda df: df.apply(pin_location, axis=1),
         )
     )
-
-
-    # NVI Zones
-
-    zones_wide = (
-        districts.rename(
-            columns={
-                "tract_geoid": "geoid",
-                "district_number": "district",
-                "zone_name": "geography",
-            }
-        )
-        .astype({"geoid": "str"})
-        .merge(wide_file, on="geoid", how="left")
-        .groupby(["geography", "year"])
-        .agg(sum_cols)
-        .reset_index()
-        .astype({"geography": "str"})
-        .assign(
-            **pct_aggregators,
-            # hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
-            geo_type="zone",
-            location_id=lambda df: df.apply(pin_location, axis=1),
-        )
-    )
-
 
     # City-wide
 
@@ -103,7 +73,7 @@ def transform(logger):
         .agg(sum_cols)
         .reset_index()
         .assign(  # Assign the district-level aggs with the functions above
-            **pct_aggregators,
+            **indicators,
             # hierfindal=lambda df: hierfindal(roll_up_income_categories(df)),
             geo_type="citywide",
             geography="Detroit",
@@ -113,12 +83,21 @@ def transform(logger):
 
 
     wide_collected = pd.concat([citywide_wide, districts_wide, zones_wide])
+    wide_collected.to_csv(WORKING_DIR / "output" / "acs_primary_indicators_wide.csv")
 
-    wide_collected.to_csv(WORKING_DIR / "output" / "test_wide_output.csv")
+    stub_names = ["count", "universe", "percentage", "rate", "per", "dollars", "index"]
+
+    wide_trimmed = wide_collected[[
+        col for col in wide_collected
+        if (
+            (col.split("_")[0] in stub_names)
+            or (col in ["location_id", "year", "indicator", "geo_type", "geography"])
+        )
+    ]]
 
     tall = (
         pd.wide_to_long(
-            wide_collected,
+            wide_trimmed,
             stubnames=["count", "universe", "percentage", "rate", "per", "dollars", "index"],
             i=["location_id", "year"],
             j="indicator",
@@ -131,17 +110,17 @@ def transform(logger):
 
     primary_tall = (
         tall
-        .merge(primary_indicator_meta, on=["indicator", "year"], how="right")
+        .merge(primary_indicators, on=["indicator", "year"], how="right")
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
     )
+
+    primary_tall["year"] = 2024 # FIXME This will be dealth with when we move Secondary to Context
     primary_tall.to_csv(WORKING_DIR / "output" / "acs_primary_indicators_tall.csv", index=False)
 
 
-    context_tall = (
-        tall
-        .merge(context_indicator_meta, on=["indicator", "year"], how="right")
-        .drop(["indicator", "geo_type", "geography", "indicator_type", "year"], axis=1)
-        .dropna(subset="location_id")
-    )
+if __name__ == "__main__":
+    from nvi_etl import setup_logging
 
-    context_tall.to_csv(WORKING_DIR / "output" / "acs_context_indicators_tall.csv", index=False)
+    logger = setup_logging()
+
+    transform(logger)

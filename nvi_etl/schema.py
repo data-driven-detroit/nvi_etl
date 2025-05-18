@@ -73,6 +73,8 @@ class NVIContextValueTable(pa.DataFrameModel):
             "end_date",
         ]
 
+VALUE_COLUMNS = list(NVIValueTable.to_schema().columns)
+
 # These are for the aux_geography module, for enabling the rest of the ETL
 
 class DetroitCouncilDistricts(pa.DataFrameModel):
