@@ -240,12 +240,12 @@ def universe_btwn_16_19_seeking_emp(geo: Geography):
 
 @variable
 def count_married_couples(geo: Geography):
-    return geo.B11012._002E
+    return geo.B11001._003E
 
 
 @variable
 def universe_married_couples(geo: Geography):
-    return geo.B11012._001E
+    return geo.B11001._001E
 
 
 # 7. Female householder, no spouse present
@@ -253,88 +253,71 @@ def universe_married_couples(geo: Geography):
 
 @variable
 def count_female_householder(geo: Geography):
-    return geo.B11012._008E
+    return geo.B11001._006E
 
 
 @variable
 def universe_female_householder(geo: Geography):
-    return geo.B11012._001E
+    return geo.B11001._001E
 
 
 # 8. Male householder, no spose present
 
-
 @variable
 def count_male_householder(geo: Geography):
-    return geo.B11012._013E
+    return geo.B11001._005E
 
 
 @variable
 def universe_male_householder(geo: Geography):
-    return geo.B11012._001E
+    return geo.B11001._001E
 
 
 # 9. Non-family household -- Skipping for now!
-# @variable
-# def non_family_hhs(geo: Geography):
-# return geo.B11012.
+@variable
+def count_non_family(geo: Geography):
+    return geo.B11001._007E
 
+@variable
+def universe_non_family(geo: Geography):
+    return geo.B11001._001E
 
 # 10 - who knows -- Ages
 
-# Grabbing these for estimating median housing value
+@variable
+def count_under_eighteen_below_poverty(geo: Geography):
+    return sum([
+        geo.B17020._003E,
+        geo.B17020._004E,
+        geo.B17020._005E,
+    ])
+
 
 @variable
-def hh_children(geo: Geography):
-    """
-    Universe: Households
-    """
+def universe_under_eighteen_below_poverty(geo: Geography):
+    return sum([
+        geo.B17020._003E,
+        geo.B17020._004E,
+        geo.B17020._005E,
+        geo.B17020._011E,
+        geo.B17020._012E,
+        geo.B17020._013E,
+    ])
+
+
+@variable
+def count_hh_w_children(geo: Geography):
     return geo.B11005._002E
 
 
 @variable
-def num_children_below_pov(geo: Geography):
-    return sum(
-        [  # type: ignore
-            geo.B17001._004E,  # Male
-            geo.B17001._005E,
-            geo.B17001._006E,
-            geo.B17001._007E,
-            geo.B17001._008E,
-            geo.B17001._009E,
-            geo.B17001._018E,  # Female
-            geo.B17001._019E,
-            geo.B17001._020E,
-            geo.B17001._021E,
-            geo.B17001._022E,
-            geo.B17001._023E,
-        ]
-    )
+def universe_hh_w_children(geo: Geography):
+    return geo.B11005._001E
 
 
 @variable
-def num_children_above_pov(geo: Geography):
-    return sum(
-        [  # type: ignore
-            geo.B17001._033E,  # Male
-            geo.B17001._034E,
-            geo.B17001._035E,
-            geo.B17001._036E,
-            geo.B17001._037E,
-            geo.B17001._038E,
-            geo.B17001._047E,  # Female
-            geo.B17001._048E,
-            geo.B17001._049E,
-            geo.B17001._050E,
-            geo.B17001._051E,
-            geo.B17001._052E,
-        ]
-    )
-
-
-@variable
-def num_households_with_children(geo: Geography):
-    return geo.B11005._002E
+def count_children_five_nine_enrolled(geo: Geography):
+    return geo.B14003._005E
 
 
 # The d3variable can only pull 50 variables at once (a fix to come) so
@@ -359,9 +342,11 @@ OTHER_INDICATORS = [
     universe_female_householder,
     count_male_householder,
     universe_male_householder,
-    # def non_family_hhs(geo: Geography):,
-    hh_children,
-    num_children_below_pov,
-    num_children_above_pov,
-    num_households_with_children,
+    count_non_family,
+    universe_non_family,
+    count_under_eighteen_below_poverty,
+    universe_under_eighteen_below_poverty,
+    count_hh_w_children,
+    universe_hh_w_children,
+    count_children_five_nine_enrolled,
 ]

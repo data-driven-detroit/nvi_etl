@@ -63,6 +63,16 @@ def load_in_population_reference(logger):
         logger.info("Population table loaded successfully!")
 
 
+def load_in_location_types(logger):
+    logger.info("Loading in parcel use key.")
+
+    # FIXME - Check for existance of this table before adding
+    parcel_use = pd.read_csv(WORKING_DIR / "conf" / "parcel_use_codes.csv")
+
+    ipds_engine = make_engine_for("ipds")
+
+    parcel_use.to_sql("parcel_use_summary", ipds_engine, schema="nvi", if_exists="replace")
+
 
 def create_itermediate_table(logger):
     db_engine = make_engine_for("ipds")

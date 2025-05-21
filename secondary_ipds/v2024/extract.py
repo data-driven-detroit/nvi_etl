@@ -103,6 +103,10 @@ def extract_from_queries(logger):
         'blight_citywide.sql',
         'blight_districts.sql',
         'blight_zones.sql',
+        'pop_density.sql',
+        'sq_mi.sql',
+        'land_use.sql',
+        'parcel_vacancy.sql',
     ]
 
     result = defaultdict(list) 
@@ -124,12 +128,16 @@ def extract_from_queries(logger):
         result["_".join(title)].append(table)
 
     combined_topics = []
+
+    # FIXME -- see the later added sql files on how to run the aggregations
+    # without requiring separate files and this intermediate vertical concatenation
     for clipped_stem, files in result.items():
         file = pd.concat(files)
         combined_topics.append(file.astype({"geography": "str"}).set_index(["geo_type", "geography"]))
 
     wide_format = pd.concat(combined_topics, axis=1).assign(year=2024)
     wide_format.to_csv(WORKING_DIR / "input" / "ipds_wide_from_queries.csv")
+
 
 if __name__ == "__main__":
     from nvi_etl import setup_logging

@@ -8,6 +8,7 @@ from variables.race_ethnicity import RACE_ETHNICITY_VARIABLES
 from variables.home_value_distribution import HOME_VALUE_DISTRIBUTION_VARIABLES
 from variables.other_indicators import OTHER_INDICATORS
 from variables.over_time import OVERTIME_INDICATORS
+from variables.gross_rent_distribution import GROSS_RENT_DISTRIBUTION
 
 
 WORKING_DIR = Path(__file__).resolve().parent
@@ -50,6 +51,7 @@ def extract(logger):
         [DETROIT, WAYNE_TRACTS],
         [
             *AGE_DISTRIBUTION_VARIABLES,
+            *GROSS_RENT_DISTRIBUTION,
             *RACE_ETHNICITY_VARIABLES,
             *INCOME_DISTRIBUTION_VARIABLES,
             *HOME_VALUE_DISTRIBUTION_VARIABLES,

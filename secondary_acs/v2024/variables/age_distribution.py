@@ -7,12 +7,37 @@ def count_age_under_five(geo: Geography):
 
 
 @variable
+def count_lt_eighteen_dist_under_five(geo: Geography):
+    return sum([geo.B01001._003E, geo.B01001._027E])
+
+
+@variable
 def universe_age_under_five(geo: Geography):
     return geo.B01001._001E
 
 
 @variable
+def universe_lt_eighteen_dist_under_five(geo: Geography):
+    return sum([
+        geo.B01001._003E,
+        geo.B01001._004E,
+        geo.B01001._005E,
+        geo.B01001._006E,
+        geo.B01001._027E,
+        geo.B01001._028E,
+        geo.B01001._029E,
+        geo.B01001._030E,
+    ])
+
+
+
+@variable
 def count_age_five_to_nine(geo: Geography):
+    return sum([geo.B01001._004E, geo.B01001._028E])
+
+
+@variable
+def count_lt_eighteen_dist_five_to_nine(geo: Geography):
     return sum([geo.B01001._004E, geo.B01001._028E])
 
 
@@ -22,7 +47,31 @@ def universe_age_five_to_nine(geo: Geography):
 
 
 @variable
+def universe_lt_eighteen_dist_five_to_nine(geo: Geography):
+    return sum([
+        geo.B01001._003E,
+        geo.B01001._004E,
+        geo.B01001._005E,
+        geo.B01001._006E,
+        geo.B01001._027E,
+        geo.B01001._028E,
+        geo.B01001._029E,
+        geo.B01001._030E,
+    ])
+
+
+@variable
 def count_age_ten_to_fourteen(geo: Geography):
+    return sum(
+        [  # type: ignore
+            geo.B01001._005E,
+            geo.B01001._029E,
+        ]
+    )
+
+
+@variable
+def count_lt_eighteen_dist_ten_to_fourteen(geo: Geography):
     return sum(
         [  # type: ignore
             geo.B01001._005E,
@@ -37,6 +86,20 @@ def universe_age_ten_to_fourteen(geo: Geography):
 
 
 @variable
+def universe_lt_eighteen_dist_ten_to_fourteen(geo: Geography):
+    return sum([
+        geo.B01001._003E,
+        geo.B01001._004E,
+        geo.B01001._005E,
+        geo.B01001._006E,
+        geo.B01001._027E,
+        geo.B01001._028E,
+        geo.B01001._029E,
+        geo.B01001._030E,
+    ])
+
+
+@variable
 def count_age_fifteen_to_nineteen(geo: Geography):
     return sum(
         [
@@ -46,6 +109,25 @@ def count_age_fifteen_to_nineteen(geo: Geography):
             geo.B01001._031E,
         ]
     )
+
+
+@variable
+def count_lt_eighteen_dist_fifteen_seventeen(geo: Geography):
+    return sum([geo.B01001._006E, geo.B01001._030E])
+
+
+@variable
+def universe_lt_eighteen_dist_fifteen_seventeen(geo: Geography):
+    return sum([
+        geo.B01001._003E,
+        geo.B01001._004E,
+        geo.B01001._005E,
+        geo.B01001._006E,
+        geo.B01001._027E,
+        geo.B01001._028E,
+        geo.B01001._029E,
+        geo.B01001._030E,
+    ])
 
 
 @variable
@@ -263,4 +345,12 @@ AGE_DISTRIBUTION_VARIABLES = [
     universe_age_eighty_to_eightyfour,
     count_age_eightyfive_and_up,
     universe_age_eightyfive_and_up,
+    count_lt_eighteen_dist_under_five,
+    universe_lt_eighteen_dist_under_five,
+    count_lt_eighteen_dist_five_to_nine,
+    universe_lt_eighteen_dist_five_to_nine,
+    count_lt_eighteen_dist_ten_to_fourteen,
+    universe_lt_eighteen_dist_ten_to_fourteen,
+    count_lt_eighteen_dist_fifteen_seventeen,
+    universe_lt_eighteen_dist_fifteen_seventeen,
 ]

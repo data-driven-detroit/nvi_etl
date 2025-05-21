@@ -1,4 +1,5 @@
 from itertools import accumulate
+import pandas as pd
 
 
 def calculate_square_miles(gdf):
@@ -90,7 +91,13 @@ def estimate_median_from_distribution(distribution: Disribution):
     # Murky assumption -- uniform distribution of observations along bin values
     bin_of_concern = sorted_bins[target_index]
     count_from_bottom = midpoint - count_below
-    bin_ratio = count_from_bottom / bin_of_concern[1]
+
+    try:
+        bin_ratio = count_from_bottom / bin_of_concern[1]
+
+    except ZeroDivisionError:
+        return pd.NA
+
     bin_bottom, bin_top = bin_of_concern[0]
 
     return bin_ratio * (bin_top - bin_bottom) + bin_bottom

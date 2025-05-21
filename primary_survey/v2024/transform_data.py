@@ -139,7 +139,9 @@ def aggregate(recoded, indicator_map, location_map, geographic_level, logger):
 
 # Transforms all indicator and question data.
 
-def transform_data(logger, districts_year=2026, zones_year=2026):
+def transform_data(
+        logger, districts_year=2026, zones_year=2026, survey_year=2024
+    ):
     """
     Transform table of contents:
 
@@ -178,12 +180,11 @@ def transform_data(logger, districts_year=2026, zones_year=2026):
 
     # 1. OPEN RAW RESPONSE AND GEOCODED FILE ---------------------------------
 
-    survey_data = pd.read_csv(
-        config["nvi_2024_config"]["survey_responses"], 
-        low_memory=False
-    )
+    survey_filename = config[f"nvi_{survey_year}_config"]["survey_responses"]
+    survey_data = pd.read_csv(survey_filename, low_memory=False)
 
-    geocoded = pd.read_excel(config["nvi_2024_config"]["geocoded_responses"])
+    geocoded_filename = config[f"nvi_{survey_year}_config"]["geocoded_responses"]
+    geocoded = pd.read_excel(geocoded_filename)
 
     if len(geocoded) != len(survey_data):
         logger.wanring(f"# geocoded rows don't match the original survey data!")
@@ -415,13 +416,13 @@ def transform_data(logger, districts_year=2026, zones_year=2026):
     (
         pd.concat([indicators_tall, answers_tall])
         .assign(
-            year=2024,
+            year=survey_year,
             dollars=pd.NA,
             rate=pd.NA,
             rate_per=pd.NA,
             index=pd.NA,
         )
-        .to_csv(WORKING_DIR / "output" / "primary_survey_tall.csv")
+        .to_csv(WORKING_DIR / "output" / f"primary_survey_tall_{survey_year}.csv")
     )
 
 

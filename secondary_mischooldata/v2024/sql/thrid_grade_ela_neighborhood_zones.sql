@@ -4,12 +4,12 @@ WITH school AS (
            district_name, 
            building_code, 
            building_name, 
-           cb.district_n, 
-           cb.zone_id
+           zones.zone_id
     FROM education.eem_schools as sch
-    JOIN shp.nvi_neighborhood_zones_temp_2025 cb
-        ON st_intersects(sch.geometry, st_transform(cb.geom,4326))
-    WHERE sch.start_date >= '2023-07-01' AND sch.end_date <= '2024-06-29'
+    JOIN nvi.neighborhood_zones zones
+        ON st_intersects(zones.geometry, st_transform(sch.geometry, 2898))
+    WHERE sch.start_date = '2023-07-01'
+    AND zones.start_date = '2026-01-01'
 )
 SELECT 'neighborhood_zones' AS geo_type,
        s.zone_id as geography, 
@@ -20,5 +20,5 @@ SELECT 'neighborhood_zones' AS geo_type,
 FROM school AS s
 JOIN education.g3_ela_school AS e
     ON s.building_code = e.building_code
-WHERE year = '2023'
+WHERE e.year = '2023'
 GROUP BY s.zone_id, year;

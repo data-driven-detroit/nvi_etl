@@ -4,21 +4,21 @@ WITH school AS (
            district_name, 
            building_code, 
            building_name, 
-           council_di
+           district_number
     FROM education.eem_schools as sch
-    JOIN shp."Detroit_City_Council_Districts_2026" cb
-        ON st_intersects(st_transform(cb.geom,4326),sch.geometry)
-    WHERE sch.start_date >= '2023-07-01' AND sch.end_date <= '2024-06-29'
+    JOIN nvi.detroit_council_districts cd
+        ON st_intersects(cd.geometry,st_transform(sch.geometry, 2898))
+    WHERE sch.start_date = '2023-07-01'
+    AND cd.start_date = DATE '2026-01-01'
 )
 SELECT 'council_districts' as geo_type,
-       s.council_di as geography, 
+       s.district_number as geography, 
        sum(number_assessed) AS universe_g3_ela, 
        sum(total_met) AS count_g3_ela, 
        sum(total_met) / sum(number_assessed) AS percentage_g3_ela,
-       year
+       2024 AS year -- FIXME: THIS NEEDS TO BE CHANGED
 FROM school AS s
 JOIN education.g3_ela_school AS e
     ON s.building_code = e.building_code
-WHERE year = '2023'
-GROUP BY s.council_di, year;
-
+WHERE e.year = '2023'
+GROUP BY s.district_number, year;
