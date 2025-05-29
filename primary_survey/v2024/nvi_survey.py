@@ -98,7 +98,7 @@ class Survey:
         
         raise ValueError(f"{question_meta["response_type"]} not a valid response-type for tabulation.")
 
-    def tabulate_single_question(self, group_var, question, question_group=None, readable=True):
+    def tabulate_single_question(self, group_var, question, question_group=None, readable=True, universe="@ALL"):
         if not question_group:
             question_group = question
 
@@ -114,6 +114,7 @@ class Survey:
 
         return (
             self.survey_data[[group_var, question_meta["full_column"]]]
+            .query(universe)
             .astype({
                 group_var: pd.Int64Dtype(),
                 question_meta["full_column"]: pd.Int64Dtype(),
@@ -133,7 +134,7 @@ class Survey:
             .fillna(0)
         )
 
-    def tabulate_multiselect(self, group_var, _, question_group, readable=True):
+    def tabulate_multiselect(self, group_var, _, question_group, readable=True, universe="@ALL"):
         questions = self.answer_key[
             self.answer_key["group"] == question_group
         ]
@@ -154,6 +155,7 @@ class Survey:
             try:
                 aggregations.append(
                     self.survey_data
+                    .query(universe)
                     .groupby(group_var, dropna=False)[question["full_column"]]
                     .count()
                     .rename(col_name)
@@ -163,6 +165,7 @@ class Survey:
 
         aggregations.append(
             self.survey_data
+            .query(universe)
             .groupby(group_var, dropna=False)
             .size()
             .rename("Total Responses")

@@ -2,12 +2,15 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 from nvi_etl import liquefy
+from nvi_etl.reshape import elongate
 from nvi_etl.geo_reference import (
     pin_location,
     pull_city_boundary,
     pull_council_districts,
     pull_zones,
 )
+
+from aggregations import compile_indicators
 
 
 WORKING_DIR = Path(__file__).resolve().parent
@@ -194,6 +197,32 @@ def transform_from_queries(logger):
     melted.to_csv(WORKING_DIR / "output" / "msc_output_tall.csv", index=False)
 
 
+def read_location_pinned_file():
+    return (
+        pd.read_csv(WORKING_DIR / "input" / "msc_wide_from_queries.csv")
+        .assign(
+            location_id=lambda df: df.apply(pin_location, axis=1)
+        )
+    )
+
+
+def transform_context(logger):
+    logger.info("Transforming MSC context indicators.")
+
+    context_indicators = pd.read_csv(WORKING_DIR / "conf" / "context_indicator_ids.csv")
+    indicators = compile_indicators(context_indicators, logger)
+
+    wide_file = read_location_pinned_file().assign(**indicators)
+
+    tall_file = (
+        elongate(wide_file)
+        .merge(context_indicators, on=["indicator", "year"], how="inner")
+        .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
+    )
+
+    tall_file.to_csv(WORKING_DIR / "output" / "msc_context_tall_from_queries.csv", index=False)
+
+
 if __name__ == "__main__":
     from nvi_etl import setup_logging
 
@@ -201,3 +230,4 @@ if __name__ == "__main__":
 
     # transform_births(logger)
     transform_from_queries(logger)
+    transform_context(logger)

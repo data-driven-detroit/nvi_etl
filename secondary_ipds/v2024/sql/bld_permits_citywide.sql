@@ -3,6 +3,7 @@ WITH building_permits AS (
     -- no need to filter because the detroit building department only reports on Detroit
     SELECT COUNT(*) AS dp_detroit
     FROM raw.detodp_building_permits_20240131 AS dp
+
 ),
 acs_population AS (
     SELECT b01003001 AS total_pop

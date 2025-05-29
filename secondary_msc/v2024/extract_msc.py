@@ -54,6 +54,7 @@ def extract_from_queries(logger):
         "rms_incidents_cds.sql",
         "rms_incidents_citywide.sql",
         "rms_incidents_zones.sql",
+        "redlining_all.sql",
     ]
 
     result = defaultdict(list) 
@@ -79,7 +80,7 @@ def extract_from_queries(logger):
         file = pd.concat(files).astype({"geography": "str"}).set_index(["geo_type", "geography"])
         combined_topics.append(file)
 
-    wide_format = pd.concat(combined_topics, axis=1)
+    wide_format = pd.concat(combined_topics, axis=1).assign(year=2024)
     wide_format.to_csv(WORKING_DIR / "input" / "msc_wide_from_queries.csv")
 
 

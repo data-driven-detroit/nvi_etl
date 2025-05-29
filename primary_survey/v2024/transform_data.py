@@ -269,7 +269,7 @@ def transform_data(
     survey_file_path = (
         WORKING_DIR / 
         "output" / 
-        f"nvi_2024_analysis_source_buf_{districts_year}_{zones_year}_{today}.csv"
+        f"nvi_2024_analysis_source_{districts_year}_{zones_year}_{today}.csv"
     )
 
     recoded.to_csv(survey_file_path, index=False)
