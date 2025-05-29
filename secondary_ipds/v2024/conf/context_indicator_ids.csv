@@ -1,0 +1,12 @@
+indicator,indicator_type,source_id,year,start_date,end_date,indicator_id,filter_type_id,filter_option_id
+sq_mi,count,1,2024,2025-01-01,2025-12-31,2,,
+pop_density,rate,1,2024,2018-01-01,2023-12-31,3,,
+commercial,percentage,1,2024,2025-01-01,2025-12-31,11,3,12
+empty_lot,percentage,1,2024,2025-01-01,2025-12-31,11,3,11
+industrial,percentage,1,2024,2025-01-01,2025-12-31,11,3,14
+institutional,percentage,1,2024,2025-01-01,2025-12-31,11,3,15
+other,percentage,1,2024,2025-01-01,2025-12-31,11,3,16
+residential,percentage,1,2024,2025-01-01,2025-12-31,11,3,13
+vacant_parcels,percentage,1,2024,2025-01-01,2025-12-31,19,,
+vacant_residential_parcels,percentage,1,2024,2025-01-01,2025-12-31,20,,
+lb_owned,percentage,1,2024,2025-01-01,2025-12-31,18,,

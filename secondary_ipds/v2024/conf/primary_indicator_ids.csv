@@ -1,0 +1,4 @@
+indicator,indicator_type,indicator_id,survey_id,survey_question_id,survey_question_option_id,year
+non_foreclosures,percentage,7,,,,2024
+bld_permits,rate,21,,,,2024
+non_blighted,percentage,24,,,,2024

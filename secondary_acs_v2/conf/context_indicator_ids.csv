@@ -1,0 +1,9 @@
+indicator,indicator_type,source_id,year,start_date,end_date,indicator_id,filter_type_id,filter_option_id
+under_18_black,count,1,2023,2019-01-01,2023-12-31,25,2,5
+under_18_white,count,1,2023,2019-01-01,2023-12-31,25,2,8
+under_18_aian,count,1,2023,2019-01-01,2023-12-31,25,2,3
+under_18_asian,count,1,2023,2019-01-01,2023-12-31,25,2,4
+under_18_nhpi,count,1,2023,2019-01-01,2023-12-31,25,2,7
+under_18_other,count,1,2023,2019-01-01,2023-12-31,25,2,9
+under_18_two_plus,count,1,2023,2019-01-01,2023-12-31,25,2,10
+under_18_hispanic,count,1,2023,2019-01-01,2023-12-31,25,2,6

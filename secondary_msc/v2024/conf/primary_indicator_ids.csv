@@ -1,0 +1,7 @@
+indicator,indicator_type,indicator_id,survey_id,survey_question_id,survey_question_option_id,year
+births_adequate_care,percentage,13,,,,2024
+auto_crash,rate,31,,,,2024
+ped_bike_crash,rate,32,,,,2024
+violent_crime,rate,30,,,,2024
+cdo_coverage,percentage,4,,,,2024
+redlining,precentage,21,,,,2024
