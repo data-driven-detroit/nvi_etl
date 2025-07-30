@@ -97,45 +97,34 @@ def extract_foreclosures(logger):
 def extract_from_queries(logger):
     db_engine = make_engine_for("ipds")
     qs = [
-        'bld_permits_citywide.sql',
-        'bld_permits_districts.sql',
-        'bld_permits_zones.sql',
-        'blight_citywide.sql',
-        'blight_districts.sql',
-        'blight_zones.sql',
+        'building_permits.sql',
+        'blight.sql',
         'pop_density.sql',
         'sq_mi.sql',
         'land_use.sql',
+        'building_vacancy.sql',
         'parcel_vacancy.sql',
+        'foreclosures_history.sql',
     ]
 
-    result = defaultdict(list) 
+    combined_topics = []
     for filename in qs:
         logger.info(f"Running query '{filename}'.")
 
         path = WORKING_DIR / "sql" / filename
-
-        # Get the stem from the path (basically just the final filename without the '.csv')
-        stem = path.stem
-
-        # Clip off the 'geo_type'
-        *title, _ = stem.split("_")
-
         query = text(path.read_text())
         table = pd.read_sql(query, db_engine)
 
-        # Add the file to the list labeled with the dataset
-        result["_".join(title)].append(table)
+        if 'year' not in table.columns:
+            table["year"] = 2024
 
-    combined_topics = []
+        combined_topics.append(
+            table
+            .astype({"geography": "str"})
+            .set_index(["geo_type", "geography", "year"])
+        )
 
-    # FIXME -- see the later added sql files on how to run the aggregations
-    # without requiring separate files and this intermediate vertical concatenation
-    for clipped_stem, files in result.items():
-        file = pd.concat(files)
-        combined_topics.append(file.astype({"geography": "str"}).set_index(["geo_type", "geography"]))
-
-    wide_format = pd.concat(combined_topics, axis=1).assign(year=2024)
+    wide_format = pd.concat(combined_topics, axis=1)
     wide_format.to_csv(WORKING_DIR / "input" / "ipds_wide_from_queries.csv")
 
 
@@ -144,5 +133,5 @@ if __name__ == "__main__":
 
     logger = setup_logging()
 
-    extract_foreclosures(logger)
+    # extract_foreclosures(logger)
     extract_from_queries(logger)

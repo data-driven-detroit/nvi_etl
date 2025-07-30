@@ -38,9 +38,9 @@ def generate_digital_equity_report(filepath):
                 tables.append((q, all_geos))
 
         elif response_type == "MULTI-SELECT":
-            citywide = survey.tabulate_multiselect("citywide", group)
-            districts = survey.tabulate_multiselect("district", group)
-            zones = survey.tabulate_multiselect("zone", group)
+            citywide = survey.tabulate_multiselect("citywide", ..., group)
+            districts = survey.tabulate_multiselect("district", ..., group)
+            zones = survey.tabulate_multiselect("zone", ..., group)
 
             all_geos = pd.concat([citywide, districts, zones])
 
@@ -83,3 +83,5 @@ def compile_simple_nvi_dataset(filepath):
         f"nvi_survey_indicator_2024_2026_2026_{today}.xlsx"
     )
 
+if __name__ == "__main__":
+    generate_digital_equity_report("C:\\Users\\mike\\Desktop\\2_responsibilities\\nvi_etl\\primary_survey\\v2024\\output\\nvi_2024_analysis_source_2014_2022_20250624.csv")

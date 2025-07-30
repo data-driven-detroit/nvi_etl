@@ -9,8 +9,8 @@ def main():
 
 
     # extract_data(logger)
-    # transform_data(logger)
-    transform_data(logger, survey_year=2023)
+    transform_data(logger)
+    # transform_data(logger, survey_year=2023)
     # load_data(logger)
 
 

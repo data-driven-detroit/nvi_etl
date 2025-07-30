@@ -167,6 +167,7 @@ def transform_births(logger):
 
     tall_format = liquefy(wide_format)
     tall_format["year"] = 2024 # FIXME
+    tall_format["value_type_id"] = 1
     tall_format.to_csv(WORKING_DIR / "output" / "births_output_tall.csv", index=False)
 
 
@@ -192,6 +193,7 @@ def transform_from_queries(logger):
         .rename(columns={"per": "rate_per"})
         .merge(primary_indicators, on=["indicator", "year"], how="left")
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
+        .assign(value_type_id=1)
     )
 
     melted.to_csv(WORKING_DIR / "output" / "msc_output_tall.csv", index=False)

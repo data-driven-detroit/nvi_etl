@@ -36,6 +36,7 @@ def transform_mischooldata(logger):
         .rename(columns={"per": "rate_per"})
         .merge(primary_indicators, on=["indicator", "year"], how="right")
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
+        .assign(value_type_id=1)
     )
 
     melted.to_csv(WORKING_DIR / "output" / "g3_ela_2023_tall.csv", index=False)

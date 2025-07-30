@@ -317,7 +317,12 @@ def universe_hh_w_children(geo: Geography):
 
 @variable
 def count_children_five_nine_enrolled(geo: Geography):
-    return geo.B14003._005E
+    return sum([
+        geo.B14003._005E,
+        geo.B14003._014E,
+        geo.B14003._033E,
+        geo.B14003._042E,
+    ])
 
 
 # The d3variable can only pull 50 variables at once (a fix to come) so

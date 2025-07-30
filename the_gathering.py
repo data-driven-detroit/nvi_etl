@@ -64,7 +64,7 @@ def collect_primary_output():
        "C:\\Users\\mike\\Desktop\\2_responsibilities\\nvi_etl\\primary_survey\\v2024\\output\\primary_survey_tall_2024.csv",
        "C:\\Users\\mike\\Desktop\\2_responsibilities\\nvi_etl\\secondary_acs\\v2024\\output\\acs_primary_indicators_tall.csv",
        "C:\\Users\\mike\\Desktop\\2_responsibilities\\nvi_etl\\secondary_ipds\\v2024\\output\\foreclosures_tall.csv",
-       "C:\\Users\\mike\\Desktop\\2_responsibilities\\nvi_etl\\secondary_ipds\\v2024\\output\\ipds_tall_from_queries.csv",
+       "C:\\Users\\mike\\Desktop\\2_responsibilities\\nvi_etl\\secondary_ipds\\v2024\\output\\ipds_primary_tall_from_queries.csv",
        "C:\\Users\\mike\\Desktop\\2_responsibilities\\nvi_etl\\secondary_mischooldata\\v2024\\output\\g3_ela_2023_tall.csv",
        "C:\\Users\\mike\\Desktop\\2_responsibilities\\nvi_etl\\secondary_msc\\v2024\\output\\births_output_tall.csv",
        "C:\\Users\\mike\\Desktop\\2_responsibilities\\nvi_etl\\secondary_msc\\v2024\\output\\msc_output_tall.csv",
@@ -83,10 +83,11 @@ def collect_primary_output():
         .rename(columns={
             "percentage": "__percentage"
         })
+        .dropna(subset="indicator_id")
+        .fillna({"value_type_id": 1})
         .assign(
             percentage = lambda df: df["__percentage"] * 100,
             survey_id = 1, # THIS IS IMPORTANT THAT IT IS SET HERE
-            value_type_id = 1, # THIS DOESN'T MATTER RIGHT NOW AFAIK
         )
         .drop("__percentage", axis=1).round({
             "count": 0,
@@ -135,6 +136,7 @@ def collect_context_output():
         "C:\\Users\\mike\\Desktop\\2_responsibilities\\nvi_etl\\secondary_acs_v2\\output\\acs_context_indicators_tall.csv",
         "C:\\Users\\mike\\Desktop\\2_responsibilities\\nvi_etl\\secondary_ipds\\v2024\\output\\ipds_context_tall_from_queries.csv",
         "C:\\Users\\mike\\Desktop\\2_responsibilities\\nvi_etl\\secondary_msc\\v2024\\output\\msc_context_tall_from_queries.csv",
+        "C:\\Users\\mike\\Desktop\\2_responsibilities\\nvi_etl\\secondary_evictions\\output\\evictions.csv",
     ]
 
     db_column_order = [
@@ -186,5 +188,5 @@ def collect_context_output():
 
 if __name__ == "__main__":
     # run_everything()
-    collect_primary_output()
+    # collect_primary_output()
     collect_context_output()

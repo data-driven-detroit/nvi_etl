@@ -205,15 +205,20 @@ class Survey:
         return pd.concat(frames)
 
     def compile_single_response_indicator(self, indicator_id, group_var, readable=True):
+        # Select all rows from the answer key with the correct indicator id
+        # This is answer-level hence the duplicates drop through the rest of the 
         indicator_rows = self.answer_key[
             self.answer_key["indicator_db_id"] == indicator_id
         ]
 
         relevant_columns = indicator_rows["full_column"].drop_duplicates()
 
-
         indicator_meta = indicator_rows.iloc[0]
-        universe = self.survey_data.query(indicator_meta["universe_query"])
+        
+        universe = (
+            self.survey_data.query(indicator_meta["universe_query"])
+            .dropna(subset=relevant_columns, how="all")
+        )
 
         if readable:
             index_renamer = self.make_renamer(group_var, group_var)
@@ -225,23 +230,19 @@ class Survey:
             for column, answers in indicator_rows.groupby("full_column")
         }
 
-        index_include = (
-            universe[relevant_columns]
-            .isin(accepted_values)
-        )
-
+        index_include = (universe[relevant_columns].isin(accepted_values))
         intermediate = pd.concat([index_include, universe[group_var]], axis=1)
 
         if indicator_meta["and_or"] == "AND":
-            combo_strategy = lambda df: df[indicator_rows["full_column"].drop_duplicates()].all(axis=1)
+            combo_strategy = lambda df: df[relevant_columns].all(axis=1)
         elif indicator_meta["and_or"] == "OR":
-            combo_strategy = lambda df: df[indicator_rows["full_column"].drop_duplicates()].any(axis=1)
+            combo_strategy = lambda df: df[relevant_columns].any(axis=1)
         else:
             raise ValueError(f"{indicator_meta["and_or"]} is not a valid value for 'and_or' for indicator {indicator_id}")
 
+
         return (
             intermediate
-            .dropna(subset=relevant_columns, how="all") # This is different from how multi-select universe is calculated
             .assign(included=combo_strategy)
             .groupby(group_var)
             .aggregate(
@@ -249,10 +250,9 @@ class Survey:
                 universe=pd.NamedAgg(column="included", aggfunc=lambda c: c.count()),
                 percentage=pd.NamedAgg(column="included", aggfunc=lambda c: c.sum() / c.count()),
             )
-            .rename(
-                index=index_renamer,
-            )
+            .rename(index=index_renamer)
         )
+
 
     def compile_multi_response_indicator(self, indicator_id, group_var, readable=True):
         indicator_rows = self.answer_key[
@@ -261,7 +261,9 @@ class Survey:
         ]
 
         indicator_meta = indicator_rows.iloc[0]
-        universe = self.survey_data.query(indicator_meta["universe_query"])
+        universe = (
+            self.survey_data.query(indicator_meta["universe_query"])
+        )
 
         if readable:
             index_renamer = self.make_renamer(group_var, group_var)
@@ -289,9 +291,7 @@ class Survey:
                 universe=pd.NamedAgg(column="included", aggfunc=lambda c: c.count()),
                 percentage=pd.NamedAgg(column="included", aggfunc=lambda c: c.sum() / c.count()),
             )
-            .rename(
-                index=index_renamer,
-            )
+            .rename(index=index_renamer)
         )
 
 

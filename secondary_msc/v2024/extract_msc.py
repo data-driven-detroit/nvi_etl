@@ -15,6 +15,12 @@ def extract_births(logger):
     logger.info("No extraction necessary for births file--reading directly from source.")
     logger.info("Extracting births data.")
 
+    output_path = WORKING_DIR / "input" / "births_extracted_2023.geojson"
+
+    if output_path.exists():
+        logger.info("Births already extracted, skipping to transform.")
+        return 
+
     parser = configparser.ConfigParser()
     parser.read(WORKING_DIR / "conf" / ".conf")
     data_extract_path = parser.get('nvi_2024_config', 'data_extract_path')
@@ -35,7 +41,7 @@ def extract_births(logger):
 
     # FIXME: We can save this temporarily locally -- right?
 
-    births_gdf.to_file(WORKING_DIR / "input" / "births_extracted_2023.geojson")
+    births_gdf.to_file(output_path)
 
 
 def extract_from_queries(logger):
@@ -51,9 +57,7 @@ def extract_from_queries(logger):
         "ped_bike_crash_cds.sql",
         "ped_bike_crash_citywide.sql",
         "ped_bike_crash_zones.sql",
-        "rms_incidents_cds.sql",
-        "rms_incidents_citywide.sql",
-        "rms_incidents_zones.sql",
+        "violent_crime_all.sql",
         "redlining_all.sql",
     ]
 

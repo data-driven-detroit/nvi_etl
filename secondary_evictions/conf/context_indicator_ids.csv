@@ -1,2 +1,5 @@
 indicator,indicator_type,source_id,year,start_date,end_date,indicator_id,filter_type_id,filter_option_id
-evictions,count,1,2023,2019-01-01,2023-12-31,14,2,5
+evictions,count,1,2019,2019-01-01,2019-12-31,14,,
+evictions,count,1,2020,2020-01-01,2020-12-31,14,,
+evictions,count,1,2021,2021-01-01,2021-12-31,14,,
+evictions,count,1,2022,2022-01-01,2022-12-31,14,,

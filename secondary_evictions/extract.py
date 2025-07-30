@@ -9,6 +9,7 @@ WORKING_DIR = Path(__file__).resolve().parent
 
 
 def extract(logger):
+    logger.info("Extracting evictions.")
     evictions_db = make_engine_for("evictions")
     ipds_db = make_engine_for("ipds")
 

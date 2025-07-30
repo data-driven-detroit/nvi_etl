@@ -10,7 +10,7 @@ from nvi_survey import create_nvi_survey
 
 
 WORKING_DIR = Path(__file__).parent
-
+ALL = tuple() # For query string
 
 
 def recode(survey_data, recode_map, logger):
@@ -53,94 +53,8 @@ def recode(survey_data, recode_map, logger):
     return survey_data
 
 
-def aggregate(recoded, indicator_map, location_map, geographic_level, logger):
-    """
-    Aggregate the survey data to a given geography level provided the 
-    rules given in the indicator_map.
-
-    You can provide any 'geographic_level' that appears as a column on 
-    the 'recoded' dataframe.
-    """
-
-    # Checking for geographic level in the indicator map config
-    location_mapping = location_map[geographic_level]
-
-    results = []
-    # Survey Question Level Aggregation 
-    for indicator_id, indicator_info in indicator_map["indicators"].items():
-        for question_id, question_info in indicator_info["questions"].items():
-            question_col = question_info["column"]
-
-            if question_col not in recoded.columns:
-                logger.warning(f"'{question_col}' doesn't appear in the recoded file.")
-                continue
-            
-            # convert to ints
-            recoded[question_col] = pd.to_numeric(recoded[question_col], errors='coerce')
-            recoded[question_col] = recoded[question_col].fillna(0).astype(int)
-
-            try:
-                grouped = recoded.groupby(geographic_level)[question_col]
-
-            except KeyError as e:
-                raise KeyError(f"Invalid geography level: '{geographic_level}'!")
-
-            universe = grouped.count()
-
-            for option_id, option_value in question_info["options"].items():
-                count = grouped.apply(lambda x: sum(x.isin(option_value)))
-                percentage = (count / universe * 100).fillna(0)
-
-                for location, c, u, p in zip(universe.index, count, universe, percentage):
-                    location_id = location_mapping.get(location, location)
-
-                    results.extend([{
-                            "indicator_id": indicator_id,
-                            "survey_question_id": question_id,
-                            "survey_question_option_id": option_id,
-                            "location": location_id,
-                            "count": c,
-                            "universe": u,
-                            "percentage": p,
-                    }])
-        
-        # Indicator Level Aggregation
-        indicator_cols = [
-            q_info["column"] for q_info in indicator_info["questions"].values()
-        ]
-        indicator_options = [
-            list(q_info["options"].values()) 
-            for q_info in indicator_info["questions"].values()
-        ]
-
-        indicator_grouped = recoded.groupby(geographic_level)[indicator_cols]
-        indicator_count = indicator_grouped.sum()
-        indicator_universe = indicator_grouped.count()
-        indicator_percentage = (indicator_count / indicator_universe * 100).fillna(0)
-
-        for location, c, u, p in zip(indicator_universe.index, indicator_count, indicator_universe, indicator_percentage):
-            if isinstance(location_mapping, dict):
-                location_id = location_mapping.get(location, location)
-            else: 
-                location_id = location
-            
-            results.extend([{
-                            "indicator_id": indicator_id,
-                            "survey_question_id": "",
-                            "survey_question_option_id": "",
-                            "location": location,
-                            "count": c,
-                            "universe": u,
-                            "percentage": p,
-                        }])
-
-    return pd.DataFrame(results)
-
-
-# Transforms all indicator and question data.
-
 def transform_data(
-        logger, districts_year=2026, zones_year=2026, survey_year=2024
+        logger, districts_year=2014, zones_year=2022, survey_year=2024
     ):
     """
     Transform table of contents:
@@ -316,7 +230,7 @@ def transform_data(
         )
 
 
-    indicators_tall = pd.concat(result)
+    indicators_tall = pd.concat(result).assign(value_type_id=1)
 
 
     # ROLL UP ALL QUESTIONS
@@ -347,15 +261,18 @@ def transform_data(
                     "survey_code", 
                     "db_question_code", 
                     "db_answer_code", 
-                    "response_type"
+                    "response_type",
+                    "universe_query"
                 ]
             ].drop_duplicates()
 
 
             for agg in aggs:
+                # FIXME: This is a mess
                 indicator_id = question["indicator_db_id"].iloc[0]
                 survey_question_id = question["db_question_code"].iloc[0]
                 column = question["full_column"].iloc[0]
+                universe_query = question["universe_query"].iloc[0]
 
                 recoder = {
                     row["survey_code"]: row["db_answer_code"]
@@ -363,7 +280,8 @@ def transform_data(
                 }
 
                 result.append(
-                    nvi.survey_data[[agg, column]]
+                    nvi.survey_data
+                    .query(universe_query)[[agg, column]]
                     .groupby(agg)
                     .value_counts()
                     .reset_index()
@@ -411,7 +329,7 @@ def transform_data(
         else:
             raise ValueError(f"'{question["response_type"]}' is not a valid response type.")
 
-    answers_tall = pd.concat(result)
+    answers_tall = pd.concat(result).assign(value_type_id=2)
 
     (
         pd.concat([indicators_tall, answers_tall])

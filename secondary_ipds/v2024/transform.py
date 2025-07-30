@@ -29,6 +29,7 @@ def transform_foreclosures(primary_indicators, logger):
         elongate(wide_file)
         .merge(primary_indicators, on=["indicator", "year"], how="left")
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
+        .assign(value_type_id=1)
     )
 
     tall_file.to_csv(WORKING_DIR / "output" / "foreclosures_tall.csv", index=False)
@@ -52,6 +53,7 @@ def transform_from_queries(primary_indicators, logger):
         elongate(wide_file)
         .merge(primary_indicators, on=["indicator", "year"], how="inner")
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
+        .assign(value_type_id=1)
     )
 
     tall_file.to_csv(WORKING_DIR / "output" / "ipds_primary_tall_from_queries.csv", index=False)

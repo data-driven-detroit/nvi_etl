@@ -91,6 +91,7 @@ def create_primary_indicators(geography_counts, logger):
     )
 
     primary_tall["year"] = 2024 # FIXME This will be dealt with when we move Secondary to Context
+    primary_tall["value_type_id"] = 1
     primary_tall.to_csv(WORKING_DIR / "output" / "acs_primary_indicators_tall.csv", index=False)
 
 

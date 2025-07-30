@@ -18,8 +18,6 @@ SELECT
     'citywide' AS geo_type,
     SUM(is_vacant) AS count_vacant_parcels,
     COUNT(*) AS universe_vacant_parcels,
-    SUM(is_residential * is_vacant) AS count_vacant_residential_parcels,
-    SUM(is_residential) AS universe_vacant_residential_parcels,
     SUM(lb_owned) AS count_lb_owned,
     COUNT(*) AS universe_lb_owned
 FROM annotated
@@ -31,8 +29,6 @@ SELECT
     'district' AS geo_type,
     SUM(is_vacant) AS count_vacant_parcels,
     COUNT(*) AS universe_vacant_parcels,
-    SUM(is_residential * is_vacant) AS count_vacant_residential_parcels,
-    SUM(is_residential) AS universe_vacant_residential_parcels,
     SUM(lb_owned) AS count_lb_owned,
     COUNT(*) AS universe_lb_owned
 FROM annotated
@@ -45,8 +41,6 @@ SELECT
     'zone' AS geo_type,
     SUM(is_vacant) AS count_vacant_parcels,
     COUNT(*) AS universe_vacant_parcels,
-    SUM(is_residential * is_vacant) AS count_vacant_residential_parcels,
-    SUM(is_residential) AS universe_vacant_residential_parcels,
     SUM(lb_owned) AS count_lb_owned,
     COUNT(*) AS universe_lb_owned
 FROM annotated

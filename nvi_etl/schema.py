@@ -74,6 +74,7 @@ class NVIContextValueTable(pa.DataFrameModel):
         ]
 
 VALUE_COLUMNS = list(NVIValueTable.to_schema().columns)
+CONTEXT_VALUE_COLUMNS = list(NVIContextValueTable.to_schema().columns)
 
 # These are for the aux_geography module, for enabling the rest of the ETL
 

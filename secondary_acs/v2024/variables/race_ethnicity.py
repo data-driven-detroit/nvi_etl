@@ -50,7 +50,7 @@ def count_nhpi(geo: Geography):
 
 @variable
 def universe_nhpi(geo: Geography):
-    return geo.B03002._007E
+    return geo.B03002._001E
 
 
 @variable
