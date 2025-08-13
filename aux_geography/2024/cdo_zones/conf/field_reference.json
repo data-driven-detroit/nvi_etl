@@ -1,0 +1,28 @@
+{
+    "renames": {
+        "orgname": "organization_name",
+        "annualbudg": "annual_budget",
+        "yearfounde": "year_founded"
+    },
+    "column_order": [
+        "organization_name",
+        "annual_budget",
+        "fte",
+        "year_founded",
+        "cfcfreq",
+        "resengagem",
+        "econdevfre",
+        "resspprtfr",
+        "complanadv",
+        "general_lo",
+        "cdo_id",
+        "labelfordi",
+        "orgid",
+        "cnldstform",
+        "area_sqmil",
+        "sourceyr",
+        "shape_leng",
+        "shape_area",
+        "geometry"
+    ]
+}
