@@ -5,7 +5,7 @@ import pandas as pd
 import geopandas as gpd
 import datetime
 
-from nvi_etl.geo_reference import pull_city_boundary, pull_council_districts, pull_zones
+from nvi_etl.geo_reference import pull_city_boundary, pull_council_districts, pull_zones # TODO (Mike): add a 'pull_cdo_boundaries' function
 from nvi_survey import create_nvi_survey
 
 
@@ -86,7 +86,9 @@ def transform_data(
     city = pull_city_boundary()
     districts = pull_council_districts(districts_year)
     zones = pull_zones(zones_year)
+    # TODO Add CDO boundaries
 
+        
     # Check that the 'pull' functions returned rows
     assert len(districts) > 0, "No districts available for the requested year."
     assert len(zones) > 0, "No zones available for the requested year."
@@ -135,6 +137,9 @@ def transform_data(
     gdf["zone"] = gdf["zone_id"].map(location_map["zone"]).astype(pd.Int64Dtype())
     gdf = gdf.drop(columns=["index_right", "zone_id"])
 
+    
+    # TODO add CDO boundaries BUT don't add it to final dataframe for website
+        
     # convert back to df -- with citywide, district, and zone columns
     df = pd.DataFrame(gdf.drop(columns='geometry'))
     df = df.drop_duplicates(subset="Response ID")
