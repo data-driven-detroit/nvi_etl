@@ -2,11 +2,12 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 
-from sqlalchemy import create_engine
+from nvi_etl import make_engine_for
+
 
 WORKING_DIR = Path(__file__).resolve().parent
 
-engine = create_engine("postgresql+psycopg://mike@edw:5432/data")
+engine = make_engine_for("data")
 
 def load_cdo_boundaries():
     file = (

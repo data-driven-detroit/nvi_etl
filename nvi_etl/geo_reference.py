@@ -32,6 +32,12 @@ def pull_city_boundary():
 
 # TODO (Mike): Add 'pull_cdo_boundaries'
 
+# This is the query to get the cdo boundaries:
+"""
+SELECT *
+FROM nvi.cdo_boundaries
+WHERE start_date = DATE '2025-01-01';
+"""
 
 def pull_council_districts(year):
     """

@@ -134,10 +134,13 @@ class Survey:
             .fillna(0)
         )
 
-    def tabulate_multiselect(self, group_var, _, question_group, readable=True, universe="@ALL"):
+    def tabulate_multiselect(self, group_var, question_group, readable=True, universe="@ALL"):
         questions = self.answer_key[
             self.answer_key["group"] == question_group
         ]
+
+        if len(questions) == 0:
+            raise KeyError(f"{question_group} not available in question groups.")
 
         if readable:
             index_renamer = self.make_renamer(group_var, group_var)
