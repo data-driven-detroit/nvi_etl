@@ -4,6 +4,7 @@ from sqlalchemy.exc import OperationalError
 import geopandas as gpd
 import pandas as pd
 import datetime
+from shapely import wkt
 
 from nvi_etl import db_engine, working_dir
 
@@ -26,18 +27,10 @@ def pull_city_boundary():
     """)
     try:
         return gpd.read_postgis(q, db_engine, geom_col="geometry")
-    except OperationalError:
-        raise NotImplementedError("Run the scripts to load the geography tables in 'aux_geographies'")
+    except OperationalError as e:
+        raise NotImplementedError(f"{e}: Run the scripts to load the geography tables in 'aux_geographies'")
 
 
-# TODO (Mike): Add 'pull_cdo_boundaries'
-
-# This is the query to get the cdo boundaries:
-"""
-SELECT *
-FROM nvi.cdo_boundaries
-WHERE start_date = DATE '2025-01-01';
-"""
 
 def pull_council_districts(year):
     """
@@ -55,6 +48,20 @@ def pull_council_districts(year):
         return gpd.read_postgis(q, db_engine, params={"start_date": start_date}, geom_col="geometry")
     except OperationalError:
         raise NotImplementedError("Run the scripts to load the geography tables in 'aux_geographies'")
+
+# This is the query to get the cdo boundaries:
+def pull_cdo_boundaries():
+    
+    q = text("""SELECT *
+    FROM nvi.cdo_boundaries
+    WHERE start_date = DATE '2025-01-01';
+    """)
+
+    try:
+        return gpd.read_postgis(q, db_engine, geom_col="geometry")
+    except OperationalError:
+        raise NotImplementedError("Run the scripts to load the geography tables in 'aux_geographies'")
+
 
 
 def pull_zones(year):
