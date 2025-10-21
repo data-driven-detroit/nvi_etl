@@ -137,7 +137,6 @@ def transform_data(
     gdf["zone"] = gdf["zone_id"].map(location_map["zone"]).astype(pd.Int64Dtype())
     gdf = gdf.drop(columns=["index_right", "zone_id"])
 
-    
     # TODO add CDO boundaries BUT don't add it to final dataframe for website
         
     # convert back to df -- with citywide, district, and zone columns
