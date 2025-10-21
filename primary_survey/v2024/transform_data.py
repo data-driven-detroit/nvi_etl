@@ -5,7 +5,7 @@ import pandas as pd
 import geopandas as gpd
 import datetime
 
-from nvi_etl.geo_reference import pull_city_boundary, pull_council_districts, pull_zones # TODO (Mike): add a 'pull_cdo_boundaries' function
+from nvi_etl.geo_reference import pull_city_boundary, pull_council_districts, pull_zones, pull_cdo_boundaries
 from nvi_survey import create_nvi_survey
 
 
@@ -86,12 +86,13 @@ def transform_data(
     city = pull_city_boundary()
     districts = pull_council_districts(districts_year)
     zones = pull_zones(zones_year)
-    # TODO Add CDO boundaries
+    cdo_boundaries = pull_cdo_boundaries()
 
         
     # Check that the 'pull' functions returned rows
     assert len(districts) > 0, "No districts available for the requested year."
     assert len(zones) > 0, "No zones available for the requested year."
+    assert len(cdo_boundaries) > 0, "No CDO boundaries available for requested year"
 
 
     # 1. OPEN RAW RESPONSE AND GEOCODED FILE ---------------------------------
@@ -129,15 +130,21 @@ def transform_data(
     gdf["citywide"] = gdf["geoid"].map(location_map["citywide"]).astype(pd.Int64Dtype())
     gdf = gdf.drop(columns=["index_right", "geoid"])
 
-    gdf = gdf.sjoin(districts[["geometry", "district_number"]], how="left", predicate="within")
-    gdf["district"] = gdf["district_number"].map(location_map["district"]).astype(pd.Int64Dtype())
-    gdf = gdf.drop(columns=["index_right", "district_number"])
+    # NOTE SC: Commented out joins for zones and districts for now 
 
-    gdf = gdf.sjoin(zones[["zone_id", "geometry"]], how="left", predicate="within")
-    gdf["zone"] = gdf["zone_id"].map(location_map["zone"]).astype(pd.Int64Dtype())
-    gdf = gdf.drop(columns=["index_right", "zone_id"])
+    # gdf = gdf.sjoin(districts[["geometry", "district_number"]], how="left", predicate="within")
+    # gdf["district"] = gdf["district_number"].map(location_map["district"]).astype(pd.Int64Dtype())
+    # gdf = gdf.drop(columns=["index_right", "district_number"])
 
-    # TODO add CDO boundaries BUT don't add it to final dataframe for website
+    # gdf = gdf.sjoin(zones[["zone_id", "geometry"]], how="left", predicate="within")
+    # gdf["zone"] = gdf["zone_id"].map(location_map["zone"]).astype(pd.Int64Dtype())
+    # gdf = gdf.drop(columns=["index_right", "zone_id"])
+
+    
+    # NOTE SC: Added CDO boundaries here 
+    cdo_boundaries = cdo_boundaries.to_crs(gdf.crs)
+    gdf = gdf.sjoin(cdo_boundaries[["organization_name", "geometry"]], how="left", predicate="within")
+    gdf=gdf.drop(columns=["index_right"])
         
     # convert back to df -- with citywide, district, and zone columns
     df = pd.DataFrame(gdf.drop(columns='geometry'))
@@ -213,7 +220,9 @@ def transform_data(
                 f"Indicator {indicator["indicator_db_id"]}:'{indicator["response_type"]}' "
                 "is not a valid response type."
             )
-        aggregations = ["citywide", "district", "zone"]
+        # NOTE SC: Keeping only citywide and cdo aggregations 
+        #aggregations = ["citywide", "district", "zone", "organization_name"]
+        aggregations = ["citywide", "organization_name"]
         result.append(
             pd.concat(
                 [
@@ -250,7 +259,9 @@ def transform_data(
         ][["group", "question", "response_type", "indicator_db_id"]].drop_duplicates(subset=["group", "response_type"])
     ])
 
-    aggs = ["citywide", "district", "zone"]
+    # NOTE SC: Keeping only citywide and CDO aggregations
+    #aggs = ["citywide", "district", "zone"]
+    aggs = ["citywide", "organization_name"]
 
     result = []
     for _, question in questions.iterrows():
