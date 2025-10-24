@@ -54,7 +54,7 @@ def recode(survey_data, recode_map, logger):
 
 
 def transform_data(
-        logger, districts_year=2014, zones_year=2022, survey_year=2024
+        logger, districts_year=2026, zones_year=2026, survey_year=2024, cdo_aggregate=False
     ):
     """
     Transform table of contents:
@@ -86,13 +86,15 @@ def transform_data(
     city = pull_city_boundary()
     districts = pull_council_districts(districts_year)
     zones = pull_zones(zones_year)
-    cdo_boundaries = pull_cdo_boundaries()
+
+    # FIXME (Mike): The function should convert this to 2989, but having issues
+    cdo_boundaries = pull_cdo_boundaries().to_crs(2898)
 
         
     # Check that the 'pull' functions returned rows
     assert len(districts) > 0, "No districts available for the requested year."
     assert len(zones) > 0, "No zones available for the requested year."
-    assert len(cdo_boundaries) > 0, "No CDO boundaries available for requested year"
+    assert len(cdo_boundaries) == 47, "There are 47 CDOs that we're aggregating to!"
 
 
     # 1. OPEN RAW RESPONSE AND GEOCODED FILE ---------------------------------
@@ -131,25 +133,32 @@ def transform_data(
     gdf = gdf.drop(columns=["index_right", "geoid"])
 
     # NOTE SC: Commented out joins for zones and districts for now 
+    # NOTE MV: I've uncommented, because we can allow this to flow into the full response, 
+    # and then filter later. We have plans to include the CDOs in the database.
 
-    # gdf = gdf.sjoin(districts[["geometry", "district_number"]], how="left", predicate="within")
-    # gdf["district"] = gdf["district_number"].map(location_map["district"]).astype(pd.Int64Dtype())
-    # gdf = gdf.drop(columns=["index_right", "district_number"])
+    gdf = gdf.sjoin(districts[["geometry", "district_number"]], how="left", predicate="within")
+    gdf["district"] = gdf["district_number"].map(location_map["district"]).astype(pd.Int64Dtype())
+    gdf = gdf.drop(columns=["index_right", "district_number"])
 
-    # gdf = gdf.sjoin(zones[["zone_id", "geometry"]], how="left", predicate="within")
-    # gdf["zone"] = gdf["zone_id"].map(location_map["zone"]).astype(pd.Int64Dtype())
-    # gdf = gdf.drop(columns=["index_right", "zone_id"])
+    gdf = gdf.sjoin(zones[["zone_id", "geometry"]], how="left", predicate="within")
+    gdf["zone"] = gdf["zone_id"].map(location_map["zone"]).astype(pd.Int64Dtype())
+    gdf = gdf.drop(columns=["index_right", "zone_id"])
 
-    
     # NOTE SC: Added CDO boundaries here 
-    cdo_boundaries = cdo_boundaries.to_crs(gdf.crs)
     gdf = gdf.sjoin(cdo_boundaries[["organization_name", "geometry"]], how="left", predicate="within")
-    gdf=gdf.drop(columns=["index_right"])
-        
+    gdf = gdf.drop(columns=["index_right"])
+
+    # NOTE MV: Breaking out 'cdo path' because we drop duplicates in the next step
+    logger.info(f"{sum(gdf["organization_name"].isna())} rows missing CDO label.")
+    df = pd.DataFrame(gdf.drop(columns='geometry'))
+    df = df.drop_duplicates(subset=["Response ID", "organization_name"])
+
     # convert back to df -- with citywide, district, and zone columns
     df = pd.DataFrame(gdf.drop(columns='geometry'))
-    df = df.drop_duplicates(subset="Response ID")
-
+    if cdo_aggregate:
+        df = df.drop_duplicates(subset=["Response ID", "organization_name"])
+    else:
+        df = df.drop_duplicates(subset="Response ID")
 
     # 2-B. CHECK FOR DUPLICATED ROWS AND OTHER ERRORS ------------------------
 
@@ -175,6 +184,8 @@ def transform_data(
 
 
     # 3. RECODE INDICATORS TO MAKE SURE THEY MATCH OUTPUT **PERFECTLY** ------
+
+    # Function starting here
 
     recode_map = json.loads((WORKING_DIR / "conf" / "recode.json").read_text())
     recoded = (
@@ -220,9 +231,10 @@ def transform_data(
                 f"Indicator {indicator["indicator_db_id"]}:'{indicator["response_type"]}' "
                 "is not a valid response type."
             )
+
         # NOTE SC: Keeping only citywide and cdo aggregations 
-        #aggregations = ["citywide", "district", "zone", "organization_name"]
-        aggregations = ["citywide", "organization_name"]
+        # NOTE MV: Similar change to above
+        aggregations = ["citywide", "district", "zone", "organization_name"]
         result.append(
             pd.concat(
                 [
@@ -260,8 +272,8 @@ def transform_data(
     ])
 
     # NOTE SC: Keeping only citywide and CDO aggregations
-    #aggs = ["citywide", "district", "zone"]
-    aggs = ["citywide", "organization_name"]
+    aggs = ["citywide", "district", "zone", "organization_name"]
+    # aggs = ["citywide", "organization_name"]
 
     result = []
     for _, question in questions.iterrows():
@@ -283,7 +295,7 @@ def transform_data(
 
 
             for agg in aggs:
-                # FIXME: This is a mess
+                # FIXME(Mike talking to himself): This is a mess
                 indicator_id = question["indicator_db_id"].iloc[0]
                 survey_question_id = question["db_question_code"].iloc[0]
                 column = question["full_column"].iloc[0]
@@ -355,7 +367,7 @@ def transform_data(
             rate_per=pd.NA,
             index=pd.NA,
         )
-        .to_csv(WORKING_DIR / "output" / f"primary_survey_tall_{survey_year}.csv")
+        .to_csv(WORKING_DIR / "output" / f"primary_survey_tall_{survey_year}_{"cdos_" if cdo_aggregate else ""}.csv")
     )
 
 

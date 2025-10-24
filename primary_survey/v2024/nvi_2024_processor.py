@@ -8,8 +8,8 @@ def main():
     logger = setup_logging()
 
 
-    # extract_data(logger)
-    transform_data(logger)
+    extract_data(logger)
+    transform_data(logger, cdo_aggregate=True)
     # transform_data(logger, survey_year=2023)
     # load_data(logger)
 

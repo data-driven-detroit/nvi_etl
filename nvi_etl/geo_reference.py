@@ -59,6 +59,7 @@ def pull_cdo_boundaries():
 
     try:
         return gpd.read_postgis(q, db_engine, geom_col="geometry")
+
     except OperationalError:
         raise NotImplementedError("Run the scripts to load the geography tables in 'aux_geographies'")
 
