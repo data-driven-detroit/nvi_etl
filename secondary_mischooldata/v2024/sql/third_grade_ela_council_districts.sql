@@ -1,11 +1,11 @@
 --- CD 2026
 WITH school AS (
     SELECT district_code, 
-           district_name, 
+           --district_name, 
            building_code, 
            building_name, 
            district_number
-    FROM education.eem_schools as sch
+    FROM education.eem_geocoded as sch
     JOIN nvi.detroit_council_districts cd
         ON st_intersects(cd.geometry,st_transform(sch.geometry, 2898))
     WHERE sch.start_date = '2023-07-01'

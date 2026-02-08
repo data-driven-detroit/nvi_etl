@@ -1,10 +1,10 @@
 --- City of Detroit
 WITH school AS (
     SELECT district_code, 
-           district_name, 
+           --district_name, 
            building_code, 
            building_name
-    FROM education.eem_schools AS sch
+    FROM education.eem_geocoded AS sch
     JOIN nvi.city_boundary cb
         ON st_intersects(cb.geometry, st_transform(sch.geometry, 2898))
     WHERE sch.start_date = '2023-07-01'

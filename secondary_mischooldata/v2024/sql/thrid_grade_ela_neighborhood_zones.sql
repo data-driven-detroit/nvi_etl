@@ -1,11 +1,11 @@
 --- NVI Zones
 WITH school AS (
     SELECT district_code, 
-           district_name, 
+           --district_name, 
            building_code, 
            building_name, 
            zones.zone_id
-    FROM education.eem_schools as sch
+    FROM education.eem_geocoded as sch
     JOIN nvi.neighborhood_zones zones
         ON st_intersects(zones.geometry, st_transform(sch.geometry, 2898))
     WHERE sch.start_date = '2023-07-01'
