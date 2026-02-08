@@ -16,6 +16,10 @@ SELECT 'citywide' AS geo_type,
        sum(total_met) / sum(number_assessed) AS percentage_g3_ela,
        2024 AS year -- FIXME: THIS NEEDS TO BE CHANGED
 FROM school AS s
-JOIN education.g3_ela_school AS e
+JOIN education.assessments AS e
     ON s.building_code = e.building_code
-WHERE e.year = '2023';
+WHERE
+    e.start_date = '2023-07-01'
+    AND e.building_code <> '00000' 
+    AND e.grade_content_tested = 3 
+    AND e.subject = 'ELA'
