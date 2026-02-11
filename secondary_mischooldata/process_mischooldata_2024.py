@@ -1,4 +1,4 @@
-from nvi_etl import setup_logging, working_dir, extract_from_sql_file, db_engine
+from nvi_etl import setup_logging, working_dir, extract_from_sql_file, db_engine, make_engine_for
 from nvi_etl.schema import NVIValueTable
 from nvi_etl.destinations import CONTEXT_VALUES_TABLE, SURVEY_VALUES_TABLE
 import pandas as pd
@@ -70,17 +70,26 @@ def transform_mischooldata(logger):
 def load_mischooldata(logger):
     logger.info("Loading mischooldata datasets!")
 
-    file = pd.read_csv(WORKING_DIR / "output" / f"g3_ela_{YEAR}_melted.csv")
+    file = pd.read_csv(WORKING_DIR / "output" / f"g3_ela_{YEAR}_tall.csv")
 
-    NVIValueTable.validate(file)
+    #NVIValueTable.validate(file)
+    # SC : Commenting out this validation for now - it needs to be 
+    # updated with value_type_id column
+
+    #print(SURVEY_VALUES_TABLE)
+
+    # we are inserting into nvi_test
+    test_engine = make_engine_for("nvi_test")
 
     file.to_sql(
         SURVEY_VALUES_TABLE, 
-        db_engine, 
-        schema="nvi", 
+        test_engine, 
+        schema="public", 
         if_exists="append", 
         index=False
     )
+
+    logger.info("Data loaded successfully!")
 
     
 def main():
@@ -89,7 +98,7 @@ def main():
 
     extract_mischooldata(logger)
     transform_mischooldata(logger)
-    # load_mischooldata(logger)
+    load_mischooldata(logger)
 
 if __name__ == "__main__":
     main()

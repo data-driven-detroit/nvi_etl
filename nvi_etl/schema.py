@@ -15,6 +15,7 @@ class NVIValueTable(pa.DataFrameModel):
     indicator_id: pd.Int64Dtype = pa.Field(nullable=False, coerce=True)
     survey_question_id: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
     survey_question_option_id: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
+    #value_type_id: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
     location_id: pd.Int64Dtype = pa.Field(nullable=False, coerce=True)
     count: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
     universe: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
