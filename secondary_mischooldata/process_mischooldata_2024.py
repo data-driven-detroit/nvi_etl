@@ -3,10 +3,11 @@ from nvi_etl.schema import NVIValueTable
 from nvi_etl.destinations import CONTEXT_VALUES_TABLE, SURVEY_VALUES_TABLE
 import pandas as pd
 import json
+from datetime import date
 
-#from extract import extract_mischooldata
-#from transform import transform_mischooldata
-#from load import load_mischooldata
+START_DATE = date(2024, 7, 1)
+GEOMETRY_START_DATE = date(2026, 1, 1)
+YEAR = 2025
 
 # Use this path to find sql files
 WORKING_DIR = working_dir(__file__)
@@ -16,19 +17,18 @@ primary_indicators = pd.read_csv(WORKING_DIR / "conf" / "primary_indicator_ids.c
 # Extract
 def extract_mischooldata(logger):
     logger.info("Extracting mischooldata datasets!")
-    
-    query_files = [
-        "third_grade_ela_citywide.sql",
-        "third_grade_ela_council_districts.sql",
-        "thrid_grade_ela_neighborhood_zones.sql",
-    ]
 
-    g3_ela_tables = []
-    for file in query_files:
-        g3_ela_tables.append(extract_from_sql_file(WORKING_DIR / "sql" / file))
+    params = {
+        "start_date": START_DATE,
+        "geometry_start_date": GEOMETRY_START_DATE,
+        "year": YEAR,
+    }
     
-    combined = pd.concat(g3_ela_tables)
-    combined.to_csv(WORKING_DIR / "input" / "g3_ela_2023_extract.csv", index=False)
+    
+    query_file =  "third_grade_ela_combined.sql"
+    combined = pd.DataFrame(extract_from_sql_file(WORKING_DIR / "sql" / query_file,
+                    params=params))
+    combined.to_csv(WORKING_DIR / "input" / f"g3_ela_{YEAR}_extract.csv", index=False)
 
 
 # Transform
@@ -39,13 +39,13 @@ def transform_mischooldata(logger):
     logger.info("Transforming mischooldata datasets.")
 
     wide_file = (
-        pd.read_csv(WORKING_DIR / "input" / "g3_ela_2023_extract.csv")
+        pd.read_csv(WORKING_DIR / "input" / f"g3_ela_{YEAR}_extract.csv")
         .assign(
             location_id=lambda df: df.apply(pin_location_id, axis=1)
         )
     )
 
-    wide_file.to_csv(WORKING_DIR / "output" / "g3_ela_2023_wide.csv", index=False)
+    wide_file.to_csv(WORKING_DIR / "output" / f"g3_ela_{YEAR}_wide.csv", index=False)
 
     melted = (
         pd.wide_to_long(
@@ -63,14 +63,14 @@ def transform_mischooldata(logger):
         .assign(value_type_id=1)
     )
 
-    melted.to_csv(WORKING_DIR / "output" / "g3_ela_2023_tall.csv", index=False)
+    melted.to_csv(WORKING_DIR / "output" / f"g3_ela_{YEAR}_tall.csv", index=False)
 
 # Load 
 
 def load_mischooldata(logger):
     logger.info("Loading mischooldata datasets!")
 
-    file = pd.read_csv(WORKING_DIR / "output" / "g3_ela_2023_melted.csv")
+    file = pd.read_csv(WORKING_DIR / "output" / f"g3_ela_{YEAR}_melted.csv")
 
     NVIValueTable.validate(file)
 
