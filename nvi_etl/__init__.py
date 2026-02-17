@@ -166,9 +166,9 @@ def liquefy(df, instructions=pull_instructions(), defaults=dict()):
     return result.astype(type_map)
 
     
-def extract_from_sql_file(filename):
+def extract_from_sql_file(filename, params=None):
     q = text((WORKING_DIR / "sql" / filename).read_text())
 
-    return pd.read_sql(q, db_engine)
+    return pd.read_sql(q, db_engine, params=params)
 
 
