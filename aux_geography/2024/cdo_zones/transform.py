@@ -29,8 +29,6 @@ def transform_cdo_boundaries():
         [field_reference["column_order"]]
     )
 
-    print(file.columns)
-
     file.to_file(WORKING_DIR / "output" / "cdo_boundaries_2026.geojson")
 
 

@@ -13,14 +13,12 @@ def load_cdo_boundaries():
     file = (
         gpd.read_file(WORKING_DIR / "output" / "cdo_boundaries_2026.geojson")
         .assign(
-            start_date=pd.to_datetime("2018-01-01"), 
+            start_date=pd.to_datetime("2025-01-01"), 
             end_date=pd.to_datetime("2199-01-01"),
         )
     )
 
-    file.to_postgis(
-        "cdo_boundaries", engine, schema="nvi", if_exists="append"
-    )
+    file.to_postgis("cdo_boundaries", engine, schema="nvi", if_exists="append", index=False)
 
 
 if __name__ == "__main__":

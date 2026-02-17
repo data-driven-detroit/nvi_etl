@@ -1,0 +1,872 @@
+{
+    "1": {
+        "questions": {
+            "1": {
+                "column": "Stay_12_Months:Agreement_Statements_Access_and_Support",
+                "question_id": 1,
+                "options": {
+                    "values": [
+                        20,
+                        21
+                    ]
+                }
+            }
+        }
+    },
+    "2": {
+        "questions": {
+            "1": {
+                "column": "Block_Neighborhood_Community_Group_Participation:Activity_Participation_Frequency",
+                "question_id": 1,
+                "options": {
+                    "values": [
+                        3,
+                        70
+                    ]
+                }
+            },
+            "2": {
+                "column": "Community_Group_Outside_of_Neighborhod_Participation:Activity_Participation_Frequency",
+                "question_id": 2,
+                "options": {
+                    "values": [
+                        3,
+                        70
+                    ]
+                }
+            }
+        }
+    },
+    "3": {
+        "questions": {
+            "1": {
+                "column": "Housing:Agreement_Statements_Detroit_Access",
+                "question_id": 6,
+                "options": {
+                    "values": [
+                        20,
+                        21
+                    ]
+                }
+            },
+            "2": {
+                "column": "Financial:Agreement_Statements_Detroit_Access",
+                "question_id": 7,
+                "options": {
+                    "values": [
+                        20,
+                        21
+                    ]
+                }
+            },
+            "3": {
+                "column": "Medical_Care:Agreement_Statements_Detroit_Access",
+                "question_id": 8,
+                "options": {
+                    "values": [
+                        20,
+                        21
+                    ]
+                }
+            },
+            "4": {
+                "column": "Mental_Health_Services:Agreement_Statements_Detroit_Access",
+                "question_id": 9,
+                "options": {
+                    "values": [
+                        20,
+                        21
+                    ]
+                }
+            },
+            "5": {
+                "column": "Human_Services:Agreement_Statements_Detroit_Access",
+                "question_id": 10,
+                "options": {
+                    "values": [
+                        20,
+                        21
+                    ]
+                }
+            }
+        }
+    },
+    "5": {
+        "questions": {
+            "1": {
+                "column": "City government:Community_Engagement_Process_Participation",
+                "question_id": 4,
+                "options": {
+                    "values": [
+                        36
+                    ]
+                }
+            },
+            "2": {
+                "column": "Community development organization(s):Community_Engagement_Process_Participation",
+                "question_id": 4,
+                "options": {
+                    "values": [
+                        36
+                    ]
+                }
+            },
+            "3": {
+                "column": "Other (please describe)::Community_Engagement_Process_Participation",
+                "question_id": 4,
+                "options": {
+                    "values": [
+                        36
+                    ]
+                }
+            }
+        }
+    },
+    "6": {
+        "questions": {
+            "1": {
+                "column": "Purchased a lot or lots near my home:In_The_Last_12_Months",
+                "question_id": 5,
+                "options": {
+                    "values": [
+                        15
+                    ]
+                }
+            },
+            "2": {
+                "column": "Cleaned up or improved lot(s) <u>that I own</u>:In_The_Last_12_Months",
+                "question_id": 5,
+                "options": {
+                    "values": [
+                        14
+                    ]
+                }
+            },
+            "3": {
+                "column": "Cleaned up or improved lot(s) <u>that I do <b>not</b> own</u>:In_The_Last_12_Months",
+                "question_id": 5,
+                "options": {
+                    "values": [
+                        13
+                    ]
+                }
+            },
+            "4": {
+                "column": "Secured or improved vacant housing:In_The_Last_12_Months",
+                "question_id": 5,
+                "options": {
+                    "values": [
+                        12
+                    ]
+                }
+            },
+            "5": {
+                "column": "Cleaned up or improved alley ways:In_The_Last_12_Months",
+                "question_id": 5,
+                "options": {
+                    "values": [
+                        11
+                    ]
+                }
+            },
+            "6": {
+                "column": "Cleaned up or improved park/open spaces:In_The_Last_12_Months",
+                "question_id": 5,
+                "options": {
+                    "values": [
+                        10
+                    ]
+                }
+            }
+        }
+    },
+    "9": {
+        "questions": {
+            "1": {
+                "column": "Detroit_Business_Ownership",
+                "question_id": 12,
+                "options": {
+                    "values": [
+                        26,
+                        27
+                    ]
+                }
+            }
+        }
+    },
+    "16": {
+        "questions": {
+            "1": {
+                "column": "Savings_Account",
+                "question_id": 14,
+                "options": {
+                    "values": [
+                        36
+                    ]
+                }
+            }
+        }
+    },
+    "18": {
+        "questions": {
+            "1": {
+                "column": "Currently_Employed",
+                "question_id": 11,
+                "options": {
+                    "values": [
+                        22,
+                        24
+                    ]
+                }
+            }
+        }
+    },
+    "19": {
+        "questions": {
+            "1": {
+                "column": "Finance_Prevent_Healthcare:Needs_In_Past_12_Months",
+                "question_id": 16,
+                "options": {
+                    "values": [
+                        37
+                    ]
+                }
+            }
+        }
+    },
+    "20": {
+        "questions": {
+            "1": {
+                "column": "Safe_Reliable_Transportation_Access_Frequency",
+                "question_id": 15,
+                "options": {
+                    "values": [
+                        1
+                    ]
+                }
+            }
+        }
+    },
+    "22": {
+        "questions": {
+            "1": {
+                "column": "Detroit:Residence_Length",
+                "question_id": 26,
+                "options": {
+                    "values": [
+                        52,
+                        53
+                    ]
+                }
+            }
+        }
+    },
+    "23": {
+        "questions": {
+            "1": {
+                "column": "Condition_of_Vacant_Residential_Buildings:Neighborhood_Satisfaction",
+                "question_id": 29,
+                "options": {
+                    "values": [
+                        58,
+                        157
+                    ]
+                }
+            }
+        }
+    },
+    "25": {
+        "questions": {
+            "1": {
+                "column": "Condition_of_Vacant_Lots:Neighborhood_Satisfaction",
+                "question_id": 31,
+                "options": {
+                    "values": [
+                        58,
+                        157
+                    ]
+                }
+            }
+        }
+    },
+    "26": {
+        "questions": {
+            "1": {
+                "column": "Neighborhood_Infrastructure:Neighborhood_Satisfaction",
+                "question_id": 32,
+                "options": {
+                    "values": [
+                        58,
+                        157
+                    ]
+                }
+            }
+        }
+    },
+    "27": {
+        "questions": {
+            "1": {
+                "column": "Condition_of_Vacant_Commercial_Buildings:Neighborhood_Satisfaction",
+                "question_id": 30,
+                "options": {
+                    "values": [
+                        58,
+                        157
+                    ]
+                }
+            }
+        }
+    },
+    "29": {
+        "questions": {
+            "1": {
+                "column": "Neighborhood:Neighborhood_Safety_Perception",
+                "question_id": 33,
+                "options": {
+                    "values": [
+                        63,
+                        64
+                    ]
+                }
+            }
+        }
+    },
+    "33": {
+        "questions": {
+            "1": {
+                "column": "Medical_Care:Neighborhood_Health_Related_Access",
+                "question_id": 42,
+                "options": {
+                    "values": [
+                        36
+                    ]
+                }
+            },
+            "2": {
+                "column": "Mental_Health_Services:Neighborhood_Health_Related_Access",
+                "question_id": 43,
+                "options": {
+                    "values": [
+                        36
+                    ]
+                }
+            },
+            "3": {
+                "column": "Places_to_be_Active:Neighborhood_Health_Related_Access",
+                "question_id": 44,
+                "options": {
+                    "values": [
+                        36
+                    ]
+                }
+            },
+            "4": {
+                "column": "Fresh_Healthy_Food:Neighborhood_Health_Related_Access",
+                "question_id": 45,
+                "options": {
+                    "values": [
+                        36
+                    ]
+                }
+            }
+        }
+    },
+    "34": {
+        "questions": {
+            "1": {
+                "column": "K_12_Public_Charter_Schools:Neighborhood_Access_Satisfaction",
+                "question_id": 39,
+                "options": {
+                    "values": [
+                        58,
+                        59
+                    ]
+                }
+            }
+        }
+    },
+    "35": {
+        "questions": {
+            "1": {
+                "column": "Parks_Playgrounds_and_Public Spaces:Neighborhood_Access_Satisfaction",
+                "question_id": 40,
+                "options": {
+                    "values": [
+                        58,
+                        59
+                    ]
+                }
+            }
+        }
+    },
+    "36": {
+        "questions": {
+            "1": {
+                "column": "Amenities:Neighborhood_Access_Satisfaction",
+                "question_id": 41,
+                "options": {
+                    "values": [
+                        58,
+                        59
+                    ]
+                }
+            }
+        }
+    },
+    "37": {
+        "questions": {
+            "1": {
+                "column": "Physical:Health_Satisfaction",
+                "question_id": 35,
+                "options": {
+                    "values": [
+                        58,
+                        59
+                    ]
+                }
+            },
+            "2": {
+                "column": "Mental_Health:Health_Satisfaction",
+                "question_id": 36,
+                "options": {
+                    "values": [
+                        58,
+                        59
+                    ]
+                }
+            }
+        }
+    },
+    "38": {
+        "questions": {
+            "1": {
+                "column": "SocioEmotional_Support:Health_Satisfaction",
+                "question_id": 37,
+                "options": {
+                    "values": [
+                        58,
+                        59
+                    ]
+                }
+            }
+        }
+    },
+    "39": {
+        "questions": {
+            "1": {
+                "column": "QualityLife_Satisfaction",
+                "question_id": 38,
+                "options": {
+                    "values": [
+                        58,
+                        59
+                    ]
+                }
+            }
+        }
+    },
+    "40": {
+        "questions": {
+            "1": {
+                "column": "Public_Spaces:Neighborhood_Safety_Perception",
+                "question_id": 40,
+                "options": {
+                    "values": [
+                        63,
+                        64
+                    ]
+                }
+            }
+        }
+    },
+    "41": {
+        "questions": {
+            "1": {
+                "column": "Meets_Needs_Now:Current_Housing",
+                "question_id": 19,
+                "options": {
+                    "values": [
+                        21,
+                        20
+                    ]
+                }
+            }
+        }
+    },
+    "42": {
+        "questions": {
+            "1": {
+                "column": "Will_Meet_Needs_10_Years:Current_Housing",
+                "question_id": 20,
+                "options": {
+                    "values": [
+                        21,
+                        20
+                    ]
+                }
+            }
+        }
+    },
+    "43": {
+        "questions": {
+            "1": {
+                "column": "Not_Able_Pay_Rent_Mortgage:Rent_Utilities_Past_12_Months",
+                "question_id": 62,
+                "options": {
+                    "values": [
+                        37
+                    ]
+                }
+            },
+            "2": {
+                "column": "Electric_Water_Threatened_Shutoff:Rent_Utilities_Past_12_Months",
+                "question_id": 63,
+                "options": {
+                    "values": [
+                        37
+                    ]
+                }
+            }
+        }
+    },
+    "44": {
+        "questions": {
+            "1": {
+                "column": "No_Money_For_Food_Past_12Mos",
+                "question_id": 64,
+                "options": {
+                    "values": [
+                        1,
+                        2
+                    ]
+                }
+            }
+        }
+    },
+    "45": {
+        "questions": {
+            "1": {
+                "column": "Quality_of_Housing:Neighborhood_Satisfaction",
+                "question_id": 28,
+                "options": {
+                    "values": [
+                        58,
+                        59
+                    ]
+                }
+            }
+        }
+    },
+    "46": {
+        "questions": {
+            "1": {
+                "column": "Fam_Incarcerated_YN:Crime_and_COVID_Best_Answer",
+                "question_id": 65,
+                "options": {
+                    "values": [
+                        37
+                    ]
+                }
+            }
+        }
+    },
+    "47": {
+        "questions": {
+            "1": {
+                "column": "Illegal_Dump:Neighborhood_Environmental_Severity",
+                "question_id": 72,
+                "options": {
+                    "values": [
+                        81
+                    ]
+                }
+            },
+            "2": {
+                "column": "Air_Pollution:Neighborhood_Environmental_Severity",
+                "question_id": 73,
+                "options": {
+                    "values": [
+                        81
+                    ]
+                }
+            },
+            "3": {
+                "column": "Lead:Neighborhood_Environmental_Severity",
+                "question_id": 74,
+                "options": {
+                    "values": [
+                        81
+                    ]
+                }
+            },
+            "4": {
+                "column": "Stray_Dogs:Neighborhood_Environmental_Severity",
+                "question_id": 75,
+                "options": {
+                    "values": [
+                        81
+                    ]
+                }
+            },
+            "5": {
+                "column": "Flooding:Neighborhood_Environmental_Severity",
+                "question_id": 76,
+                "options": {
+                    "values": [
+                        81
+                    ]
+                }
+            },
+            "6": {
+                "column": "Water_Quality:Neighborhood_Environmental_Severity",
+                "question_id": 77,
+                "options": {
+                    "values": [
+                        81
+                    ]
+                }
+            },
+            "7": {
+                "column": "Heat:Neighborhood_Environmental_Severity",
+                "question_id": 78,
+                "options": {
+                    "values": [
+                        81
+                    ]
+                }
+            },
+            "8": {
+                "column": "Power-Outages:Neighborhood_Environmental_Severity",
+                "question_id": 79,
+                "options": {
+                    "values": [
+                        81
+                    ]
+                }
+            },
+            "9": {
+                "column": "Brownfields:Neighborhood_Environmental_Severity",
+                "question_id": 80,
+                "options": {
+                    "values": [
+                        81
+                    ]
+                }
+            }
+        }
+    },
+    "48": {
+        "questions": {
+            "1": {
+                "column": "Employment_Impacted_By_COVID",
+                "question_id": 110,
+                "options": {
+                    "values": [
+                        153,
+                        154,
+                        155
+                    ]
+                }
+            }
+        }
+    },
+    "49": {
+        "questions": {
+            "1": {
+                "column": "Racial_Equity1",
+                "question_id": 111,
+                "options": {
+                    "values": [
+                        20,
+                        21
+                    ]
+                }
+            }
+        }
+    },
+    "50": {
+        "questions": {
+            "1": {
+                "column": "BRFSS_Work_RaceTreatment",
+                "question_id": 114,
+                "options": {
+                    "values": [
+                        159
+                    ]
+                }
+            }
+        }
+    },
+    "51": {
+        "questions": {
+            "1": {
+                "column": "BRFSS_Healthcare_RaceTreatment",
+                "question_id": 115,
+                "options": {
+                    "values": [
+                        159
+                    ]
+                }
+            }
+        }
+    },
+    "52": {
+        "questions": {
+            "1": {
+                "column": "Yes, I can access the internet at home using my home internet service:Internet_At_Home",
+                "question_id": 92,
+                "options": {
+                    "values": [
+                        92
+                    ]
+                }
+            }
+        }
+    },
+    "53": {
+        "questions": {
+            "1": {
+                "column": "Bail_System:Negatively_Impacted_Or_Harmed_By",
+                "question_id": 69,
+                "options": {
+                    "values": [
+                        37
+                    ]
+                }
+            }
+        }
+    },
+    "54": {
+        "questions": {
+            "1": {
+                "column": "I would not hesitate or avoid reporting crime:Hesitate_Reporting_Crime_Reason",
+                "question_id": 71,
+                "options": {
+                    "values": [
+                        76
+                    ]
+                }
+            }
+        }
+    },
+    "55": {
+        "questions": {
+            "1": {
+                "column": "Victim_Neighborhood_YN:Crime_and_COVID_Best_Answer",
+                "question_id": 66,
+                "options": {
+                    "values": [
+                        37
+                    ]
+                }
+            }
+        }
+    },
+    "56": {
+        "questions": {
+            "1": {
+                "column": "No, none of these issues have prevented me from using the internet or a device:Issues_Prevent_Use_Device",
+                "question_id": 94,
+                "options": {
+                    "values": [
+                        110
+                    ]
+                }
+            }
+        }
+    },
+    "57": {
+        "questions": {
+            "1": {
+                "column": "I do not have any of these concerns:Concerns_Using_Devices",
+                "question_id": 95,
+                "options": {
+                    "values": [
+                        118
+                    ]
+                }
+            }
+        }
+    },
+    "58": {
+        "questions": {
+            "1": {
+                "column": "SchoolProgram_Sports_Tutoring_Participation:Youth_In_Household_Last_12_Months_Questions",
+                "question_id": 49,
+                "options": {
+                    "values": [
+                        36
+                    ]
+                }
+            }
+        }
+    },
+    "59": {
+        "questions": {
+            "1": {
+                "column": "Neighborhood:Youth_Safety_Perception",
+                "question_id": 33,
+                "options": {
+                    "values": [
+                        63,
+                        64
+                    ]
+                }
+            }
+        }
+    },
+    "60": {
+        "questions": {
+            "1": {
+                "column": "Public_Spaces:Youth_Safety_Perception",
+                "question_id": 34,
+                "options": {
+                    "values": [
+                        63,
+                        64
+                    ]
+                }
+            }
+        }
+    },
+    "61": {
+        "questions": {
+            "1": {
+                "column": "Child_Quality_Recreation:Agreement_Statements_Access_and_Support",
+                "question_id": 61,
+                "options": {
+                    "values": [
+                        20,
+                        21
+                    ]
+                }
+            }
+        }
+    },
+    "62": {
+        "questions": {
+            "1": {
+                "column": "SchoolProgram_Sports_Tutoring_Participation:Youth_In_Household_Last_12_Months_Questions4",
+                "question_id": 48,
+                "options": {
+                    "values": [
+                        36
+                    ]
+                }
+            }
+        }
+    },
+    "64": {
+        "questions": {
+            "1": {
+                "column": "Childcare_Prevent_Work_Meetings_Appointments",
+                "question_id": 52,
+                "options": {
+                    "values": [
+                        37
+                    ]
+                }
+            }
+        }
+    }
+}
