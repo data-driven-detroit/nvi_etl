@@ -3,7 +3,7 @@ WITH building_permits AS (
         "Record ID" AS permit_id,
         zones.zone_id,
         zones.district_number
-    FROM raw.detodp_building_permits_20250522 permits
+    FROM {building_permits_table} permits
     INNER JOIN nvi.neighborhood_zones zones
         ON
             ST_WITHIN(
@@ -16,9 +16,9 @@ WITH building_permits AS (
                 ),
                 zones.geometry
             )
-    WHERE zones.start_date = DATE '2026-01-01'
+    WHERE zones.start_date = :geom_date
     -- Should this be 'Submitted Date' instead?
-    AND EXTRACT(YEAR FROM permits."Issued Date"::date) = 2024
+    AND EXTRACT(YEAR FROM permits."Issued Date"::date) = :data_year
 ),
 city_pop AS (
     SELECT 
@@ -36,7 +36,7 @@ district_pop AS (
             ON acs.geoid = cw.tract_geoid
     WHERE 
         cw.tract_start_date = DATE '2020-01-01'
-        AND cw.zone_start_date = DATE '2026-01-01'
+        AND cw.zone_start_date = :geom_date
     GROUP BY 
         cw.district_number
 ),
@@ -50,7 +50,7 @@ zone_pop AS (
             ON acs.geoid = cw.tract_geoid
     WHERE
         cw.tract_start_date = DATE '2020-01-01'
-        AND cw.zone_start_date = DATE '2026-01-01'
+        AND cw.zone_start_date = :geom_date
     GROUP BY
         cw.zone_name
 )
