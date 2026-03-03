@@ -1,5 +1,5 @@
 -- percent of non poor conditioned residential parcels
-CREATE TABLE IF NOT EXISTS msc.nvi_prop_conditions_2025 AS -- Don't create if the work has been done
+CREATE TABLE IF NOT EXISTS {prop_conditions_table} AS -- Don't create if the work has been done
 -- 1. get the total residential parcels with structures
 WITH base AS (
     SELECT ases.geom,
@@ -10,8 +10,8 @@ WITH base AS (
                 ELSE 0
             END AS STRUCTURE,
             likely_res
-    FROM raw.detodp_assessor_20240205 ases
-    LEFT JOIN raw.detodp_assessor_20240205_det det 
+    FROM {parcel_table} ases
+    LEFT JOIN {parcel_det_table} det 
         ON ases.id = det.id
     LEFT JOIN building_file_20230313_2 bf 
         ON bf.d3_id = det.d3_id
@@ -27,8 +27,8 @@ FROM base
 LEFT JOIN (
     SELECT d3_id,
            count(*) AS blight
-    FROM raw.detodp_blight_violations_20250204
-    WHERE EXTRACT (YEAR FROM violation_date::date) > 2022
+    FROM {blight_table}
+    WHERE EXTRACT (YEAR FROM violation_date::date) > :BLIGHT_YEAR
     AND d3_id IS NOT NULL
     GROUP BY d3_id
 ) bli ON base.d3_id = bli.d3_id
@@ -36,12 +36,12 @@ LEFT JOIN (
 LEFT JOIN (
     SELECT d3_id,
            CONDITION
-    FROM raw.survey_mcm_2014 mcm
+    FROM {mcm_table} mcm
     WHERE d3_id IS NOT NULL
     AND mcm.condition ilike '%demo%'
 ) mcm 
     ON mcm.d3_id = base.d3_id
--- 4. flag parcel vacant since 2022
+-- 4. flag parcel vacant past 8 quarters
 LEFT JOIN (
 	SELECT d3_id,
 	       CASE WHEN (  percent_occupied 
@@ -57,7 +57,7 @@ LEFT JOIN (
              WITH t1 AS (
 		SELECT d3_id,
 		       round((1.0-avg(c12::bool::int::NUMERIC))* 100.0, 1) percent_occupied
-		FROM raw.valassis_vnefplus_mi_20241017_det
+		FROM {valassis_1}
 		WHERE d3_id IS NOT NULL
                 AND c12 IS NOT NULL
 		GROUP BY d3_id
@@ -74,7 +74,7 @@ LEFT JOIN (
 		JOIN (
                     SELECT d3_id,
                            round((1.0-avg(c12::bool::int::NUMERIC))* 100.0, 1) percent_occupied_2
-                    FROM raw.valassis_vnefplus_mi_20240711_det
+                    FROM {valassis_2}
                     WHERE d3_id IS NOT NULL
                     AND c12 IS NOT NULL
                     GROUP BY d3_id
@@ -82,7 +82,7 @@ LEFT JOIN (
 		JOIN (
                     SELECT d3_id,
                            round((1.0-avg(c12::bool::int::NUMERIC))* 100.0, 1) percent_occupied_3
-                    FROM raw.valassis_vnefplus_mi_20240411_det
+                    FROM {valassis_3}
                     WHERE d3_id IS NOT NULL
                     AND c12 IS NOT NULL
                     GROUP BY d3_id
@@ -90,7 +90,7 @@ LEFT JOIN (
 		JOIN (
                     SELECT d3_id,
                            round((1.0-avg(c12::bool::int::NUMERIC))* 100.0, 1) percent_occupied_4
-                    FROM raw.valassis_vnefplus_mi_20240116_det
+                    FROM {valassis_4}
                     WHERE d3_id IS NOT NULL
                           AND c12 IS NOT NULL
                     GROUP BY d3_id
@@ -98,7 +98,7 @@ LEFT JOIN (
 		JOIN (
                     SELECT d3_id,
                            round((1.0-avg(c12::bool::int::NUMERIC))* 100.0, 1) percent_occupied_5
-                    FROM raw.valassis_vnefplus_mi_20231017_det
+                    FROM {valassis_5}
                     WHERE d3_id IS NOT NULL
                     AND c12 IS NOT NULL
                     GROUP BY d3_id
@@ -107,7 +107,7 @@ LEFT JOIN (
                     SELECT d3_id,
                            round((1.0-avg(c12::bool::int::NUMERIC))* 100.0,
                            1) percent_occupied_6
-                    FROM raw.valassis_vnefplus_mi_20230807_det
+                    FROM {valassis_6}
                     WHERE d3_id IS NOT NULL
                     AND c12 IS NOT NULL
                     GROUP BY d3_id
@@ -115,7 +115,7 @@ LEFT JOIN (
 		JOIN (
                     SELECT d3_id,
                            round((1.0-avg(c12::bool::int::NUMERIC))* 100.0, 1) percent_occupied_7
-                    FROM raw.valassis_vnefplus_mi_20230425_det
+                    FROM {valassis_7}
                     WHERE d3_id IS NOT NULL
                     AND c12 IS NOT NULL
                     GROUP BY d3_id
@@ -124,7 +124,7 @@ LEFT JOIN (
                     SELECT d3_id,
                            round((1.0-avg(c12::bool::int::NUMERIC))* 100.0,
                            1) percent_occupied_8
-                    FROM raw.valassis_vnefplus_mi_20230123_det
+                    FROM {valassis_8}
                     WHERE d3_id IS NOT NULL
                     AND c12 IS NOT NULL
                     GROUP BY d3_id
