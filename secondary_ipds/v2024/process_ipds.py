@@ -31,22 +31,27 @@ DATA_YEAR = 2024
 BLIGHT_YEAR = 2023 
 GEOM_DATE = date(2026, 1, 1)  
 
+PARAMS = {
+    "data_year": DATA_YEAR,
+    "blight_year": BLIGHT_YEAR,
+    "geom_date": GEOM_DATE
+}
+
 TABLE_MAP = {
     "{parcel_table}": "raw.detodp_assessors_20260131",
     "{parcel_det_table}":"raw.detodp_assessor_20260131_det",
     "{building_file_table}": "raw.building_file_20230313_2",
     "{blight_table}":"raw.detodp_blight_violations_20260131",
     "{mcm_table}":"raw.survey_mcm_2014",
-    "{valassis_tables}": {  # TODO: Update Valassis 
-        "{valassis_1}": "raw.valassis_vnefplus_mi_20241017_det",
-        "{valassis_2}": "raw.valassis_vnefplus_mi_20240711_det",
-        "{valassis_3}": "raw.valassis_vnefplus_mi_20240411_det",
-        "{valassis_4}": "raw.valassis_vnefplus_mi_20240116_det",
-        "{valassis_5}": "raw.valassis_vnefplus_mi_20231017_det",
-        "{valassis_6}": "raw.valassis_vnefplus_mi_20230807_det",
-        "{valassis_7}": "raw.valassis_vnefplus_mi_20230425_det",
-        "{valassis_8}": "raw.valassis_vnefplus_mi_20230123_det",
-    },
+    "{prop_conditions_table}":"msc.nvi_prop_conditions_2025",
+    "{valassis_1}": "raw.valassis_vnefplus_mi_20241017_det", #TODO: Update
+    "{valassis_2}": "raw.valassis_vnefplus_mi_20240711_det",
+    "{valassis_3}": "raw.valassis_vnefplus_mi_20240411_det",
+    "{valassis_4}": "raw.valassis_vnefplus_mi_20240116_det",
+    "{valassis_5}": "raw.valassis_vnefplus_mi_20231017_det",
+    "{valassis_6}": "raw.valassis_vnefplus_mi_20230807_det",
+    "{valassis_7}": "raw.valassis_vnefplus_mi_20230425_det",
+    "{valassis_8}": "raw.valassis_vnefplus_mi_20230123_det",
     "{building_permits_table}": "raw.detodp_building_permits_20260202",
 }
 
@@ -211,7 +216,7 @@ def extract_from_queries(logger):
 
     for filename in QUERY_FILES:
         logger.info(f"Running query '{filename}'.")
-        table = pd.read_sql(_load_sql(filename), db_engine)
+        table = pd.read_sql(_load_sql(filename), db_engine, params=PARAMS)
 
         if "year" not in table.columns:
             table["year"] = DATA_YEAR
