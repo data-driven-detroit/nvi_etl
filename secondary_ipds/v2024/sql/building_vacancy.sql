@@ -1,6 +1,6 @@
 WITH located_buildings AS (
     SELECT *
-    FROM msc.nvi_prop_conditions_2025 cond
+    FROM {prop_conditions_table} cond
     JOIN nvi.neighborhood_zones zones
         ON st_within(st_transform(cond.geom, 2898), zones.geometry)
 )
