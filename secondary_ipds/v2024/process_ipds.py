@@ -43,15 +43,15 @@ TABLE_MAP = {
     "{building_file_table}": "raw.building_file_20230313_2",
     "{blight_table}":"raw.detodp_blight_violations_20260131",
     "{mcm_table}":"raw.survey_mcm_2014",
-    "{prop_conditions_table}":"msc.nvi_prop_conditions_2025",
-    "{valassis_1}": "raw.valassis_vnefplus_mi_20241017_det", #TODO: Update
-    "{valassis_2}": "raw.valassis_vnefplus_mi_20240711_det",
-    "{valassis_3}": "raw.valassis_vnefplus_mi_20240411_det",
-    "{valassis_4}": "raw.valassis_vnefplus_mi_20240116_det",
-    "{valassis_5}": "raw.valassis_vnefplus_mi_20231017_det",
-    "{valassis_6}": "raw.valassis_vnefplus_mi_20230807_det",
-    "{valassis_7}": "raw.valassis_vnefplus_mi_20230425_det",
-    "{valassis_8}": "raw.valassis_vnefplus_mi_20230123_det",
+    "{prop_conditions_table}":"msc.nvi_prop_conditions_2025", #TODO: Update
+    "{valassis_1}": "raw.valassis_vnefplus_mi_2025_qrt4_det", 
+    "{valassis_2}": "raw.valassis_vnefplus_mi_2025_qrt3_det",
+    "{valassis_3}": "raw.valassis_vnefplus_mi_20250501_det",
+    "{valassis_4}": "raw.valassis_vnefplus_mi_20250122_det",
+    "{valassis_5}": "raw.valassis_vnefplus_mi_20241017_det",
+    "{valassis_6}": "raw.valassis_vnefplus_mi_20240711_det",
+    "{valassis_7}": "raw.valassis_vnefplus_mi_20240411_det",
+    "{valassis_8}": "raw.valassis_vnefplus_mi_20240116_det",
     "{building_permits_table}": "raw.detodp_building_permits_20260202",
 }
 
@@ -93,7 +93,7 @@ def load_in_population_reference(logger):
 
     try:
         with db_engine.connect() as db:
-            row = db.execute(text("SELECT COUNT(*) FROM nvi.b01003_moe;")).fetchone()
+            row = db.execute(text("SELECT COUNT(*) FROM nvi.b01003_moe;")).fetchone() #TODO: Update to pull 2024 acs
         logger.info(f"'nvi.b01003_moe' already exists with {row.count} rows.")
 
     except Exception:
@@ -102,12 +102,12 @@ def load_in_population_reference(logger):
         pop_table_tracts = build_profile(
             variables=[b01003001],
             geographies=[create_geography(state="26", county="163", tract="*")],
-            edition=create_edition("acs5", 2023),
+            edition=create_edition("acs5", 2024),
         )
         pop_table_county_sub = build_profile(
             variables=[b01003001],
             geographies=[create_geography(state="26", county="163", county_subdivision="22000")],
-            edition=create_edition("acs5", 2023),
+            edition=create_edition("acs5", 2024,
         )
 
         pd.concat([pop_table_tracts, pop_table_county_sub]).to_sql(
