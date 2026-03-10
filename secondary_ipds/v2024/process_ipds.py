@@ -73,7 +73,7 @@ def _load_sql(filename: str) -> text:
     for placeholder, table in TABLE_MAP.items():
         if isinstance(table, dict):
             for sub_placeholder, sub_table in table.items():
-                raw = raw.replace(sub_placeholder, sub_table)
+                raw = raw.replace(sub_placeholder, sub_table)e
         else:
             raw = raw.replace(placeholder, table)
     return text(raw)
@@ -107,7 +107,7 @@ def load_in_population_reference(logger):
         pop_table_county_sub = build_profile(
             variables=[b01003001],
             geographies=[create_geography(state="26", county="163", county_subdivision="22000")],
-            edition=create_edition("acs5", 2024,
+            edition=create_edition("acs5", 2024),
         )
 
         pd.concat([pop_table_tracts, pop_table_county_sub]).to_sql(
@@ -146,12 +146,14 @@ def create_intermediate_table(logger):
 # =============================================================================
 
 def extract_foreclosures(logger):
+    db_engine = make_engine_for("ipds")
     logger.info("Extracting foreclosures.")
 
     config = configparser.ConfigParser()
     config.read(WORKING_DIR / "conf" / ".conf")
 
-    sql = text("SELECT * FROM {parcel_table}".text.replace("{parcel_table}", TABLE_MAP["{parcel_table}"])
+    raw = "SELECT * FROM {parcel_table}".replace("{parcel_table}", TABLE_MAP["{parcel_table}"])
+    sql = text(raw)
 
     parcels = gpd.read_postgis(
       sql,
