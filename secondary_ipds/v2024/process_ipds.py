@@ -27,7 +27,7 @@ from d3census import variable, Geography, create_geography, create_edition, buil
 
 WORKING_DIR = working_dir(__file__)
 
-DATA_YEAR = 2024
+DATA_YEAR = 2025
 BLIGHT_YEAR = 2023 
 GEOM_DATE = date(2026, 1, 1)  
 
@@ -38,12 +38,12 @@ PARAMS = {
 }
 
 TABLE_MAP = {
-    "{parcel_table}": "raw.detodp_assessors_20260131",
+    "{parcel_table}": "raw.detodp_assessors_20260131", # this needs to have a geom, parcel_id, num_buildings, zoning_district column
     "{parcel_det_table}":"raw.detodp_assessor_20260131_det",
     "{building_file_table}": "raw.building_file_20230313_2",
     "{blight_table}":"raw.detodp_blight_violations_20260131",
     "{mcm_table}":"raw.survey_mcm_2014",
-    "{prop_conditions_table}":"msc.nvi_prop_conditions_2025", #TODO: Update
+    "{prop_conditions_table}":"msc.nvi_prop_conditions_2025", 
     "{valassis_1}": "raw.valassis_vnefplus_mi_2025_qrt4_det", 
     "{valassis_2}": "raw.valassis_vnefplus_mi_2025_qrt3_det",
     "{valassis_3}": "raw.valassis_vnefplus_mi_20250501_det",
@@ -73,7 +73,7 @@ def _load_sql(filename: str) -> text:
     for placeholder, table in TABLE_MAP.items():
         if isinstance(table, dict):
             for sub_placeholder, sub_table in table.items():
-                raw = raw.replace(sub_placeholder, sub_table)e
+                raw = raw.replace(sub_placeholder, sub_table)
         else:
             raw = raw.replace(placeholder, table)
     return text(raw)
@@ -170,12 +170,12 @@ def extract_foreclosures(logger):
         .query("CITY == 'DETROIT'")
         .dropna(subset=["PARCEL_ID"])
         .astype({"PARCEL_ID": "str"})
-        .assign(parcel_num=lambda df: df["PARCEL_ID"].apply(fix_parcel_id))
+        .assign(parcel_id=lambda df: df["PARCEL_ID"].apply(fix_parcel_id))
     )
 
     stamped = (
         parcels
-        .merge(tax_foreclosures, on="parcel_num", how="left")
+        .merge(tax_foreclosures, on="parcel_id", how="left")
         .assign(not_in_foreclosure=lambda df: df["PARCEL_ID"].isna())
         .sjoin(council_districts[["district_number", "geometry"]], predicate="within", how="left")
         .drop("index_right", axis=1)
