@@ -280,31 +280,43 @@ def transform_foreclosures(primary_indicators, logger):
         .assign(location_id=lambda df: df.apply(pin_location, axis=1))
     )
 
-    (
+    tall_file = (
         elongate(wide_file)
         .merge(primary_indicators, on=["indicator", "year"], how="left")
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
         .assign(value_type_id=1)
-        .to_csv(WORKING_DIR / "output" / "foreclosures_tall.csv", index=False)
     )
+
+    tall_file.to_csv(WORKING_DIR / "output" / "foreclosures_tall.csv", index=False)
 
 
 def transform_from_queries(primary_indicators, logger):
     logger.info("Transforming IPDS query output into tall format.")
 
     wide_file = _read_location_pinned_file()
+    elongated = elongate(wide_file)
+    merged = elongated.merge(primary_indicators, on=["indicator", "year"], how="inner")
 
-    (
-        elongate(wide_file)
-        .merge(primary_indicators, on=["indicator", "year"], how="inner")
+    tall_file = (
+        merged
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
         .assign(value_type_id=1)
-        .to_csv(WORKING_DIR / "output" / "ipds_primary_tall_from_queries.csv", index=False)
     )
+
+    tall_file.to_csv(WORKING_DIR / "output" / "ipds_primary_tall_from_queries.csv", index=False)
 
 
 def transform_primary(logger):
     primary_indicators = pd.read_csv(WORKING_DIR / "conf" / "primary_indicator_ids.csv")
+
+    # Checking Start!
+    wide_file = pd.read_csv(WORKING_DIR / "input" / "ipds_wide_from_queries.csv")
+    logger.info(f"Wide file shape: {wide_file.shape}")
+    logger.info(f"Wide file columns: {wide_file.columns.tolist()}")
+    logger.info(f"Primary indicators shape: {primary_indicators.shape}")
+    logger.info(f"Primary indicators: {primary_indicators['indicator'].tolist()}")
+    # Checking End
+
     transform_foreclosures(primary_indicators, logger)
     transform_from_queries(primary_indicators, logger)
 
