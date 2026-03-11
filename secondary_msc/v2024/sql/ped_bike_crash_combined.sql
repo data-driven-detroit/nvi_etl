@@ -4,7 +4,7 @@ city_crash AS (
     FROM semcog_crash_20250317 AS cr
     INNER JOIN shp.detroit_city_boundary_01182023 AS det
         ON st_intersects(det.geom, st_setsrid(st_point(cr.xcord::numeric, cr.ycord::numeric), 4326))
-    WHERE right(cr.date_full, 4) = :data_year
+    WHERE right(cr.date_full, 4)::int = :data_year
       AND (cr.pedestrian = '1' OR cr.bicycle = '1')
 ),
 city_acs_population AS (
@@ -41,7 +41,7 @@ zone_crash AS (
     FROM semcog_crash_20250317 AS cr
     INNER JOIN neighborhood_zones zones
         ON st_within(st_transform(st_setsrid (st_point (cr.xcord::NUMERIC, cr.ycord::NUMERIC), 4326), 2898), zones.geometry)
-    WHERE RIGHT(cr.date_full, 4) = :data_year AND (cr.pedestrian = '1' OR cr.bicycle = '1')
+    WHERE RIGHT(cr.date_full, 4)::int = :data_year AND (cr.pedestrian = '1' OR cr.bicycle = '1')
     GROUP BY zones.zone_id
 ),
 zone_crosswalk AS (

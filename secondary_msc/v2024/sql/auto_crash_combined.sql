@@ -4,7 +4,7 @@ city_crash AS (
     FROM {crash_table} AS cr
     INNER JOIN {city_boundary_table} AS det
         ON st_intersects(det.geom, st_setsrid(st_point(cr.xcord::numeric, cr.ycord::numeric), 4326))
-    WHERE right(cr.date_full, 4) =:data_year
+    WHERE right(cr.date_full, 4)::int = :data_year
 ),
 city_acs_population AS (
     SELECT b01003001 AS total_pop
@@ -19,7 +19,7 @@ zone_crash AS (
     FROM {crash_table} AS cr
     INNER JOIN neighborhood_zones zones
         ON st_within(st_transform(st_setsrid (st_point (cr.xcord::NUMERIC, cr.ycord::NUMERIC), 4326), 2898), zones.geometry)
-    WHERE RIGHT(cr.date_full, 4) = :data_year
+    WHERE RIGHT(cr.date_full, 4)::int = :data_year
     GROUP BY zones.zone_id
 ),
 zone_crosswalk AS (
@@ -40,7 +40,7 @@ district_crash AS (
     FROM semcog_crash_20250317 AS cr
     INNER JOIN detroit_council_districts AS districts 
         ON st_intersects (districts.geometry, st_transform (st_setsrid (st_point (cr.xcord::NUMERIC, cr.ycord::NUMERIC), 4326), 2898))
-    WHERE RIGHT(cr.date_full, 4) =  :data_year
+    WHERE RIGHT(cr.date_full, 4)::int =  :data_year
     GROUP BY districts.district_number
 ),
 district_crosswalk AS (

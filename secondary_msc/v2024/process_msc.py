@@ -21,7 +21,8 @@ from nvi_etl.geo_reference import (
 )
 
 
-DATA_YEAR = '2024'  
+DATA_YEAR = 2025  
+BIRTHS_YEAR = 2024
 GEOM_DATE = date(2026, 1, 1)
 TABLE_MAP = {
     "{crash_table}": "semcog_crash_20250317",
@@ -45,7 +46,7 @@ def extract_births(logger):
     logger.info("No extraction necessary for births file--reading directly from source.")
     logger.info("Extracting births data.")
 
-    output_path = WORKING_DIR / "input" / "births_extracted_{DATA_YEAR}.geojson"
+    output_path = WORKING_DIR / "input" / f"births_extracted_{BIRTHS_YEAR}.geojson"
 
     if output_path.exists():
         logger.info("Births already extracted, skipping to transform.")
@@ -54,10 +55,6 @@ def extract_births(logger):
     parser = configparser.ConfigParser()
     parser.read(WORKING_DIR / "conf" / ".conf")
     data_extract_path = parser.get('nvi_2024_config', 'data_extract_path')
-
-    if Path(data_extract_path).exists():
-        logger.info("File has already been extracted--continuing.")
-        return 0
 
     births_df = pd.read_csv(data_extract_path, low_memory=False)
 
@@ -107,7 +104,7 @@ def extract_from_queries(logger):
         # Clip off the 'geo_type'
         *title, _ = stem.split("_")
 
-        query = text(path.read_text())
+        query = text(sql_text)
         table = pd.read_sql(query, db_engine, params=params)
 
         # Add the file to the list labeled with the dataset
@@ -119,7 +116,7 @@ def extract_from_queries(logger):
         combined_topics.append(file)
 
     wide_format = pd.concat(combined_topics, axis=1).assign(year=DATA_YEAR)
-    wide_format.to_csv(WORKING_DIR / "input" / "msc_wide_{DATA_YEAR}_from_queries.csv")
+    wide_format.to_csv(WORKING_DIR / "input" / f"msc_wide_{DATA_YEAR}_from_queries.csv")
 
 
 
@@ -259,7 +256,7 @@ def transform_births(logger):
     logger.info("Transforming births.")
 
     births_gdf = gpd.read_file(
-        WORKING_DIR / "input" / "births_extracted_2023.geojson"
+        WORKING_DIR / "input" / f"births_extracted_{BIRTHS_YEAR}.geojson"
     )
 
     # TODO: Combine these with appropriate location_ids and save
@@ -280,7 +277,7 @@ def transform_births(logger):
     wide_format["location_id"] = wide_format.apply(pin_location, axis=1)
 
     tall_format = liquefy(wide_format)
-    tall_format["year"] = 2024 # FIXME
+    tall_format["year"] = BIRTHS_YEAR
     tall_format["value_type_id"] = 1
     tall_format.to_csv(WORKING_DIR / "output" / "births_output_tall.csv", index=False)
 
@@ -290,9 +287,9 @@ def transform_from_queries(logger):
 
     primary_indicators = pd.read_csv(WORKING_DIR / "conf" / "primary_indicator_ids.csv")
 
-    msc_wide = pd.read_csv(WORKING_DIR / "input" / "msc_wide_from_queries.csv")
+    msc_wide = pd.read_csv(WORKING_DIR / "input" / f"msc_wide_{DATA_YEAR}_from_queries.csv")
     msc_wide["location_id"] = msc_wide.apply(pin_location, axis=1)
-    msc_wide["year"] = 2024
+    msc_wide["year"] = DATA_YEAR
 
     melted = (
         pd.wide_to_long(
@@ -315,7 +312,7 @@ def transform_from_queries(logger):
 
 def read_location_pinned_file():
     return (
-        pd.read_csv(WORKING_DIR / "input" / "msc_wide_from_queries.csv")
+        pd.read_csv(WORKING_DIR / "input" / f"msc_wide_{DATA_YEAR}_from_queries.csv")
         .assign(
             location_id=lambda df: df.apply(pin_location, axis=1)
         )
