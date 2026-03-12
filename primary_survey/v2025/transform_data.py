@@ -44,11 +44,15 @@ def recode(survey_data, recode_map, logger):
         
         try:
             survey_data[col] = (
-                survey_data[col].map(recode_val, na_action="ignore").astype(pd.Int64Dtype())
+                survey_data[col]
+                # .map(recode_val, na_action="ignore")
+                .astype(pd.Int64Dtype())
             )
         except ValueError:
             logger.info(f"{col} is an as an uncoded string column!")
             survey_data[col] = survey_data[col].map(recode_val, na_action="ignore")
+        except TypeError:
+            raise TypeError(f"Failing to cast to integer on column {col}, check values.")
 
     return survey_data
 
@@ -110,7 +114,7 @@ def transform_data(
     assert "BlockClubParticipation_YesNo" in survey_data.columns
 
     geocoded_filename = config[f"nvi_{survey_year}_config"]["geocoded_responses"]
-    geocoded = pd.read_excel(geocoded_filename)
+    geocoded = gpd.read_file(geocoded_filename)
     geocoded = geocoded.rename(columns=field_reference["renames"])
 
     if len(geocoded) != len(survey_data):
@@ -118,17 +122,12 @@ def transform_data(
 
     # Don't use any survey data from the geocoded file!
     merged = survey_data.merge(
-        geocoded[["USER_Response_ID", "Status", "X", "Y"]]
-        .rename(columns={"Status": "successful_geocode"}), 
+        geocoded[["USER_Response_ID", "geometry"]],
         left_on="Response ID", right_on="USER_Response_ID"
     )
 
     # Create the geodataframe in the D3-standard projection 'EPSG:2898'
-    gdf = gpd.GeoDataFrame(
-        merged, 
-        geometry=gpd.points_from_xy(merged["X"], merged["Y"]), 
-        crs="EPSG:4326"
-    ).to_crs("EPSG:2898")
+    gdf = gpd.GeoDataFrame(merged, geometry="geometry").to_crs("EPSG:2898")
 
 
     # 2. JOINS FOR CITY, DISTRICT, AND ZONES ---------------------------------
@@ -157,7 +156,7 @@ def transform_data(
     gdf = gdf.drop(columns=["index_right"])
 
     # NOTE MV: Breaking out 'cdo path' because we drop duplicates in the next step
-    logger.info(f"{sum(gdf["organization_name"].isna())} rows missing CDO label.")
+    logger.info(f"{sum(gdf['organization_name'].isna())} rows missing CDO label.")
     df = pd.DataFrame(gdf.drop(columns='geometry'))
     df = df.drop_duplicates(subset=["Response ID", "organization_name"])
 
@@ -183,28 +182,15 @@ def transform_data(
             "points outside bounds!"
         )
 
-    # Only include successful_geocoding
-    successful_geocode = df[df["successful_geocode"] == "M"]
-
-    n_excluded = len(df) - len(successful_geocode)
-    logger.warning(f"{n_excluded} records excluded due to geocoding error.")
-    logger.info(f"{len(successful_geocode)} rows ready for further analysis.")
-
-
     # 3. RECODE INDICATORS TO MAKE SURE THEY MATCH OUTPUT **PERFECTLY** ------
 
     # Function starting here
 
     recode_map = json.loads((WORKING_DIR / "conf" / "recode.json").read_text())
     recoded = (
-        recode(successful_geocode, recode_map, logger)
+        recode(df, recode_map, logger)
         .rename(columns={
-            col: col.replace("::", ":").replace("’", "'") for col in successful_geocode.columns
-        })
-        .rename(columns={
-            'Cleaned up or improved lot(s) <u>that I own</u>:In_The_Last_12_Months': 'Cleaned up or improved lot(s) that I own:In_The_Last_12_Months',
-            'Cleaned up or improved lot(s) <u>that I do <b>not</b> own</u>:In_The_Last_12_Months': 'Cleaned up or improved lot(s) that I do not own:In_The_Last_12_Months',
-            'SchoolProgram_Sports_Tutoring_Participation:Youth_In_Household_Last_12_Months_Questions4': 'SchoolProgram_Leadership_Participation:Youth_In_Household_Last_12_Months_Questions',
+            col: col.replace("::", ":").replace("’", "'") for col in df.columns
         })
     )
 
@@ -238,7 +224,7 @@ def transform_data(
             method = 'compile_multi_response_indicator'
         else:
             raise ValueError(
-                f"Indicator {indicator["indicator_db_id"]}:'{indicator["response_type"]}' "
+                f"Indicator {indicator['indicator_db_id']}: {indicator['response_type']} "
                 "is not a valid response type."
             )
 
@@ -316,9 +302,17 @@ def transform_data(
                     for _, row in question.iterrows()
                 }
 
+
+                try:
+                    if universe_query == "@ALL":
+                        universe = nvi.survey_data
+                    else:
+                        universe = nvi.survey_data.query(universe_query)
+                except KeyError:
+                    raise KeyError(f"'{universe_query}' failing.")
+
                 result.append(
-                    nvi.survey_data
-                    .query(universe_query)[[agg, column]]
+                    universe[[agg, column]]
                     .groupby(agg)
                     .value_counts()
                     .reset_index()
@@ -340,32 +334,46 @@ def transform_data(
             ]
 
             rename = {
-                row["full_column"]: (row["db_question_code"], row["db_answer_code"])
+                row["full_column"]: f'{row["db_question_code"]}_{int(row["db_answer_code"])}'
                 for _, row in group.iterrows()
             }
 
+
             for agg in aggs:
-                result.append(
-                    nvi.survey_data[[agg] + list(group["full_column"])]
-                    .dropna(subset=agg) # TODO this is not a great idea -- why is it missing?
-                    .rename(columns=rename)
-                    .groupby(agg)
-                    .agg(["count", "size"])
-                    .stack(level=[0,1], future_stack=True)
-                    .reset_index()
-                    .rename(columns={
-                        agg: "location_id",
-                        "level_1": "survey_question_id",
-                        "level_2": "survey_question_option_id",
-                        "size": "universe"
-                    })
-                    .assign(
-                        indicator_id=question["indicator_db_id"],
-                        percentage=lambda df: df["count"] / df["universe"]
+                try:
+                    result.append(
+                        nvi.survey_data[[agg] + list(group["full_column"])]
+                        .dropna(subset=agg) # TODO this is not a great idea -- why is it missing?
+                        .rename(columns=rename)
+                        .groupby(agg)
+                        .agg(["count", "size"])
+                        .stack(level=[0,1], future_stack=True)
+                        .reset_index()
+                        .rename(columns={
+                            agg: "location_id",
+                            "level_1": "survey_question_id",
+                            "level_2": "survey_question_option_id",
+                            "size": "universe"
+                        })
+                        .assign(
+                            indicator_id=question["indicator_db_id"],
+                            percentage=lambda df: df["count"] / df["universe"]
+                        )
                     )
-                )
+
+                except (ValueError, KeyError):
+                    print(
+                        nvi.survey_data[[agg] + list(group["full_column"])]
+                        .dropna(subset=agg) # TODO this is not a great idea -- why is it missing?
+                        .rename(columns=rename)
+                        .groupby(agg)
+                        .agg(["count", "size"])
+                        .stack(level=[0,1], future_stack=True)
+                    )
+
+                    raise ValueError(f"{question['question']} is failing for {agg}.")
         else:
-            raise ValueError(f"'{question["response_type"]}' is not a valid response type.")
+            raise ValueError(f"{question['response_type']} is not a valid response type.")
 
     answers_tall = pd.concat(result).assign(value_type_id=2)
 
@@ -378,7 +386,7 @@ def transform_data(
             rate_per=pd.NA,
             index=pd.NA,
         )
-        .to_csv(WORKING_DIR / "output" / f"primary_survey_tall_{survey_year}_{"cdos" if cdo_aggregate else ""}.csv")
+        .to_csv(WORKING_DIR / "output" / f"primary_survey_tall_{survey_year}{'_cdos' if cdo_aggregate else ''}.csv")
     )
 
 

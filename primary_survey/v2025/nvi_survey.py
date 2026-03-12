@@ -96,7 +96,7 @@ class Survey:
         if question_meta["response_type"] == "GRID-OF-DEATH":
             raise NotImplementedError("For the 'GRID-OF-DEATH' you have to call .tabulate_grid_of_death() for now.")
         
-        raise ValueError(f"{question_meta["response_type"]} not a valid response-type for tabulation.")
+        raise ValueError(f"{question_meta['response_type']} not a valid response-type for tabulation.")
 
     def tabulate_single_question(self, group_var, question, question_group=None, readable=True, universe="@ALL"):
         if not question_group:
@@ -164,7 +164,7 @@ class Survey:
                     .rename(col_name)
                 )
             except KeyError:
-                print(f"{question["full_column"]} missing")
+                print(f"{question['full_column']} missing")
 
         aggregations.append(
             self.survey_data
@@ -217,11 +217,17 @@ class Survey:
         relevant_columns = indicator_rows["full_column"].drop_duplicates()
 
         indicator_meta = indicator_rows.iloc[0]
-        
-        universe = (
-            self.survey_data.query(indicator_meta["universe_query"])
-            .dropna(subset=relevant_columns, how="all")
-        )
+
+        if indicator_meta["universe_query"] == "@ALL":
+            universe = (
+                self.survey_data
+                .dropna(subset=relevant_columns, how="all")
+            )
+        else:
+            universe = (
+                self.survey_data.query(indicator_meta["universe_query"])
+                .dropna(subset=relevant_columns, how="all")
+            )
 
         if readable:
             index_renamer = self.make_renamer(group_var, group_var)
@@ -241,7 +247,7 @@ class Survey:
         elif indicator_meta["and_or"] == "OR":
             combo_strategy = lambda df: df[relevant_columns].any(axis=1)
         else:
-            raise ValueError(f"{indicator_meta["and_or"]} is not a valid value for 'and_or' for indicator {indicator_id}")
+            raise ValueError(f"{indicator_meta['and_or']} is not a valid value for 'and_or' for indicator {indicator_id}")
 
 
         return (
@@ -264,26 +270,36 @@ class Survey:
         ]
 
         indicator_meta = indicator_rows.iloc[0]
-        universe = (
-            self.survey_data.query(indicator_meta["universe_query"])
-        )
+
+        if indicator_meta["universe_query"] == "@ALL":
+            universe = self.survey_data
+        else:
+            universe = self.survey_data.query(indicator_meta["universe_query"])
 
         if readable:
             index_renamer = self.make_renamer(group_var, group_var)
         else:
             index_renamer = {}
 
-        labeled = pd.concat([
-            universe[group_var],
-            ~universe[indicator_rows["full_column"]].isna()
-        ], axis=1)
+        try:
+            labeled = pd.concat([
+                universe[group_var],
+                ~universe[indicator_rows["full_column"]].isna()
+            ], axis=1)
+        except KeyError:
+            SEARCH_TERM = "cleaned up"
+            print([   
+                c for c in universe.columns
+                if SEARCH_TERM.lower() in c.lower()
+            ])
+            raise KeyError()
 
         if indicator_meta["and_or"] == "AND":
             combo_strategy = lambda df: df[indicator_rows["full_column"].drop_duplicates()].all(axis=1)
         elif indicator_meta["and_or"] == "OR":
             combo_strategy = lambda df: df[indicator_rows["full_column"].drop_duplicates()].any(axis=1)
         else:
-            raise ValueError(f"{indicator_meta["and_or"]} is not a valid value for 'and_or' for indicator {indicator_id}")
+            raise ValueError(f"{indicator_meta['and_or']} is not a valid value for 'and_or' for indicator {indicator_id}")
 
         return (
             labeled
@@ -302,7 +318,7 @@ def create_nvi_survey(filepath, survey_date=pd.to_datetime("2024-07-01")):
     nvi_engine = make_engine_for("nvi_test")
 
     answer_key = pd.read_excel(
-        WORKING_DIR / "conf" / "nvi_answer_key.xlsx", 
+        WORKING_DIR / "conf" / "nvi_answer_key_20260225.xlsx", 
         dtype={
             "indicator_db_id": pd.Int64Dtype(),
             "db_question_code": pd.Int64Dtype(),

@@ -12,7 +12,11 @@ dependencies = [
     "jupyter>=1.1.1",
     "openpyxl>=3.1.5",
     "pandas>=2.3.3",
+    "pandera>=0.29.0",
+    "psycopg>=3.3.3",
+    "psycopg-binary>=3.3.3",
     "sqlalchemy>=2.0.48",
+    "tomli>=2.4.0",
 ]
 
 [build-system]
