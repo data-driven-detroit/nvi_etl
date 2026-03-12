@@ -17,7 +17,7 @@ def main():
     """
 
     extract_data(logger)
-    transform_data(logger, cdo_aggregate=False)
+    transform_data(logger, survey_year=2025, cdo_aggregate=False)
     # load_data(logger)
 
 

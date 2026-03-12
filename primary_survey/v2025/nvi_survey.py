@@ -298,7 +298,7 @@ class Survey:
         )
 
 
-def create_nvi_survey(filepath):
+def create_nvi_survey(filepath, survey_date=pd.to_datetime("2024-07-01")):
     nvi_engine = make_engine_for("nvi_test")
 
     answer_key = pd.read_excel(
@@ -310,6 +310,11 @@ def create_nvi_survey(filepath):
         }
     )
 
+    answer_key = answer_key[
+        (answer_key["start_date"] < survey_date)
+        & (answer_key["end_date"] > survey_date)
+    ]
+
     recoded = pd.read_csv(
         filepath,
         low_memory=False,
@@ -319,12 +324,8 @@ def create_nvi_survey(filepath):
         }
     )
 
-    q = text("""
-    SELECT *
-    FROM indicator;
-    """)
-
-    indicators = pd.read_sql(q, nvi_engine)
+    ids = answer_key["indicator_db_id"].dropna().drop_duplicates().tolist()
+    indicators = pd.read_sql("SELECT * FROM indicator WHERE id = ANY(%s)", nvi_engine, params=(ids,))
 
     indicator_key = {
         row["id"]: row["name"]

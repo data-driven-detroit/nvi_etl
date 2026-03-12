@@ -75,6 +75,10 @@ def transform_data(
     config = configparser.ConfigParser()
     config.read(WORKING_DIR / "conf" / ".conf")
 
+    field_reference = json.loads(
+        (WORKING_DIR / "conf" / "field_reference.json").read_text()
+    )
+
     indicator_map = json.loads(
         (WORKING_DIR / "conf" / "indicator_map.json").read_text()
     )
@@ -87,7 +91,7 @@ def transform_data(
     districts = pull_council_districts(districts_year)
     zones = pull_zones(zones_year)
 
-    # FIXME (Mike): The function should convert this to 2989, but having issues
+    # FIXME (Mike): The function should convert this to 2898, but having issues
     cdo_boundaries = pull_cdo_boundaries().to_crs(2898)
 
         
@@ -101,12 +105,16 @@ def transform_data(
 
     survey_filename = config[f"nvi_{survey_year}_config"]["survey_responses"]
     survey_data = pd.read_csv(survey_filename, low_memory=False)
+    survey_data = survey_data.rename(columns=field_reference["renames"])
+
+    assert "BlockClubParticipation_YesNo" in survey_data.columns
 
     geocoded_filename = config[f"nvi_{survey_year}_config"]["geocoded_responses"]
     geocoded = pd.read_excel(geocoded_filename)
+    geocoded = geocoded.rename(columns=field_reference["renames"])
 
     if len(geocoded) != len(survey_data):
-        logger.wanring(f"# geocoded rows don't match the original survey data!")
+        logger.warning(f"# geocoded rows don't match the original survey data!")
 
     # Don't use any survey data from the geocoded file!
     merged = survey_data.merge(
@@ -208,11 +216,13 @@ def transform_data(
         f"nvi_2024_analysis_source_{districts_year}_{zones_year}_{today}.csv"
     )
 
+    assert "BlockClubParticipation_YesNo" in recoded.columns
+
     recoded.to_csv(survey_file_path, index=False)
 
     # ROLL UP ALL INDICATORS
-
-    nvi = create_nvi_survey(survey_file_path)
+    # TODO (MV): Fix this magic date somehow
+    nvi = create_nvi_survey(survey_file_path, pd.to_datetime("2025-07-01"))
 
     indicators = (
         nvi.answer_key[["indicator_db_id", "response_type"]]
@@ -337,6 +347,7 @@ def transform_data(
             for agg in aggs:
                 result.append(
                     nvi.survey_data[[agg] + list(group["full_column"])]
+                    .dropna(subset=agg) # TODO this is not a great idea -- why is it missing?
                     .rename(columns=rename)
                     .groupby(agg)
                     .agg(["count", "size"])

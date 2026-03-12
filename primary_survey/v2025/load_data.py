@@ -19,7 +19,7 @@ def load_data(logger):
         SURVEY_VALUES_TABLE, 
         db_engine, 
         schema="nvi", 
-        if_exists="replace", 
+        if_exists="append", 
         index=False
     )
 
