@@ -1,0 +1,11 @@
+{
+    "renames": {
+        "Concern that I won’t be taken seriously, or no action will be taken:Hesitate_Reporting_Crime_Reason": "Concern that I won't be taken seriously, or no action will be taken:Hesitate_Reporting_Crime_Reason",
+        "Other (please describe)::Community_Engagement_Process_Participation...140": "Other (please describe):Community_Engagement_Process_Participation",
+        "SchoolProgram_Sports_Tutoring_Participation:Youth_In_Household_Last_12_Months_Questions...56": "SchoolProgram_Sports_Tutoring_Participation:Youth_In_Household_Last_12_Months_Questions",
+        "Other:Hesitate_Reporting_Crime_Reason...130": "Other:Hesitate_Reporting_Crime_Reason",
+        "Response_I": "USER_Response_ID",
+        "lat": "Y",
+        "lon": "X"
+    }
+}
