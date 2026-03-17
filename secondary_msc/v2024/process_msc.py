@@ -1,8 +1,18 @@
-from pathlib import Path
+import configparser
 import geopandas as gpd
 import pandas as pd
+
+from datetime import date
+from collections import defaultdict
+from pathlib import Path
+from sqlalchemy import text
+
+
+from nvi_etl import working_dir, db_engine, setup_logging
 from nvi_etl import liquefy
 from nvi_etl.reshape import elongate
+from nvi_etl.schema import NVIValueTable
+from nvi_etl.destinations import CONTEXT_VALUES_TABLE, SURVEY_VALUES_TABLE
 from nvi_etl.geo_reference import (
     pin_location,
     pull_city_boundary,
@@ -10,11 +20,112 @@ from nvi_etl.geo_reference import (
     pull_zones,
 )
 
-from aggregations import compile_indicators
 
+DATA_YEAR = 2025  
+BIRTHS_YEAR = 2024
+GEOM_DATE = date(2026, 1, 1)
+TABLE_MAP = {
+    "{crash_table}": "semcog_crash_20250317",
+    "{cdo_table}": "shp.becdd_47cdoserviceareas_20220815",
+    "{crime_table}": "rms_crime_20260108",
+    "{population_table}": "public.b01003_moe",
+    "{redlining_table}": "nvi.holc_maps",
+    "{city_boundary_table}": "shp.detroit_city_boundary_01182023",
+    "{neighborhood_zones_table}": "nvi.neighborhood_zones",
+    "{council_district_table}": "nvi.detroit_council_districts"
+}
 
 WORKING_DIR = Path(__file__).resolve().parent
 
+
+
+"""
+Extract:
+"""
+def extract_births(logger):
+    logger.info("No extraction necessary for births file--reading directly from source.")
+    logger.info("Extracting births data.")
+
+    output_path = WORKING_DIR / "input" / f"births_extracted_{BIRTHS_YEAR}.geojson"
+
+    if output_path.exists():
+        logger.info("Births already extracted, skipping to transform.")
+        return 
+
+    parser = configparser.ConfigParser()
+    parser.read(WORKING_DIR / "conf" / ".conf")
+    data_extract_path = parser.get('nvi_2024_config', 'data_extract_path')
+
+    births_df = pd.read_csv(data_extract_path, low_memory=False)
+
+    # Convert to a GeoDataFrame
+    births_gdf = gpd.GeoDataFrame(
+        births_df,
+        geometry=gpd.points_from_xy(births_df.LONGITUDE, births_df.LATITUDE),
+        crs="EPSG:4326",
+    )
+
+    # FIXME: We can save this temporarily locally -- right?
+
+    births_gdf.to_file(output_path)
+
+
+
+
+def extract_from_queries(logger):
+    logger.warning("Extracting data based on sql query files.")
+
+    params = {
+        "data_year": DATA_YEAR,
+        "geom_date": GEOM_DATE
+    }
+
+    filenames = [
+        "auto_crash_combined.sql",
+        "cdo_service_area_combined.sql",
+        "ped_bike_crash_combined.sql",
+        "violent_crime_all.sql",
+        "redlining_all.sql",
+    ]
+
+    result = defaultdict(list) 
+    for filename in filenames:
+        logger.info(f"Running '{filename}'.")
+
+        path = WORKING_DIR / "sql" / filename
+
+        sql_text = path.read_text()
+        for placeholder, table_name in TABLE_MAP.items():
+            sql_text = sql_text.replace(placeholder, table_name)
+
+        # Get the stem from the path (basically just the final filename without the '.csv')
+        stem = path.stem
+
+        # Clip off the 'geo_type'
+        *title, _ = stem.split("_")
+
+        query = text(sql_text)
+        table = pd.read_sql(query, db_engine, params=params)
+
+        # Add the file to the list labeled with the dataset
+        result["_".join(title)].append(table)
+
+    combined_topics = []
+    for clipped_stem, files in result.items():
+        file = pd.concat(files).astype({"geography": "str"}).set_index(["geo_type", "geography"])
+        combined_topics.append(file)
+
+    wide_format = pd.concat(combined_topics, axis=1).assign(year=DATA_YEAR)
+    wide_format.to_csv(WORKING_DIR / "input" / f"msc_wide_{DATA_YEAR}_from_queries.csv")
+
+
+
+
+"""
+Transform:
+"""
+
+from aggregations import compile_indicators
 
 def aggregate_city_wide(births_gdf, logger):
     city_boundary = pull_city_boundary()
@@ -145,7 +256,7 @@ def transform_births(logger):
     logger.info("Transforming births.")
 
     births_gdf = gpd.read_file(
-        WORKING_DIR / "input" / "births_extracted_2023.geojson"
+        WORKING_DIR / "input" / f"births_extracted_{BIRTHS_YEAR}.geojson"
     )
 
     # TODO: Combine these with appropriate location_ids and save
@@ -166,7 +277,7 @@ def transform_births(logger):
     wide_format["location_id"] = wide_format.apply(pin_location, axis=1)
 
     tall_format = liquefy(wide_format)
-    tall_format["year"] = 2024 # FIXME
+    tall_format["year"] = BIRTHS_YEAR
     tall_format["value_type_id"] = 1
     tall_format.to_csv(WORKING_DIR / "output" / "births_output_tall.csv", index=False)
 
@@ -176,9 +287,9 @@ def transform_from_queries(logger):
 
     primary_indicators = pd.read_csv(WORKING_DIR / "conf" / "primary_indicator_ids.csv")
 
-    msc_wide = pd.read_csv(WORKING_DIR / "input" / "msc_wide_from_queries.csv")
+    msc_wide = pd.read_csv(WORKING_DIR / "input" / f"msc_wide_{DATA_YEAR}_from_queries.csv")
     msc_wide["location_id"] = msc_wide.apply(pin_location, axis=1)
-    msc_wide["year"] = 2024
+    msc_wide["year"] = DATA_YEAR
 
     melted = (
         pd.wide_to_long(
@@ -201,7 +312,7 @@ def transform_from_queries(logger):
 
 def read_location_pinned_file():
     return (
-        pd.read_csv(WORKING_DIR / "input" / "msc_wide_from_queries.csv")
+        pd.read_csv(WORKING_DIR / "input" / f"msc_wide_{DATA_YEAR}_from_queries.csv")
         .assign(
             location_id=lambda df: df.apply(pin_location, axis=1)
         )
@@ -225,11 +336,55 @@ def transform_context(logger):
     tall_file.to_csv(WORKING_DIR / "output" / "msc_context_tall_from_queries.csv", index=False)
 
 
-if __name__ == "__main__":
-    from nvi_etl import setup_logging
 
+
+"""
+LOAD
+"""
+def load_births(logger):
+    logger.warning("Loading births data to context values table.")
+
+    file = pd.read_csv(WORKING_DIR / "output" / "births_output_tall.csv")
+
+    validated = NVIValueTable.validate(file)
+
+    validated.to_sql(SURVEY_VALUES_TABLE, db_engine, schema="nvi", index=False, if_exists="append")
+
+
+
+def load_from_queries(logger):
+    logger.warning("Loading other msc data into context values table.")
+
+    file = pd.read_csv(WORKING_DIR / "output" / "msc_output_tall.csv")
+
+    validated = NVIValueTable.validate(file)
+
+    validated.to_sql(SURVEY_VALUES_TABLE, db_engine, schema="nvi", index=False, if_exists="append")
+
+
+
+
+"""
+Process
+"""
+
+
+def main():
     logger = setup_logging()
 
-    # transform_births(logger)
+
+    logger.info("Starting births")
+    extract_births(logger)
+    # load_births(logger)
+
+
+    logger.info("Starting pulls from queries")
+    extract_from_queries(logger)
+    # load_from_queries(logger)
+
+    transform_births(logger)
     transform_from_queries(logger)
     transform_context(logger)
+
+if __name__ == "__main__":
+    main()

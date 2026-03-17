@@ -23,11 +23,11 @@ def compile_indicators(indicators: pd.DataFrame, logger):
         elif indicator["indicator_type"] in {"percentage", "rate"}:
             function = build_pct_calculator(indicator["indicator"])
         else:
-            logger.error(f"'{indicator["indicator_type"]}' is not a valid indicator type for IPDS. '{indicator["indicator"]}': SKIPPING")
+            logger.error(f"'{indicator['indicator_type']}' is not a valid indicator type for IPDS. '{indicator['indicator']}': SKIPPING")
             continue
 
         aggregations[
-            f"{indicator["indicator_type"]}_{indicator["indicator"]}"
+            f"{indicator['indicator_type']}_{indicator['indicator']}"
         ] = function
 
     return aggregations

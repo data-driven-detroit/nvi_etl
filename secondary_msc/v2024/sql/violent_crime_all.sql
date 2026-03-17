@@ -1,6 +1,6 @@
 WITH violent_crime AS (
     SELECT DISTINCT ON (incident_entry_id) *
-    FROM rms_crime_incidents_20250311 crimes
+    FROM {crime_table} crimes
     JOIN nvi.neighborhood_zones zones
         ON ST_WITHIN(
             ST_TRANSFORM(
@@ -12,8 +12,8 @@ WITH violent_crime AS (
             ),
             zones.geometry
         )
-    WHERE EXTRACT(YEAR from incident_occurred_at::date) = 2024
-    AND zones.start_date = DATE '2026-01-01'
+    WHERE EXTRACT(YEAR from incident_occurred_at::date) = :data_year
+    AND zones.start_date = :geom_date
     AND TRIM(case_status) != 'UNFOUNDED'
     -- The offense_description matches are pulled from here
     AND TRIM(offense_description) IN (
@@ -44,7 +44,7 @@ annotated_tracts AS (
         INNER JOIN nvi.tracts_to_nvi_crosswalk cw
             ON acs.geoid = cw.tract_geoid
     WHERE
-        cw.zone_start_date = DATE '2026-01-01'
+        cw.zone_start_date = :geom_date
 ),
 district_population AS (
     SELECT
