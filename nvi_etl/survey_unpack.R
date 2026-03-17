@@ -5,7 +5,7 @@ library(tidyr)
 library(labelled)
 library(survey)
 
-frame <- read_sav("Q:\\3_Projects\\NVI\\2025\\spss.sav")
+frame <- read_sav("Q:\\3_Projects\\NVI\\2025\\archive\\spss.sav")
 design <- svydesign( ids = ~1, data = frame )
 
 # This will show readable names for all variables
