@@ -16,8 +16,6 @@ WORKING_DIR = Path(__file__).parent # v2025
 BASE_DIR = Path(__file__).parent.parent.parent
 SURVEY_YEAR = 2025
 
-
-
 OUTPUT_COLUMN_ORDER = [
     "location",
     "location_id",
@@ -35,6 +33,24 @@ OUTPUT_COLUMN_ORDER = [
     "count",
     "universe",
     "percentage",
+]
+
+VALUE_COLUMNS = [
+    # "id",
+    "year",
+    "count",
+    "universe",
+    "percentage",
+    "rate",
+    "rate_per",
+    "dollars",
+    "indicator_id",
+    "location_id",
+    "survey_id",
+    "survey_question_id",
+    "survey_question_option_id",
+    "value_type_id",
+    "index",
 ]
 
 today = date.today().strftime("%Y%m%d")
@@ -60,6 +76,7 @@ def combine_survey_and_geocoded(frame, geoframe):
         )
     )
 
+
 def add_districts_and_zones(geocoded, districts, zones):
     return (
         geocoded
@@ -69,6 +86,7 @@ def add_districts_and_zones(geocoded, districts, zones):
         .sjoin(zones[["geometry", "zone_id"]], how="left", predicate="within")
         .assign(citywide='citywide') # This will be true of all items
     )
+
 
 def base_counts(frame: pd.DataFrame) -> pd.DataFrame:
     tables = []
@@ -111,11 +129,8 @@ def append_universe_and_percentages(table):
 def aggregate_question(frame: pd.DataFrame, column_name: str, 
     summary: str, labels: pd.DataFrame) -> pd.DataFrame:
 
-
-    aggregation_type = labels.iloc[0]["response_type"]
     """
     This assumes question is answered with a selection from a likert item
-
 
     in:
         frame: our current dataframe
@@ -176,7 +191,7 @@ def roll_up_single(frame: pd.DataFrame, groupdictionary: pd.DataFrame,
 
     result = []
     errors = []
-    for i, column in groupdictionary.drop_duplicates(subset="full_column").iterrows():
+    for _, column in groupdictionary.drop_duplicates(subset="full_column").iterrows():
 
         # Skip columns that are not currently active
         if (
@@ -189,9 +204,11 @@ def roll_up_single(frame: pd.DataFrame, groupdictionary: pd.DataFrame,
         # Filter to the rows of the data dictionary relevant to the column of the
         # frame that we're aggregating.
         column_name = column["full_column"]
+
         labels = groupdictionary[
             groupdictionary["full_column"] == column_name
         ][[
+            "survey_question_topic_id",
             "topic_text",
             "question_text",
             "survey_code",
@@ -208,27 +225,91 @@ def roll_up_single(frame: pd.DataFrame, groupdictionary: pd.DataFrame,
 
         # This is a 'look-before-you-leap', but I want to track errors proactively
         if column_name not in frame.columns:
-            errors.append((i, column_name, "name_mismatch"))
+            errors.append((column_name, "name_mismatch"))
             continue
 
         # Remeber citywide is all ones!
         for summary in ("citywide", "district_number", "zone_id"):
             try:
                 out = aggregate_question(frame, column_name, summary, labels)
+                result.append(out)
 
             # This comes up if the column is str dtype, or other non-int things
             except ValueError:
-                errors.append((i, column_name, "aggregation_error"))
-                continue
+                errors.append((column_name, "aggregation_error"))
 
-            result.append(out)
+    # concat doesn't like empty dataframes
+    return (
+        pd.concat(result) if result else pd.DataFrame(), 
+        errors
+    )
 
-    return pd.concat(result), errors
+
+def aggregate_multiselect(frame: pd.DataFrame, groupdatadictionary: pd.DataFrame, 
+    summary: str, survey_date:pd.Timestamp) -> pd.DataFrame:
+    groups = frame.groupby(summary)
+    universe = groups.size().rename("universe").reset_index() # all rows with value regardless of value
+
+    # Skip columns that are not currently active, this is inverted from above.
+    labels = groupdatadictionary[
+        (groupdatadictionary["start_date"] <= survey_date)
+        & (groupdatadictionary["end_date"] > survey_date)
+        & groupdatadictionary["tabulate"]
+    ]
+
+    return (
+        groups[labels["full_column"]]
+        .count()
+        .melt(ignore_index=False, var_name="full_column")
+        .reset_index()
+        .merge(
+            labels[[
+                "full_column", "db_question_code", "db_answer_code", "and_or", 
+                "answer", "end_date", "group", "indicator_db_id", 
+                "indicator_include", "question_text", "response_type", 
+                "site_category", "start_date", "suppress_value", "survey_code",
+                "survey_question_topic_id", "tabulate", "topic_text",
+                "universe_include", "universe_query"
+            ]], 
+            on="full_column"
+        )
+        .merge(universe, on=summary)
+        .rename(columns={"value": "count", summary: "location"})
+        .assign(
+            percentage=lambda frame: (100 * frame["count"] / frame["universe"]).round(2),
+            summary_level=summary,
+        )
+        .astype({
+            "db_question_code": pd.Int64Dtype(),
+            "db_answer_code": pd.Int64Dtype(),
+        })
+    )
 
 
 def roll_up_multiselect(frame: pd.DataFrame, groupdictionary: pd.DataFrame, 
     survey_date: pd.Timestamp) -> tuple[pd.DataFrame, list[tuple[str,str]]]:
-    pass
+    result = []
+    errors = []
+
+    # TODO: refactor this to pull it from being so deep in the call stack
+    # It makes it # impossible to change the summary level for cdos.
+    for summary in ("citywide", "district_number", "zone_id"):
+        try:
+            # The survey_date gets passed down
+            out = aggregate_multiselect(frame, groupdictionary, summary, survey_date)
+            result.append(out)
+
+        # This comes up if the column is str dtype, or other non-int things
+        except ValueError:
+            group = groupdictionary.iloc[0]["group"]
+            errors.append((group, "aggregation_error"))
+    
+
+    # concat doesn't like empty dataframes
+    return (
+        pd.concat(result) if result else pd.DataFrame(), 
+        errors
+    )
 
 
 def create_question_rows(frame: pd.DataFrame, datadictionary: pd.DataFrame, 
@@ -243,17 +324,21 @@ def create_question_rows(frame: pd.DataFrame, datadictionary: pd.DataFrame,
 
     tables = []
     errors = []
-    for _, group in groups:
+    for g, group in groups:
         response_type = group.iloc[0]["response_type"]
 
-        if response_type in {"YES-NO", "SINGLE", "GROUPED-SINGLE"}:
-            table, error = roll_up_single(frame, group, survey_date)
-        elif response_type == "MULI-SELECT":
-            table, error = roll_up_multiselect(frame, group, survey_date)
+        try:
+            if response_type in {"YES-NO", "SINGLE", "GROUPED-SINGLE"}:
+                table, error = roll_up_single(frame, group, survey_date)
+                
+            elif response_type == "MULTI-SELECT":
+                table, error = roll_up_multiselect(frame, group, survey_date)
 
+            else:
+                raise ValueError(f"{response_type} not valid.")
 
-        else:
-            raise ValueError(f"{response_type} not valid.")
+        except ValueError:
+            raise ValueError(f"Failing on group {g}.")
 
         tables.append(table)
         errors.extend(error)
@@ -280,7 +365,7 @@ def main():
         "Q:\\3_Projects\\NVI\\2025\\Final Shapefiles\\Final2025NVIDataset_cleaned_20260304.shp"
     ).rename(columns={"Response_I": "response_id"})
 
-    datadictionary = pd.read_excel(WORKING_DIR / "conf" / "nvi_answer_key_20260225.xlsx")
+    datadictionary = pd.read_excel(WORKING_DIR / "conf" / "nvi_answer_key_20260316.xlsx")
 
     location_dictionary = pd.read_excel(
         WORKING_DIR / "conf" / "locations_20260312.xlsx", 
@@ -320,20 +405,14 @@ def main():
 
     # We're looping through groups (required for multi-select) so we want to
     # make sure that that group & response_type columns agree.
-    groups = datadictionary[["group", "response_type"]].drop_duplicates()
-    assert (
-        len(groups)
-        == len(groups.drop_duplicates(subset="group"))
-    ), "'response_type' not the same accross an entire 'group'. Fix the data dictionary file."
 
     # Aggregate everything to the 'table' level, we'll transform next
     # also peel off and log errors
-    table, errors = create_question_rows(
-        complete_frame, datadictionary, survey_date
-    )
-                                          
-    print(errors)
+    table, errors = create_question_rows(complete_frame, datadictionary, survey_date)
+
     print(f"{len(errors)} rows not aggregated rows (0 is expected).")
+    if errors:
+        print(errors)
 
     # This is saved as a different sheet, summarizing 
     summary_counts = base_counts(complete_frame)
@@ -346,6 +425,29 @@ def main():
     )[OUTPUT_COLUMN_ORDER]
 
     table.to_csv(WORKING_DIR / f"test_output_{today}.csv", index=False)
+
+    database_table = (
+        table.rename(
+            columns={
+                "db_question_code": "survey_question_id",
+                "indicator_db_id": "indicator_id",
+                "db_answer_code": "survey_question_option_id",
+            }
+        )
+        .assign(
+            year=2025,
+            rate=pd.NA,
+            rate_per=pd.NA,
+            dollars=pd.NA,
+            survey_id=1, # This needs to get filled in!
+            value_type_id=2, # This needs to get looked up too!
+            index=pd.NA
+        )
+    )[VALUE_COLUMNS]
+
+    database_table.to_sql(
+        "value", get_engine("nvi_test"), if_exists="append", index=False
+    )
 
 
 if __name__ == "__main__":
