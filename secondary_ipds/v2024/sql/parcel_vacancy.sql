@@ -2,10 +2,10 @@ WITH annotated AS (
     SELECT
         zones.district_number,
         zones.zone_id,
-        CASE WHEN COALESCE(num_bldgs = 0, FALSE) THEN 1 ELSE 0 END AS is_vacant,
-        CASE WHEN COALESCE(LEFT(zoning, 1) = 'R', FALSE) THEN 1 ELSE 0 END AS is_residential,
+        CASE WHEN COALESCE(num_buildings = 0, FALSE) THEN 1 ELSE 0 END AS is_vacant,
+        CASE WHEN COALESCE(LEFT(zoning_district, 1) = 'R', FALSE) THEN 1 ELSE 0 END AS is_residential,
         CASE WHEN COALESCE(taxpayer_1 = 'DETROIT LAND BANK AUTHORITY', TRUE) THEN 1 ELSE 0 END AS lb_owned
-    FROM raw.detodp_assessor_20240205 AS parcels
+    FROM {parcel_table} AS parcels
     INNER JOIN nvi.neighborhood_zones AS zones
         ON
             ST_WITHIN(

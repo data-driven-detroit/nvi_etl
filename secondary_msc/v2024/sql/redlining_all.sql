@@ -1,7 +1,7 @@
 WITH grade_union AS (
     SELECT
         st_union(geometry) AS geometry
-    FROM nvi.holc_maps
+    FROM {redlining_table}
     WHERE grade IN ('C', 'D')
 )
 
@@ -14,7 +14,7 @@ SELECT
     / st_area(zones.geometry) AS percentage_redlined
 FROM nvi.neighborhood_zones AS zones
 CROSS JOIN grade_union AS gu
-WHERE start_date = DATE ' 2026-01-01'
+WHERE start_date = :geom_date
 
 UNION
 
@@ -27,7 +27,7 @@ SELECT
     / st_area(districts.geometry) AS percentage_redlined
 FROM nvi.detroit_council_districts AS districts
 CROSS JOIN grade_union AS gu
-WHERE start_date = DATE ' 2026-01-01'
+WHERE start_date = :geom_date
 
 UNION
 

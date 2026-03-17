@@ -9,7 +9,7 @@ WITH
             END AS non_blight,
             geom
         FROM
-            msc.nvi_prop_conditions_2025
+            {prop_conditions_table}
     )
 SELECT
     'citywide' AS geo_type,
@@ -31,7 +31,7 @@ FROM
     no_blight
     JOIN nvi.detroit_council_districts cds ON ST_WITHIN (ST_CENTROID (ST_TRANSFORM (no_blight.geom, 2898)), cds.geometry)
 WHERE
-    cds.start_date = DATE '2026-01-01'
+    cds.start_date = :geom_date
 GROUP BY
     cds.district_number
 
@@ -47,6 +47,6 @@ FROM no_blight
 JOIN nvi.neighborhood_zones zones
     ON ST_WITHIN(ST_CENTROID(ST_TRANSFORM(no_blight.geom, 2898)), zones.geometry)
 WHERE 
-    zones.start_date = DATE '2026-01-01'
+    zones.start_date = :geom_date
 GROUP BY 
     zones.zone_id;
