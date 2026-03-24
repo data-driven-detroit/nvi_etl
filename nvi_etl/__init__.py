@@ -24,7 +24,6 @@ with open(BASE_DIR / "config.toml", "rb") as f:
 db_engine = create_engine(
     f"postgresql+psycopg://{config['db']['user']}:{config['db']['password']}"
     f"@{config['db']['host']}:{config['db']['port']}/{config['db']['name']}",
-    connect_args={'options': f'-csearch_path={config["app"]["name"]},public'},
 )
 
 
@@ -36,8 +35,7 @@ def make_engine_for(db_name):
 
     db_engine = create_engine(
         f"postgresql+psycopg://{config['db']['user']}:{config['db']['password']}"
-        f"@{config['db']['host']}:{config['db']['port']}/{db_name}",
-        connect_args={'options': f'-csearch_path={config["app"]["name"]},public'},
+        f"@{config['db']['host']}:{config['db']['port']}/{db_name}"
     )
 
     return db_engine

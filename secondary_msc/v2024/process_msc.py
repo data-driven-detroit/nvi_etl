@@ -8,7 +8,7 @@ from pathlib import Path
 from sqlalchemy import text
 
 
-from nvi_etl import working_dir, db_engine, setup_logging
+from nvi_etl import make_engine_for, db_engine, setup_logging
 from nvi_etl import liquefy
 from nvi_etl.reshape import elongate
 from nvi_etl.schema import NVIValueTable
@@ -25,18 +25,17 @@ DATA_YEAR = 2025
 BIRTHS_YEAR = 2024
 GEOM_DATE = date(2026, 1, 1)
 TABLE_MAP = {
-    "{crash_table}": "semcog_crash_20250317",
-    "{cdo_table}": "shp.becdd_47cdoserviceareas_20220815",
-    "{crime_table}": "rms_crime_20260108",
-    "{population_table}": "public.b01003_moe",
-    "{redlining_table}": "nvi.holc_maps",
-    "{city_boundary_table}": "shp.detroit_city_boundary_01182023",
-    "{neighborhood_zones_table}": "nvi.neighborhood_zones",
-    "{council_district_table}": "nvi.detroit_council_districts"
+    "crash_table": "semcog_crash_20250317",
+    "cdo_table": "shp.becdd_47cdoserviceareas_20220815",
+    "crime_table": "rms_crime_20260108",
+    "population_table": "public.b01003_moe",
+    "redlining_table": "nvi.holc_maps",
+    "city_boundary_table": "shp.detroit_city_boundary_01182023",
+    "neighborhood_zones_table": "nvi.neighborhood_zones",
+    "council_district_table": "nvi.detroit_council_districts"
 }
 
 WORKING_DIR = Path(__file__).resolve().parent
-
 
 
 """
@@ -80,23 +79,23 @@ def extract_from_queries(logger):
         "geom_date": GEOM_DATE
     }
 
+    # filename, source_database
     filenames = [
-        "auto_crash_combined.sql",
-        "cdo_service_area_combined.sql",
-        "ped_bike_crash_combined.sql",
-        "violent_crime_all.sql",
-        "redlining_all.sql",
+        ("auto_crash_combined.sql", "data"),
+        ("cdo_service_area_combined.sql", "data"),
+        ("ped_bike_crash_combined.sql", "data"),
+        ("violent_crime_all.sql", "data"),
+        ("redlining_all.sql", "data"),
     ]
 
     result = defaultdict(list) 
-    for filename in filenames:
+    for filename, db in filenames:
         logger.info(f"Running '{filename}'.")
 
         path = WORKING_DIR / "sql" / filename
 
         sql_text = path.read_text()
-        for placeholder, table_name in TABLE_MAP.items():
-            sql_text = sql_text.replace(placeholder, table_name)
+        sql_text = sql_text.format(**TABLE_MAP)
 
         # Get the stem from the path (basically just the final filename without the '.csv')
         stem = path.stem
@@ -105,7 +104,7 @@ def extract_from_queries(logger):
         *title, _ = stem.split("_")
 
         query = text(sql_text)
-        table = pd.read_sql(query, db_engine, params=params)
+        table = pd.read_sql(query, make_engine_for(db), params=params)
 
         # Add the file to the list labeled with the dataset
         result["_".join(title)].append(table)
@@ -201,7 +200,7 @@ def aggregate_to_cds(births_gdf, logger):
         adequate_care_counts_cd, on="geography", how="left"
     )
     births_summary_cd["percentage_adequate"] = (
-        births_summary_cd["kessner_1_count"] / births_summary_cd["total_births"]
+        100 * births_summary_cd["kessner_1_count"] / births_summary_cd["total_births"]
     )
 
     return births_summary_cd
@@ -245,7 +244,7 @@ def aggregate_to_zones(births_gdf, logger):
         adequate_care_counts_nvi, on="geography", how="left"
     )
     births_summary_nvi["percentage_adequate"] = (
-        births_summary_nvi["kessner_1_count"]
+        100 * births_summary_nvi["kessner_1_count"]
         / births_summary_nvi["total_births"]
     )
 
@@ -279,6 +278,7 @@ def transform_births(logger):
     tall_format = liquefy(wide_format)
     tall_format["year"] = BIRTHS_YEAR
     tall_format["value_type_id"] = 1
+    tall_format["survey_id"] = 1
     tall_format.to_csv(WORKING_DIR / "output" / "births_output_tall.csv", index=False)
 
 
@@ -304,8 +304,10 @@ def transform_from_queries(logger):
         .rename(columns={"per": "rate_per"})
         .merge(primary_indicators, on=["indicator", "year"], how="left")
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
-        .assign(value_type_id=1)
+        .assign(value_type_id=1, survey_id=1)
     )
+
+    print(melted[melted["indicator_id"].isna()])
 
     melted.to_csv(WORKING_DIR / "output" / "msc_output_tall.csv", index=False)
 
@@ -342,49 +344,36 @@ def transform_context(logger):
 LOAD
 """
 def load_births(logger):
-    logger.warning("Loading births data to context values table.")
-
+    logger.warning("Loading births data to survey values table.")
     file = pd.read_csv(WORKING_DIR / "output" / "births_output_tall.csv")
-
     validated = NVIValueTable.validate(file)
-
-    validated.to_sql(SURVEY_VALUES_TABLE, db_engine, schema="nvi", index=False, if_exists="append")
-
+    validated.to_sql(SURVEY_VALUES_TABLE, db_engine, index=False, if_exists="append")
 
 
 def load_from_queries(logger):
-    logger.warning("Loading other msc data into context values table.")
-
+    logger.warning("Loading other msc data into survey values table.")
     file = pd.read_csv(WORKING_DIR / "output" / "msc_output_tall.csv")
-
     validated = NVIValueTable.validate(file)
-
-    validated.to_sql(SURVEY_VALUES_TABLE, db_engine, schema="nvi", index=False, if_exists="append")
-
-
+    validated.to_sql(SURVEY_VALUES_TABLE, db_engine, index=False, if_exists="append")
 
 
 """
 Process
 """
 
-
 def main():
     logger = setup_logging()
 
-
-    logger.info("Starting births")
-    extract_births(logger)
-    # load_births(logger)
-
-
     logger.info("Starting pulls from queries")
     extract_from_queries(logger)
-    # load_from_queries(logger)
+    transform_from_queries(logger)
+    load_from_queries(logger)
 
+    logger.info("Starting pulls from births")
     transform_births(logger)
     transform_from_queries(logger)
     transform_context(logger)
+
 
 if __name__ == "__main__":
     main()

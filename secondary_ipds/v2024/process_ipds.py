@@ -2,14 +2,11 @@
 process_ipds.py -- update SET UP block for new data
 """
 
-from pathlib import Path
 from datetime import date
 import configparser
 import pandas as pd
 import geopandas as gpd
-from shapely import wkb
 from sqlalchemy import text
-from collections import defaultdict
 
 from nvi_etl import working_dir, make_engine_for, setup_logging
 from nvi_etl.utilities import fix_parcel_id
@@ -38,21 +35,21 @@ PARAMS = {
 }
 
 TABLE_MAP = {
-    "{parcel_table}": "raw.detodp_assessors_20260131", # this needs to have a geom, parcel_id, num_buildings, zoning_district column
-    "{parcel_det_table}":"raw.detodp_assessor_20260131_det",
-    "{building_file_table}": "raw.building_file_20230313_2",
-    "{blight_table}":"raw.detodp_blight_violations_20260131",
-    "{mcm_table}":"raw.survey_mcm_2014",
-    "{prop_conditions_table}":"msc.nvi_prop_conditions_2025", 
-    "{valassis_1}": "raw.valassis_vnefplus_mi_2025_qrt4_det", 
-    "{valassis_2}": "raw.valassis_vnefplus_mi_2025_qrt3_det",
-    "{valassis_3}": "raw.valassis_vnefplus_mi_20250501_det",
-    "{valassis_4}": "raw.valassis_vnefplus_mi_20250122_det",
-    "{valassis_5}": "raw.valassis_vnefplus_mi_20241017_det",
-    "{valassis_6}": "raw.valassis_vnefplus_mi_20240711_det",
-    "{valassis_7}": "raw.valassis_vnefplus_mi_20240411_det",
-    "{valassis_8}": "raw.valassis_vnefplus_mi_20240116_det",
-    "{building_permits_table}": "raw.detodp_building_permits_20260202",
+    "parcel_table": "raw.detodp_assessors_20260131", # this needs to have a geom, parcel_id, num_buildings, zoning_district column
+    "parcel_det_table":"raw.detodp_assessor_20260131_det",
+    "building_file_table": "raw.building_file_20230313_2",
+    "blight_table":"raw.detodp_blight_violations_20260131",
+    "mcm_table":"raw.survey_mcm_2014",
+    "prop_conditions_table":"msc.nvi_prop_conditions_2025", 
+    "valassis_1": "raw.valassis_vnefplus_mi_2025_qrt4_det", 
+    "valassis_2": "raw.valassis_vnefplus_mi_2025_qrt3_det",
+    "valassis_3": "raw.valassis_vnefplus_mi_20250501_det",
+    "valassis_4": "raw.valassis_vnefplus_mi_20250122_det",
+    "valassis_5": "raw.valassis_vnefplus_mi_20241017_det",
+    "valassis_6": "raw.valassis_vnefplus_mi_20240711_det",
+    "valassis_7": "raw.valassis_vnefplus_mi_20240411_det",
+    "valassis_8": "raw.valassis_vnefplus_mi_20240116_det",
+    "building_permits_table": "raw.detodp_building_permits_20260202",
 }
 
 QUERY_FILES = [
@@ -70,12 +67,8 @@ QUERY_FILES = [
 def _load_sql(filename: str) -> text:
   
     raw = (WORKING_DIR / "sql" / filename).read_text()
-    for placeholder, table in TABLE_MAP.items():
-        if isinstance(table, dict):
-            for sub_placeholder, sub_table in table.items():
-                raw = raw.replace(sub_placeholder, sub_table)
-        else:
-            raw = raw.replace(placeholder, table)
+    raw = raw.format(**TABLE_MAP)
+
     return text(raw)
 
 
@@ -88,6 +81,7 @@ def b01003001(geo: Geography):
 
 
 def load_in_population_reference(logger):
+    YEAR = 2024
     db_engine = make_engine_for("ipds")
     logger.info("Checking for population reference table.")
 
@@ -102,17 +96,20 @@ def load_in_population_reference(logger):
         pop_table_tracts = build_profile(
             variables=[b01003001],
             geographies=[create_geography(state="26", county="163", tract="*")],
-            edition=create_edition("acs5", 2024),
+            edition=create_edition("acs5", YEAR),
         )
         pop_table_county_sub = build_profile(
             variables=[b01003001],
             geographies=[create_geography(state="26", county="163", county_subdivision="22000")],
-            edition=create_edition("acs5", 2024),
+            edition=create_edition("acs5", YEAR),
         )
 
-        pd.concat([pop_table_tracts, pop_table_county_sub]).to_sql(
-            "b01003_moe", db_engine, schema="nvi", if_exists="replace"
+        final = (
+            pd.concat([pop_table_tracts, pop_table_county_sub])
+            .assign(year=YEAR)
         )
+
+        final.to_sql("b01003_moe", db_engine, schema="etl", if_exists="replace")
         logger.info("Population table loaded successfully.")
 
 
@@ -152,7 +149,7 @@ def extract_foreclosures(logger):
     config = configparser.ConfigParser()
     config.read(WORKING_DIR / "conf" / ".conf")
 
-    raw = "SELECT * FROM {parcel_table}".replace("{parcel_table}", TABLE_MAP["{parcel_table}"])
+    raw = "SELECT * FROM {parcel_table}".format(**TABLE_MAP)
     sql = text(raw)
 
     parcels = gpd.read_postgis(
@@ -165,18 +162,22 @@ def extract_foreclosures(logger):
     nvi_zones = pull_zones(GEOM_DATE.year)
     council_districts = pull_council_districts(GEOM_DATE.year)
 
+    print(pd.read_csv(config["source_files"]["foreclosures_file"]).head())
+    print(pd.read_csv(config["source_files"]["foreclosures_file"]).columns)
+
     tax_foreclosures = (
         pd.read_csv(config["source_files"]["foreclosures_file"])
-        .query("CITY == 'DETROIT'")
-        .dropna(subset=["PARCEL_ID"])
-        .astype({"PARCEL_ID": "str"})
-        .assign(parcel_id=lambda df: df["PARCEL_ID"].apply(fix_parcel_id))
+        .query("city_name == 'DETROIT'")
+        .dropna(subset=["parcel_id"])
+        .astype({"parcel_id": "str"})
+        .rename(columns={"parcel_id": "__parcel_id"})
+        .assign(parcel_id=lambda df: df["__parcel_id"].apply(fix_parcel_id))
     )
 
     stamped = (
         parcels
         .merge(tax_foreclosures, on="parcel_id", how="left")
-        .assign(not_in_foreclosure=lambda df: df["PARCEL_ID"].isna())
+        .assign(not_in_foreclosure=lambda df: df["parcel_id"].isna())
         .sjoin(council_districts[["district_number", "geometry"]], predicate="within", how="left")
         .drop("index_right", axis=1)
         .sjoin(nvi_zones[["zone_id", "geometry"]], predicate="within", how="left")
@@ -284,7 +285,7 @@ def transform_foreclosures(primary_indicators, logger):
         elongate(wide_file)
         .merge(primary_indicators, on=["indicator", "year"], how="left")
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
-        .assign(value_type_id=1)
+        .assign(value_type_id=1, survey_id=1)
     )
 
     tall_file.to_csv(WORKING_DIR / "output" / "foreclosures_tall.csv", index=False)
@@ -300,7 +301,7 @@ def transform_from_queries(primary_indicators, logger):
     tall_file = (
         merged
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
-        .assign(value_type_id=1)
+        .assign(value_type_id=1, survey_id=1)
     )
 
     tall_file.to_csv(WORKING_DIR / "output" / "ipds_primary_tall_from_queries.csv", index=False)
@@ -343,19 +344,19 @@ def transform_context(logger):
 
 def load_from_queries(logger):
     logger.warning("Loading IPDS query data into context values table.")
-    db_engine = make_engine_for("data")
-    file = pd.read_csv(WORKING_DIR / "output" / "ipds_tall_from_queries.csv")
+    db_engine = make_engine_for("nvi_test")
+    file = pd.read_csv(WORKING_DIR / "output" / "ipds_primary_tall_from_queries.csv")
     NVIValueTable.validate(file).to_sql(
-        SURVEY_VALUES_TABLE, db_engine, schema="nvi", index=False, if_exists="append"
+        SURVEY_VALUES_TABLE, db_engine, index=False, if_exists="append"
     )
 
 
 def load_foreclosures(logger):
     logger.info("Loading foreclosures into context values table.")
-    db_engine = make_engine_for("data")
+    db_engine = make_engine_for("nvi_test")
     file = pd.read_csv(WORKING_DIR / "output" / "foreclosures_tall.csv")
     NVIValueTable.validate(file).to_sql(
-        SURVEY_VALUES_TABLE, db_engine, schema="nvi", index=False, if_exists="append"
+        SURVEY_VALUES_TABLE, db_engine, index=False, if_exists="append"
     )
 
 
@@ -379,8 +380,8 @@ def main():
     transform_context(logger)
 
     # LOAD
-    # load_from_queries(logger)
-    # load_foreclosures(logger)
+    load_from_queries(logger)
+    load_foreclosures(logger)
 
 
 if __name__ == "__main__":

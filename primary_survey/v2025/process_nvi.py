@@ -16,6 +16,9 @@ WORKING_DIR = Path(__file__).parent # v2025
 BASE_DIR = Path(__file__).parent.parent.parent
 SURVEY_YEAR = 2025
 
+DATABASE = False
+
+
 OUTPUT_COLUMN_ORDER = [
     "location",
     "location_id",
@@ -28,6 +31,7 @@ OUTPUT_COLUMN_ORDER = [
     "question_text",
     "indicator_include",
     "universe_include",
+    "survey_code",
     "db_answer_code", # filter_option_id
     "answer",
     "count",
@@ -156,7 +160,7 @@ def aggregate_question(frame: pd.DataFrame, column_name: str,
         table
         .join(labels, how="outer")
         .sort_values([summary, column_name])
-        .reset_index(drop=True)
+        .reset_index(names="survey_code")
         .rename(columns={summary: "location"})
         .fillna({
             "topic_text": reference["topic_text"],
@@ -183,14 +187,13 @@ def aggregate_question(frame: pd.DataFrame, column_name: str,
 
 
 def roll_up_single(frame: pd.DataFrame, groupdictionary: pd.DataFrame, 
-    survey_date: pd.Timestamp) -> tuple[pd.DataFrame, list[tuple[str,str]]]:
+    survey_date: pd.Timestamp, summary: str) -> pd.DataFrame:
 
     # If the group is not a multi-select, we only need to deduplicate to 
     # get to 'full_column' level. 'full_column' are the values that match 
     # what is in the survey file.
 
     result = []
-    errors = []
     for _, column in groupdictionary.drop_duplicates(subset="full_column").iterrows():
 
         # Skip columns that are not currently active
@@ -223,30 +226,13 @@ def roll_up_single(frame: pd.DataFrame, groupdictionary: pd.DataFrame,
         ]].set_index("survey_code")
 
 
-        # This is a 'look-before-you-leap', but I want to track errors proactively
-        if column_name not in frame.columns:
-            errors.append((column_name, "name_mismatch"))
-            continue
-
-        # Remeber citywide is all ones!
-        for summary in ("citywide", "district_number", "zone_id"):
-            try:
-                out = aggregate_question(frame, column_name, summary, labels)
-                result.append(out)
-
-            # This comes up if the column is str dtype, or other non-int things
-            except ValueError:
-                errors.append((column_name, "aggregation_error"))
-
-    # concat doesn't like empty dataframes
-    return (
-        pd.concat(result) if result else pd.DataFrame(), 
-        errors
-    )
+        result.append(aggregate_question(frame, column_name, summary, labels))
+    
+    return pd.concat(result) if result else pd.DataFrame()
 
 
-def aggregate_multiselect(frame: pd.DataFrame, groupdatadictionary: pd.DataFrame, 
-    summary: str, survey_date:pd.Timestamp) -> pd.DataFrame:
+def roll_up_multiselect(frame: pd.DataFrame, groupdatadictionary: pd.DataFrame, 
+    survey_date:pd.Timestamp, summary: str) -> pd.DataFrame:
     groups = frame.groupby(summary)
     universe = groups.size().rename("universe").reset_index() # all rows with value regardless of value
 
@@ -286,34 +272,8 @@ def aggregate_multiselect(frame: pd.DataFrame, groupdatadictionary: pd.DataFrame
     )
 
 
-def roll_up_multiselect(frame: pd.DataFrame, groupdictionary: pd.DataFrame, 
-    survey_date: pd.Timestamp) -> tuple[pd.DataFrame, list[tuple[str,str]]]:
-    result = []
-    errors = []
-
-    # TODO: refactor this to pull it from being so deep in the call stack
-    # It makes it # impossible to change the summary level for cdos.
-    for summary in ("citywide", "district_number", "zone_id"):
-        try:
-            # The survey_date gets passed down
-            out = aggregate_multiselect(frame, groupdictionary, summary, survey_date)
-            result.append(out)
-
-        # This comes up if the column is str dtype, or other non-int things
-        except ValueError:
-            group = groupdictionary.iloc[0]["group"]
-            errors.append((group, "aggregation_error"))
-    
-
-    # concat doesn't like empty dataframes
-    return (
-        pd.concat(result) if result else pd.DataFrame(), 
-        errors
-    )
-
-
-def create_question_rows(frame: pd.DataFrame, datadictionary: pd.DataFrame, 
-    survey_date: pd.Timestamp) -> tuple[pd.DataFrame, list[tuple[str,str]]]:
+def create_question_rows(frame: pd.DataFrame, datadictionary: pd.DataFrame,
+    survey_date: pd.Timestamp, summaries: list[str]) -> tuple[pd.DataFrame, list[tuple[str,str]]]:
 
     # Awkward that this line says 'group' so many times, but it takes 
     # questions that are groups and handles them appropriately. Solving 
@@ -323,27 +283,192 @@ def create_question_rows(frame: pd.DataFrame, datadictionary: pd.DataFrame,
     groups = datadictionary.groupby("group")
 
     tables = []
-    errors = []
-    for g, group in groups:
-        response_type = group.iloc[0]["response_type"]
+    for _, group in groups:
 
-        try:
+        for summary in summaries:
+            response_type = group.iloc[0]["response_type"]
+
             if response_type in {"YES-NO", "SINGLE", "GROUPED-SINGLE"}:
-                table, error = roll_up_single(frame, group, survey_date)
+                table = roll_up_single(frame, group, survey_date, summary)
                 
             elif response_type == "MULTI-SELECT":
-                table, error = roll_up_multiselect(frame, group, survey_date)
+                table = roll_up_multiselect(frame, group, survey_date, summary)
 
             else:
                 raise ValueError(f"{response_type} not valid.")
 
-        except ValueError:
-            raise ValueError(f"Failing on group {g}.")
-
-        tables.append(table)
-        errors.extend(error)
+            tables.append(table)
     
-    return pd.concat(tables), errors
+    return pd.concat(tables)
+
+
+def compile_single_response_indicator(
+    survey_data: pd.DataFrame,
+    datadictionary: pd.DataFrame,
+    indicator_id: int,
+    group_var: str,
+) -> pd.DataFrame:
+    
+    """
+    For SINGLE / GROUPED-SINGLE indicators: checks whether each respondent's
+    answer is in the set of 'included' survey codes, combines across columns
+    with AND/OR logic, then aggregates count / universe / percentage by
+    group_var.
+    """
+    indicator_rows = datadictionary[datadictionary["indicator_db_id"] == indicator_id]
+    relevant_columns = indicator_rows["full_column"].drop_duplicates()
+    indicator_meta = indicator_rows.iloc[0]
+
+
+    # Weird walrus, maybe
+    if ((q := indicator_meta["universe_query"]) == '@ALL'):
+        universe = survey_data
+
+    else:
+        universe = survey_data.query(q)
+
+    universe = universe.dropna(subset=relevant_columns, how="all")
+
+    accepted_values = {
+        column: list(answers[answers["indicator_include"]]["survey_code"])
+        for column, answers in indicator_rows.groupby("full_column")
+    }
+
+    index_include = universe[relevant_columns].isin(accepted_values)
+    intermediate = pd.concat([index_include, universe[group_var]], axis=1)
+
+    if indicator_meta["and_or"] == "AND":
+        combo_strategy = lambda df: df[relevant_columns].all(axis=1)
+    elif indicator_meta["and_or"] == "OR":
+        combo_strategy = lambda df: df[relevant_columns].any(axis=1)
+    else:
+        raise ValueError(
+            f"{indicator_meta['and_or']} is not a valid value for 'and_or' "
+            f"for indicator {indicator_id}"
+        )
+
+    return (
+        intermediate
+        .assign(included=combo_strategy)
+        .groupby(group_var)
+        .aggregate(
+            count=pd.NamedAgg(column="included", aggfunc=lambda c: c.sum()),
+            universe=pd.NamedAgg(column="included", aggfunc=lambda c: c.count()),
+            percentage=pd.NamedAgg(column="included", aggfunc=lambda c: c.sum() / c.count()),
+        )
+    )
+
+
+def compile_multi_response_indicator(
+    survey_data: pd.DataFrame,
+    datadictionary: pd.DataFrame,
+    indicator_id: int,
+    group_var: str,
+) -> pd.DataFrame:
+    """
+    For MULTI-SELECT indicators: checks whether each respondent answered
+    (non-null) the relevant columns, combines with AND/OR logic, then
+    aggregates count / universe / percentage by group_var.
+    """
+
+    indicator_rows = datadictionary[
+        (datadictionary["indicator_db_id"] == indicator_id)
+        & datadictionary["indicator_include"]
+    ]
+
+    indicator_meta = indicator_rows.iloc[0]
+    relevant_columns = indicator_rows["full_column"].drop_duplicates()
+
+    # Weird walrus, maybe
+    if ((q := indicator_meta["universe_query"]) == '@ALL'):
+        universe = survey_data
+
+    else:
+        universe = survey_data.query(q)
+
+    labeled = pd.concat([
+        universe[group_var],
+        ~universe[indicator_rows["full_column"]].isna()
+    ], axis=1)
+
+    if indicator_meta["and_or"] == "AND":
+        combo_strategy = lambda df: df[relevant_columns].all(axis=1)
+    elif indicator_meta["and_or"] == "OR":
+        combo_strategy = lambda df: df[relevant_columns].any(axis=1)
+    else:
+        raise ValueError(
+            f"{indicator_meta['and_or']} is not a valid value for 'and_or' "
+            f"for indicator {indicator_id}"
+        )
+
+    return (
+        labeled
+        .assign(included=combo_strategy)
+        .groupby(group_var)
+        .aggregate(
+            count=pd.NamedAgg(column="included", aggfunc=lambda c: c.sum()),
+            universe=pd.NamedAgg(column="included", aggfunc=lambda c: c.count()),
+            percentage=pd.NamedAgg(column="included", aggfunc=lambda c: c.sum() / c.count()),
+        )
+    )
+
+
+INDICATOR_COMPILERS = {
+    "SINGLE": compile_single_response_indicator,
+    "GROUPED-SINGLE": compile_single_response_indicator,
+    "MULTI-SELECT": compile_multi_response_indicator,
+}
+
+
+def create_indicator_rows(
+    frame: pd.DataFrame, 
+    datadictionary: pd.DataFrame, 
+    survey_date: pd.Timestamp, 
+    summaries: list[str],
+) -> tuple[pd.DataFrame, list[tuple[str,str]]]:
+
+    indicators = (
+        datadictionary
+        .dropna(subset="indicator_db_id")
+        .drop_duplicates(subset=["indicator_db_id", "response_type"])
+    )
+
+    # Only use live indicators
+    indicators = indicators[
+        (indicators["start_date"] <= survey_date)
+        & (indicators["end_date"] > survey_date)
+    ]
+
+    result = []
+    errors = []
+    for _, indicator in indicators.iterrows():
+        compiler = INDICATOR_COMPILERS.get(indicator["response_type"])
+        if compiler is None:
+            errors.append(
+                (
+                    indicator['indicator_db_id'], 
+                    f"{indicator['response_type']} is an invalid response type."
+                )
+            )
+            continue
+        
+        try:
+            result.append(
+                pd.concat([
+                    compiler(frame, datadictionary, indicator["indicator_db_id"], agg)
+                    .reset_index()
+                    .rename(columns={agg: "location_id"})
+                    .assign(indicator_id=indicator["indicator_db_id"], year=SURVEY_YEAR)
+                    for agg in summaries
+                ])
+            )
+        except KeyError:
+            errors.append((
+                indicator["indicator_db_id"],
+                "Universe is not returning any rows."
+            ))
+
+    return pd.concat(result).assign(value_type_id=1), [] # Might need this later.
 
 
 def main():
@@ -356,6 +481,7 @@ def main():
     # LOAD required files and combine the shape and answers
     # -------------------------------------------------------------------------
 
+    print("Opening files")
     frame = pd.read_csv(
         "Q:\\3_Projects\\NVI\\2025\\nvi_survey_data_2025_20260226.csv", 
         low_memory=False
@@ -377,7 +503,6 @@ def main():
 
     geocoded = combine_survey_and_geocoded(frame, geoframe)
 
-
     # -------------------------------------------------------------------------
     # Attach the geographic boundaries we're aggregating to
     # -------------------------------------------------------------------------
@@ -385,6 +510,7 @@ def main():
     DISTRICTS_YEAR = 2026
     ZONES_YEAR = 2026
 
+    print("Pulling down districts and zones for aggregation")
     # city = pull_city_boundary() we determinted that we include all approved rows
     districts = pull_council_districts(DISTRICTS_YEAR)
     zones = pull_zones(ZONES_YEAR)
@@ -408,23 +534,77 @@ def main():
 
     # Aggregate everything to the 'table' level, we'll transform next
     # also peel off and log errors
-    table, errors = create_question_rows(complete_frame, datadictionary, survey_date)
+    indicators, errors = create_indicator_rows(
+        complete_frame, 
+        datadictionary, 
+        survey_date, 
+        ["citywide", "district_number", "zone_id"]
+    )
 
-    print(f"{len(errors)} rows not aggregated rows (0 is expected).")
-    if errors:
-        print(errors)
+    print(errors)
+    indicators.to_csv(WORKING_DIR / f"indicators_{today}.csv", index=False)
+
+    database_table = (
+        indicators
+        .rename(columns={"location_id": "location"})
+        .merge(location_dictionary, on="location", how="left")
+        .astype({"location_id": pd.Int64Dtype()})
+        .assign(
+            rate=pd.NA,
+            rate_per=pd.NA,
+            dollars=pd.NA,
+            survey_id=1,
+            index=pd.NA,
+            survey_question_id=pd.NA,
+            survey_question_option_id=pd.NA,
+        )
+        .dropna(subset=["location_id", "indicator_id"])
+        .astype({
+            "dollars": pd.Int64Dtype(),
+            "rate": pd.Int64Dtype(),
+            "rate_per": pd.Int64Dtype(),
+            "index": pd.Int64Dtype(),
+            "survey_question_id": pd.Int64Dtype(),
+            "survey_question_option_id": pd.Int64Dtype(),
+        })
+    )[VALUE_COLUMNS]
+
+    if DATABASE:
+        print("Pushing indicator aggregations to the database.")
+        (
+            database_table
+            .drop_duplicates(subset=[
+                "indicator_id",
+                "location_id",
+                "survey_id",
+                "survey_question_id",
+                "survey_question_option_id",  
+            ])
+            .to_sql("value", get_engine("nvi_test"), if_exists="append", index=False)
+        )
 
     # This is saved as a different sheet, summarizing 
     summary_counts = base_counts(complete_frame)
-    summary_counts.to_csv(WORKING_DIR / f"summary_counts_{today}.csv")
+    summary_counts.to_csv(WORKING_DIR / f"summary_counts_{today}.csv", index=False)
+
+    print("Creating the question rows.")
+    table = create_question_rows(
+        complete_frame, 
+        datadictionary, 
+        survey_date, 
+        ["citywide", "district_number", "zone_id"]
+    )
 
     table = (
         table
         .merge(location_dictionary, on="location", how="left")
-        .astype({"location_id": pd.Int64Dtype()})
+        .astype({
+            "location_id": pd.Int64Dtype(), 
+            "survey_code": pd.Int64Dtype()
+        })
     )[OUTPUT_COLUMN_ORDER]
 
-    table.to_csv(WORKING_DIR / f"test_output_{today}.csv", index=False)
+    table.to_csv(WORKING_DIR / f"questions_aggregated_2025_{today}.csv", index=False)
 
     database_table = (
         table.rename(
@@ -439,15 +619,37 @@ def main():
             rate=pd.NA,
             rate_per=pd.NA,
             dollars=pd.NA,
-            survey_id=1, # This needs to get filled in!
-            value_type_id=2, # This needs to get looked up too!
+            survey_id=1,
+            value_type_id=2,
             index=pd.NA
         )
+        .dropna(subset=["location_id", "indicator_id"])
+        .astype({
+            "dollars": pd.Int64Dtype(),
+            "rate": pd.Int64Dtype(),
+            "rate_per": pd.Int64Dtype(),
+            "index": pd.Int64Dtype(),
+        })
     )[VALUE_COLUMNS]
 
-    database_table.to_sql(
-        "value", get_engine("nvi_test"), if_exists="append", index=False
-    )
+    if DATABASE:
+        print("Pushing question aggregations to database.")
+        (
+            database_table
+            .drop_duplicates(subset=[
+                "indicator_id",
+                "location_id",
+                "survey_id",
+                "survey_question_id",
+                "survey_question_option_id",  
+            ])
+            .to_sql("value", get_engine("nvi_test"), if_exists="append", index=False)
+        )
+
+    # -------------------------------------------------------------------------
+    # CDO Aggregations
+    # -------------------------------------------------------------------------
+
 
 
 if __name__ == "__main__":

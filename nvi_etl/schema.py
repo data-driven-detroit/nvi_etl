@@ -1,7 +1,6 @@
-import pandera as pa
 import pandas as pd
 from datetime import date
-import pandera as pa
+import pandera.pandas as pa
 from pandera.typing.geopandas import GeoSeries
 
 
@@ -10,12 +9,11 @@ class NVIValueTable(pa.DataFrameModel):
     This is the schema that we're transforming all of our data to. It's
     the center table of the NVI DB diagram (add link?).
     """
-    survey_id: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
+    survey_id: pd.Int64Dtype = pa.Field(nullable=False, coerce=True)
     year: pd.Int64Dtype = pa.Field(nullable=False, coerce=True)
     indicator_id: pd.Int64Dtype = pa.Field(nullable=False, coerce=True)
     survey_question_id: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
     survey_question_option_id: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
-    #value_type_id: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
     location_id: pd.Int64Dtype = pa.Field(nullable=False, coerce=True)
     count: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
     universe: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
@@ -24,6 +22,7 @@ class NVIValueTable(pa.DataFrameModel):
     rate_per: float = pa.Field(nullable=True)
     dollars: float = pa.Field(nullable=True)
     index: float = pa.Field(nullable=True)
+    value_type_id: pd.Int64Dtype = pa.Field(nullable=False)
     
     class Config:
         strict=True
@@ -35,10 +34,6 @@ class NVIValueTable(pa.DataFrameModel):
             "survey_question_option_id",
             "year",
         ]
-
-    # TODO: Need to provide the key combo to the Config class, but I 
-    # can't remember the syntax
-    # [year, location_id, indicator_id] need to be unique
 
 
 class NVIContextValueTable(pa.DataFrameModel):

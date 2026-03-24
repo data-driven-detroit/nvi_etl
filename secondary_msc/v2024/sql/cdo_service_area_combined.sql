@@ -15,7 +15,7 @@ zones AS (
 SELECT
     'citywide' AS geo_type,
     'Detroit' AS geography,
-    ST_AREA(ST_INTERSECTION(ST_TRANSFORM(city.geometry, 4326), cov.geom))
+    100 * ST_AREA(ST_INTERSECTION(ST_TRANSFORM(city.geometry, 4326), cov.geom))
         / ST_AREA(ST_TRANSFORM(city.geometry, 4326)) AS percentage_cdo_coverage
 FROM nvi.city_boundary city
 CROSS JOIN coverage cov
@@ -25,7 +25,7 @@ UNION ALL
 SELECT
     'district' AS geo_type,
     cd.district_number AS geography,
-    ST_AREA(ST_INTERSECTION(ST_TRANSFORM(cd.geometry, 4326), cov.geom))
+    100 * ST_AREA(ST_INTERSECTION(ST_TRANSFORM(cd.geometry, 4326), cov.geom))
         / ST_AREA(ST_TRANSFORM(cd.geometry, 4326)) AS percentage_cdo_coverage
 FROM detroit_council_districts cd
 CROSS JOIN coverage cov
@@ -35,7 +35,7 @@ UNION ALL
 SELECT
     'zone' AS geo_type,
     zones.zone_id AS geography,
-    ST_AREA(ST_INTERSECTION(ST_TRANSFORM(zones.geometry, 4326), cov.geom))
+    100 * ST_AREA(ST_INTERSECTION(ST_TRANSFORM(zones.geometry, 4326), cov.geom))
         / ST_AREA(ST_TRANSFORM(zones.geometry, 4326)) AS percentage_cdo_coverage
 FROM zones
 CROSS JOIN coverage cov

@@ -58,6 +58,7 @@ prop.table(table(as_factor(frame$race_simplified)))
 # Race: race_reduced
 # Education: var35
 # Age: var136
+# Income: var184
 
 prop.table(
   table(

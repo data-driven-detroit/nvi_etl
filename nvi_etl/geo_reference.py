@@ -6,7 +6,10 @@ import pandas as pd
 import datetime
 from shapely import wkt
 
-from nvi_etl import db_engine, working_dir
+from nvi_etl import make_engine_for, working_dir
+
+
+db_engine = make_engine_for("data")
 
 
 WORKING_DIR = working_dir(__file__)

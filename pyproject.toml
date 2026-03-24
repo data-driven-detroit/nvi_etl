@@ -7,6 +7,7 @@ license = "MIT"
 readme = "README.md"
 requires-python = ">=3.10, <3.13"
 dependencies = [
+    "d3census",
     "geoalchemy2>=0.18.4",
     "geopandas>=1.1.3",
     "jupyter>=1.1.1",
@@ -23,3 +24,6 @@ dependencies = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.uv.sources]
+d3census = { git = "https://github.com/mikevatd3/d3census.git" }
