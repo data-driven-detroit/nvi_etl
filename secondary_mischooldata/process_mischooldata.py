@@ -15,8 +15,8 @@ location_map = json.loads((WORKING_DIR / "conf" / "location_map.json").read_text
 primary_indicators = pd.read_csv(WORKING_DIR / "conf" / "primary_indicator_ids.csv")
 
 # Extract
-def extract_mischooldata(logger):
-    logger.info("Extracting mischooldata datasets!")
+def extract_mischooldata():
+    
 
     params = {
         "start_date": START_DATE,
@@ -26,6 +26,7 @@ def extract_mischooldata(logger):
     
     
     query_file =  "third_grade_ela_combined.sql"
+    print("starting extraction")
     combined = pd.DataFrame(extract_from_sql_file(WORKING_DIR / "sql" / query_file,
                     params=params))
     combined.to_csv(WORKING_DIR / "input" / f"g3_ela_{YEAR}_extract.csv", index=False)
@@ -35,8 +36,8 @@ def extract_mischooldata(logger):
 def pin_location_id(row):
     return location_map[row["geo_type"]][row["geography"]]
 
-def transform_mischooldata(logger):
-    logger.info("Transforming mischooldata datasets.")
+def transform_mischooldata():
+    
 
     wide_file = (
         pd.read_csv(WORKING_DIR / "input" / f"g3_ela_{YEAR}_extract.csv")
@@ -93,12 +94,12 @@ def load_mischooldata(logger):
 
     
 def main():
-    logger = setup_logging()
+    # logger = setup_logging()
 
 
-    extract_mischooldata(logger)
-    transform_mischooldata(logger)
-    load_mischooldata(logger)
+    extract_mischooldata()
+    transform_mischooldata()
+   # load_mischooldata(logger)
 
 if __name__ == "__main__":
     main()
