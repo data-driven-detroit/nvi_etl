@@ -1,15 +1,18 @@
-# Don't commit the python junk
+# Python
+__pycache__
+*.pyc
 nvi_env
 env
-__pycache__
+.venv
 
-# Don't commit the config
+# Config (secrets)
 config.toml
+.env
 
-# Don't include log files
+# Log files
 *.log
 
-# Avoid including any intermediate data downloads
+# Intermediate data
 *.json
 *.geojson
 *.csv
@@ -18,18 +21,16 @@ config.toml
 *.zip
 *.xlsx
 
-# The logging config is okay
+# Allow logging config
 !logging_config.json
 
-# Any csv or json used as conf are also Okay.
+# Allow conf files
 !**/conf/*.json
 !**/conf/*.csv
-
-# peh, fine
 !**/conf/*.xlsx
 
+# IDE
 .vscode/*
-*/__pycache__/*
 
-# I'm tempted to exclude all ipynbs, but for now we'll leave it
-# *.ipynb
+# Jupyter checkpoints
+.ipynb_checkpoints/

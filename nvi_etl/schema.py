@@ -3,6 +3,10 @@ from datetime import date
 import pandera.pandas as pa
 from pandera.typing.geopandas import GeoSeries
 
+# Target table names
+SURVEY_VALUES_TABLE = "value"
+CONTEXT_VALUES_TABLE = "context_values"
+
 
 class NVIValueTable(pa.DataFrameModel):
     """

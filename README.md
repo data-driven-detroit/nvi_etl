@@ -1,124 +1,97 @@
-# THE NVI ETL
+# NVI ETL
 
-The home for NVI ETL scripts.
+The Neighborhood Vitality Index data pipeline. Loads survey data and secondary
+indicators into a PostgreSQL database for the NVI website.
 
-- Check out [ETL setup instructions](https://github.com/data-driven-detroit/nvi_etl/blob/main/SETUP.md) for help getting the project running locally
-- Checkout [ETL basics](https://github.com/data-driven-detroit/nvi_etl/blob/main/ETL_BASICS.md) for high-level overview of project structure
+## Quick start
 
-## How the NVI ETL works in broad strokes
+```bash
+# Install
+uv sync
 
-For each topic area, the ETL scripts follow the pattern: 
+# Configure
+cp .env.example .env
+# Edit .env with your database credentials
 
-1. *Pull* the data in a 'wide' format, where each row represents a single geography for a single year. The geographies pulled in the 'wide' format include Detroit Overall, Council Districts, and NVI Neighborhood zones. The 'key' for each row in this format are the fields 'geo_type' (either `citywide`, `district`, or `zone`), 'geography, the identifier for that geography type, and 'year' the year the data pertains to.
+# List available tasks
+nvi-etl list
 
-2. *Transform* the 'wide' file to the 'tall' format where each row is an indicator for a particular geography for a particular year. In the case of the primary_survey data, the 'key' of each row of the tall format also includes the `survey_id`, `survey_question_id`, and `survey_question_option_id`.
+# Run a single task
+nvi-etl run --task mischooldata
 
+# Run all tasks in a phase
+nvi-etl run --phase 1
 
-### The _tall_ output table
+# Run everything
+nvi-etl run --all
 
-The final values table for the NVI website has the following fields:
-
-```
-- id                          ⎤ 
-- indicator_id                ⎥
-- location_id                 ⎥ -- key columns
-- survey_id                   ⎥
-- survey_question_id          ⎥
-- survey_question_option_id   ⎦
-
-- value_type_id               ] -- helper column*
-
-- year                        ⎤
-- count                       ⎥
-- universe                    ⎥
-- percentage                  ⎥ -- value columns
-- rate                        ⎥ 
-- rate_per                    ⎥ 
-- dollars                     ⎥
-- index                       ⎦
+# Override databases
+nvi-etl run --task acs --source-db data --target-db nvi_test
 ```
 
-*This might be removed if we move all secondary data to the 'context_value' table.
+## Project structure
 
-For any value 'type' a combination of value columns must have values, and the rest will be `null`. For instance, the 'percentage' type must have values in the `percentage` column, but values should also be present in the `count` and `universe` columns. The data field naming scheme described below describes how to correctly assign the 
-
-
-### Part 1. Building the _wide_ table
-
-The wide table can be created in whatever way best suits the analysis. The only requirements are on the fields describing the geography, as well as the naming convention of the data fields. Both are described below.
-
-#### The geography key fields
-
-The wide format for the data should include as a key 'geo_type' and 'geography', where 'geo_type' is one of `citywide`, `district`, or `zone`, and a 'geography' column that will have the label of the given geography. Take a look at `nvi_etl/conf/location_mapping.json` to view the mapping between the geography labels and their database ids on the NVI site.
-
-#### Labeling the data fields
-
-Any data field created *must* adhere to the following standard to be transformed into the 'tall' format.
-
-`<indicator_part>_<indicator_name>`
-
-The first part of the data field name is the `indicator_part` and must be one of the following.
-
-- count_*
-- universe_*
-- percentage_*
-- rate_*
-- per_*
-- dollars_*
-- index_*
-
-These stems will be used to place the value in the corresponding column on the output table. The `indicator_name` portion of the field name will be placed as a string into a new column `indicator`.
-
-For example, starting with the table below:
-
-  geo_type           | geography  |  count_emp | universe_emp | percentage_emp | count_kids | count_cats
----------------------|------------|------------|--------------|----------------|------------|------------
- 'citywide'          | 'citywide' |  ...       | ...          | ...            | ...        | ...
- 'council_districts' | '2'        |  ...       | ...          | ...            | ...        | ...
- 'neighborhood_zones'| '5a'       |  ...       | ...          | ...            | ...        | ...
-
-
-The data field names will be split and the transformation of the table table will look like this:
-
-  geo_type           | geography  | indicator | count | universe | percentage
----------------------|------------|-----------|-------|----------|------------
- 'citywide'          | 'citywide' | 'emp'     | ...   | ...      | ...
- 'citywide'          | 'citywide' | 'kids'    | ...   | null     | null
- 'citywide'          | 'citywide' | 'cats'    | ...   | null     | null
- 'council_districts' | '2'        | 'emp'     | ...   | ...      | ...
- 'council_districts' | '2'        | 'kids'    | ...   | null     | null
- 'council_districts' | '2'        | 'cats'    | ...   | null     | null
- 'neighborhood_zones'| '5a'       | 'emp'     | ...   | ...      | ...
- 'neighborhood_zones'| '5a'       | 'kids'    | ...   | null     | null
- 'neighborhood_zones'| '5a'       | 'cats'    | ...   | null     | null
-
-
-Before the output table is complete, the `location_id` and `indicator_id` column must be mapped from the `geo_type`, `geography` and `indicator` columns.
-
-
-```json
-{
-  "below_fpl": 3,
-}
+```
+nvi_etl/
+  __init__.py
+  cli.py                   # CLI entry point (nvi-etl)
+  config.py                # .env config, path constants, logging setup
+  db.py                    # SQLAlchemy engine factory
+  registry.py              # @task decorator and task runner
+  upsert.py                # Staging-table upsert for value tables
+  schema.py                # Pandera validation schemas
+  geo.py                   # Geographic data utilities
+  reshape.py               # Wide-to-tall transformations (elongate, liquefy)
+  utilities.py             # Shared helpers
+  aggregations.py          # Indicator compilation functions
+  conf/                    # Shared + per-task config files
+  sql/                     # All SQL queries
+  survey/                  # Primary survey support code
+  acs/                     # ACS variable definitions and config
+  tasks/                   # One module per ETL domain (@task decorated)
+tests/                     # pytest test suite
+archive/                   # Old versioned code for reference
 ```
 
+## Tasks
 
+Tasks are organized into phases:
 
+**Phase 1** (database-to-database):
+- `acs` -- ACS Census data via d3census
+- `acs_v2` -- ACS part 2 via tablecensus Excel definitions
+- `evictions` -- Eviction counts by geography and year
+- `geography_*` -- Geographic boundary loading (zones, districts, boundary, crosswalk, CDO, HOLC)
+- `ipds` -- Infrastructure, property, development & safety indicators
+- `mischooldata` -- 3rd grade ELA proficiency from MI school data
+- `msc` -- Births, crashes, crime, CDO coverage, redlining
 
+**Phase 2** (file-based):
+- `primary_survey` -- Primary NVI survey indicators and questions
+
+## How the ETL works
+
+For each topic area, the ETL follows the pattern:
+
+1. **Extract**: Pull data in a 'wide' format where each row represents a single
+   geography (citywide, district, or zone) for a single year.
+
+2. **Transform**: Convert to 'tall' format where each row is an indicator for a
+   particular geography and year.
+
+3. **Load**: Validate with Pandera schemas and insert into the database.
+
+### Data field naming convention
+
+Data fields must follow `<value_type>_<indicator_name>`:
+- `count_*`, `universe_*`, `percentage_*`, `rate_*`, `per_*`, `dollars_*`, `index_*`
+
+These stems place values in the corresponding output columns. The indicator name
+maps to an `indicator_id` via config files.
 
 ## Data dependencies
 
-- NVI
-  - Zones were created by hand by Laura, along with the crosswalk to tracts
-  - City Boundary from Detroit's Open Data Portal (geojson In the Vault)
-  - 2026 City Council Districts from Detroit's Open Data Portal (shapefile In the Vault)
-- ACS Data
-    - [d3census](https://github.com/mikevatd3/d3census)
-- IPDS
-    - census table b01003 (total population) in public schema
-    - building permits -- which file / table?
-    - blight violations -- which file / table?
-    - raw.valassis_vnefplus_mi_20241017_det
-- Michigan School Data mostly managed by [mischooldata_etl](https://github.com/data-driven-detroit/mischooldata_etl.git)
-    - `education.eem_schools` 
-    - `education.g3_ela_school` (old schema)
+- **NVI**: Zones, crosswalks, city boundary, council districts
+- **ACS**: via [d3census](https://github.com/mikevatd3/d3census)
+- **IPDS**: Population (B01003), building permits, blight violations, Valassis
+- **MI School Data**: via [mischooldata_etl](https://github.com/data-driven-detroit/mischooldata_etl.git)
