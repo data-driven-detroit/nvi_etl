@@ -28,7 +28,8 @@ WITH flagged_parcels AS (SELECT pc.parcel_id,
                          'Detroit'                                                             AS geography,
                          COUNT(*) FILTER (WHERE not_in_foreclosure)                             AS count_non_foreclosures,
                          COUNT(*) FILTER (WHERE NOT not_in_foreclosure)                         AS count_foreclosures,
-                         COUNT(*)                                                               AS universe_parcels,
+                         COUNT(*)                                                               AS universe_non_foreclosures,
+                         COUNT(*)                                                               AS universe_foreclosures,
                          100.0 * COUNT(*) FILTER (WHERE not_in_foreclosure)::NUMERIC / COUNT(*) AS percentage_non_foreclosures
                   FROM flagged_parcels),
 
@@ -36,7 +37,8 @@ WITH flagged_parcels AS (SELECT pc.parcel_id,
                             district_number::TEXT                                                  AS geography,
                             COUNT(*) FILTER (WHERE not_in_foreclosure)                             AS count_non_foreclosures,
                             COUNT(*) FILTER (WHERE NOT not_in_foreclosure)                         AS count_foreclosures,
-                            COUNT(*)                                                               AS universe_parcels,
+                            COUNT(*)                                                               AS universe_non_foreclosures,
+                            COUNT(*)                                                               AS universe_foreclosures,
                             100.0 * COUNT(*) FILTER (WHERE not_in_foreclosure)::NUMERIC / COUNT(*) AS percentage_non_foreclosures
                      FROM parcels_with_districts
                      GROUP BY district_number),
@@ -45,7 +47,8 @@ WITH flagged_parcels AS (SELECT pc.parcel_id,
                         zone_id::TEXT                                                          AS geography,
                         COUNT(*) FILTER (WHERE not_in_foreclosure)                             AS count_non_foreclosures,
                         COUNT(*) FILTER (WHERE NOT not_in_foreclosure)                         AS count_foreclosures,
-                        COUNT(*)                                                               AS universe_parcels,
+                        COUNT(*)                                                               AS universe_non_foreclosures,
+                        COUNT(*)                                                               AS universe_foreclosures,
                         100.0 * COUNT(*) FILTER (WHERE not_in_foreclosure)::NUMERIC / COUNT(*) AS percentage_non_foreclosures
                  FROM parcels_with_zones
                  GROUP BY zone_id)
