@@ -60,7 +60,8 @@ QUERY_FILES = [
     "land_use.sql",
     "building_vacancy.sql",
     "parcel_vacancy.sql",
-    "foreclosures_history.sql",
+    "foreclosures_history.sql"
+    "foreclosures_pct.sql",
 ]
 
 
@@ -142,75 +143,75 @@ def create_intermediate_table(logger):
 # EXTRACT
 # =============================================================================
 
-def extract_foreclosures(logger):
-    db_engine = make_engine_for("ipds")
-    logger.info("Extracting foreclosures.")
+# def extract_foreclosures(logger):
+#     db_engine = make_engine_for("ipds")
+#     logger.info("Extracting foreclosures.")
 
-    config = configparser.ConfigParser()
-    config.read(WORKING_DIR / "conf" / ".conf")
+#     config = configparser.ConfigParser()
+#     config.read(WORKING_DIR / "conf" / ".conf")
 
-    raw = "SELECT * FROM {parcel_table}".format(**TABLE_MAP)
-    sql = text(raw)
+#     raw = "SELECT * FROM {parcel_table}".format(**TABLE_MAP)
+#     sql = text(raw)
 
-    parcels = gpd.read_postgis(
-      sql,
-      db_engine,
-      geom_col='geom',
-      crs="EPSG:4326"
-    ).to_crs(2898)
+#     parcels = gpd.read_postgis(
+#       sql,
+#       db_engine,
+#       geom_col='geom',
+#       crs="EPSG:4326"
+#     ).to_crs(2898)
   
-    nvi_zones = pull_zones(GEOM_DATE.year)
-    council_districts = pull_council_districts(GEOM_DATE.year)
+#     nvi_zones = pull_zones(GEOM_DATE.year)
+#     council_districts = pull_council_districts(GEOM_DATE.year)
 
-    print(pd.read_csv(config["source_files"]["foreclosures_file"]).head())
-    print(pd.read_csv(config["source_files"]["foreclosures_file"]).columns)
+#     print(pd.read_csv(config["source_files"]["foreclosures_file"]).head())
+#     print(pd.read_csv(config["source_files"]["foreclosures_file"]).columns)
 
-    tax_foreclosures = (
-        pd.read_csv(config["source_files"]["foreclosures_file"])
-        .query("city_name == 'DETROIT'")
-        .dropna(subset=["parcel_id"])
-        .astype({"parcel_id": "str"})
-        .rename(columns={"parcel_id": "__parcel_id"})
-        .assign(parcel_id=lambda df: df["__parcel_id"].apply(fix_parcel_id))
-    )
+#     tax_foreclosures = (
+#         pd.read_csv(config["source_files"]["foreclosures_file"])
+#         .query("city_name == 'DETROIT'")
+#         .dropna(subset=["parcel_id"])
+#         .astype({"parcel_id": "str"})
+#         .rename(columns={"parcel_id": "__parcel_id"})
+#         .assign(parcel_id=lambda df: df["__parcel_id"].apply(fix_parcel_id))
+#     )
 
-    stamped = (
-        parcels
-        .merge(tax_foreclosures, on="parcel_id", how="left")
-        .assign(not_in_foreclosure=lambda df: df["parcel_id"].isna())
-        .sjoin(council_districts[["district_number", "geometry"]], predicate="within", how="left")
-        .drop("index_right", axis=1)
-        .sjoin(nvi_zones[["zone_id", "geometry"]], predicate="within", how="left")
-        .drop("index_right", axis=1)
-    )
+#     stamped = (
+#         parcels
+#         .merge(tax_foreclosures, on="parcel_id", how="left")
+#         .assign(not_in_foreclosure=lambda df: df["parcel_id"].isna())
+#         .sjoin(council_districts[["district_number", "geometry"]], predicate="within", how="left")
+#         .drop("index_right", axis=1)
+#         .sjoin(nvi_zones[["zone_id", "geometry"]], predicate="within", how="left")
+#         .drop("index_right", axis=1)
+#     )
 
-    def calc_foreclosure_pct(df):
-        return df["count_non_foreclosures"] / df["universe_non_foreclosures"]
+#     def calc_foreclosure_pct(df):
+#         return df["count_non_foreclosures"] / df["universe_non_foreclosures"]
 
-    group_strategies = [
-        ("citywide", EVERYTHING),
-        ("district", "district_number"),
-        ("zone", "zone_id"), ]
+#     group_strategies = [
+#         ("citywide", EVERYTHING),
+#         ("district", "district_number"),
+#         ("zone", "zone_id"), ]
 
-    (
-        pd.concat([
-            stamped
-            .groupby(strat)
-            .aggregate(
-                count_non_foreclosures=("not_in_foreclosure", "sum"),
-                universe_non_foreclosures=("not_in_foreclosure", "size"),
-            )
-            .assign(
-                percentage_non_foreclosures=calc_foreclosure_pct,
-                geo_type=geo_type,
-                year=DATA_YEAR,
-            )
-            for geo_type, strat in group_strategies
-        ])
-        .reset_index()
-        .rename(columns={"index": "geography"})
-        .to_csv(WORKING_DIR / "input" / "foreclosures_wide.csv", index=False)
-    )
+#     (
+#         pd.concat([
+#             stamped
+#             .groupby(strat)
+#             .aggregate(
+#                 count_non_foreclosures=("not_in_foreclosure", "sum"),
+#                 universe_non_foreclosures=("not_in_foreclosure", "size"),
+#             )
+#             .assign(
+#                 percentage_non_foreclosures=calc_foreclosure_pct,
+#                 geo_type=geo_type,
+#                 year=DATA_YEAR,
+#             )
+#             for geo_type, strat in group_strategies
+#         ])
+#         .reset_index()
+#         .rename(columns={"index": "geography"})
+#         .to_csv(WORKING_DIR / "input" / "foreclosures_wide.csv", index=False)
+#     )
 
 
 def extract_from_queries(logger):
@@ -318,7 +319,7 @@ def transform_primary(logger):
     logger.info(f"Primary indicators: {primary_indicators['indicator'].tolist()}")
     # Checking End
 
-    transform_foreclosures(primary_indicators, logger)
+    #transform_foreclosures(primary_indicators, logger)
     transform_from_queries(primary_indicators, logger)
 
 
@@ -372,7 +373,7 @@ def main():
     create_intermediate_table(logger)
 
     # EXTRACT
-    extract_foreclosures(logger)
+    #extract_foreclosures(logger)
     extract_from_queries(logger)
 
     # TRANSFORM
@@ -381,7 +382,7 @@ def main():
 
     # LOAD
     load_from_queries(logger)
-    load_foreclosures(logger)
+    #load_foreclosures(logger)
 
 
 if __name__ == "__main__":
