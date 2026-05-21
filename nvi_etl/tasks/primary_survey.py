@@ -11,7 +11,7 @@ import geopandas as gpd
 import pandas as pd
 from sqlalchemy import Engine
 
-from nvi_etl.config import CONF_DIR
+from nvi_etl.config import CONF_DIR, DUA_FOLDER
 from nvi_etl.db import get_engine
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.geo import pull_council_districts, pull_zones
@@ -267,14 +267,14 @@ def run(source: Engine, target: Engine) -> TaskResult:
     import logging
     logger = logging.getLogger("nvi_etl")
 
-    # Read source files -- these paths should come from environment or config
+    # Read source files -- paths resolve via NVI_DUA_FOLDER env var
     survey_csv = os.environ.get(
         "NVI_SURVEY_CSV",
-        "Q:\\3_Projects\\NVI\\2025\\nvi_survey_data_2025_20260226.csv",
+        str(DUA_FOLDER / "3_Projects" / "NVI" / "2025" / "nvi_survey_data_2025_20260226.csv"),
     )
     geocoded_shp = os.environ.get(
         "NVI_GEOCODED_SHP",
-        "Q:\\3_Projects\\NVI\\2025\\Final Shapefiles\\Final2025NVIDataset_cleaned_20260304.shp",
+        str(DUA_FOLDER / "3_Projects" / "NVI" / "2025" / "Final Shapefiles" / "Final2025NVIDataset_cleaned_20260304.shp"),
     )
 
     logger.info("Opening survey files")

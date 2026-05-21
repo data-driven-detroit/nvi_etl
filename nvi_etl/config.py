@@ -16,6 +16,9 @@ BASE_DIR = PACKAGE_DIR.parent
 CONF_DIR = PACKAGE_DIR / "conf"
 SQL_DIR = PACKAGE_DIR / "sql"
 
+DUA_FOLDER = Path(os.environ.get("NVI_DUA_FOLDER", "/mnt/q"))
+VAULT_FOLDER = Path(os.environ.get("NVI_VAULT_FOLDER", "/mnt/v"))
+
 
 def db_url(db_name: str | None = None) -> str:
     """Build a SQLAlchemy connection URL for the given database."""
