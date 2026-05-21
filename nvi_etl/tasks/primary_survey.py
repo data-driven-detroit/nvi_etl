@@ -69,7 +69,7 @@ def append_universe_and_percentages(table):
     included = table["universe_include"]
     total = table[included].groupby("location")["count"].transform("sum")
     table["universe"] = total
-    table.loc[included, "percentage"] = table.loc[included, "count"] / total
+    table.loc[included, "percentage"] = (100 * table.loc[included, "count"] / total).round(2)
     return table
 
 
@@ -192,7 +192,7 @@ def compile_single_response_indicator(survey_data, datadictionary, indicator_id,
         .groupby(group_var).aggregate(
             count=pd.NamedAgg(column="included", aggfunc=lambda c: c.sum()),
             universe=pd.NamedAgg(column="included", aggfunc=lambda c: c.count()),
-            percentage=pd.NamedAgg(column="included", aggfunc=lambda c: c.sum() / c.count()),
+            percentage=pd.NamedAgg(column="included", aggfunc=lambda c: round(100 * c.sum() / c.count(), 2)),
         )
     )
 
@@ -221,7 +221,7 @@ def compile_multi_response_indicator(survey_data, datadictionary, indicator_id, 
         .groupby(group_var).aggregate(
             count=pd.NamedAgg(column="included", aggfunc=lambda c: c.sum()),
             universe=pd.NamedAgg(column="included", aggfunc=lambda c: c.count()),
-            percentage=pd.NamedAgg(column="included", aggfunc=lambda c: c.sum() / c.count()),
+            percentage=pd.NamedAgg(column="included", aggfunc=lambda c: round(100 * c.sum() / c.count(), 2)),
         )
     )
 
