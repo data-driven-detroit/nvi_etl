@@ -321,8 +321,6 @@ def run(source: Engine, target: Engine) -> TaskResult:
         )
         .dropna(subset=["location_id", "indicator_id"])
         .astype({
-            "dollars": pd.Int64Dtype(), "rate": pd.Int64Dtype(),
-            "rate_per": pd.Int64Dtype(), "index": pd.Int64Dtype(),
             "survey_question_id": pd.Int64Dtype(),
             "survey_question_option_id": pd.Int64Dtype(),
         })
@@ -351,10 +349,6 @@ def run(source: Engine, target: Engine) -> TaskResult:
             dollars=pd.NA, survey_id=1, value_type_id=2, index=pd.NA,
         )
         .dropna(subset=["location_id", "indicator_id"])
-        .astype({
-            "dollars": pd.Int64Dtype(), "rate": pd.Int64Dtype(),
-            "rate_per": pd.Int64Dtype(), "index": pd.Int64Dtype(),
-        })
     )[VALUE_COLUMNS]
 
     total_rows += upsert_values(target, question_db)
