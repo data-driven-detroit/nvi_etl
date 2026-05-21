@@ -315,8 +315,8 @@ def run(source: Engine, target: Engine) -> TaskResult:
         .merge(location_dictionary, on="location", how="left")
         .astype({"location_id": pd.Int64Dtype()})
         .assign(
-            rate=pd.NA, rate_per=pd.NA, dollars=pd.NA,
-            survey_id=1, index=pd.NA,
+            rate=float("nan"), rate_per=float("nan"), dollars=float("nan"),
+            survey_id=1, index=float("nan"),
             survey_question_id=pd.NA, survey_question_option_id=pd.NA,
         )
         .dropna(subset=["location_id", "indicator_id"])
@@ -345,8 +345,8 @@ def run(source: Engine, target: Engine) -> TaskResult:
             "db_answer_code": "survey_question_option_id",
         })
         .assign(
-            year=SURVEY_YEAR, rate=pd.NA, rate_per=pd.NA,
-            dollars=pd.NA, survey_id=1, value_type_id=2, index=pd.NA,
+            year=SURVEY_YEAR, rate=float("nan"), rate_per=float("nan"),
+            dollars=float("nan"), survey_id=1, value_type_id=2, index=float("nan"),
         )
         .dropna(subset=["location_id", "indicator_id"])
     )[VALUE_COLUMNS]

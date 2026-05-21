@@ -145,7 +145,7 @@ def _extract_foreclosures(ipds_engine, logger):
     )
 
     def calc_foreclosure_pct(df):
-        return df["count_non_foreclosures"] / df["universe_non_foreclosures"]
+        return 100 * df["count_non_foreclosures"] / df["universe_non_foreclosures"]
 
     group_strategies = [
         ("citywide", EVERYTHING),
@@ -226,11 +226,11 @@ def run(source: Engine, target: Engine) -> TaskResult:
     # Context indicators
     context_indicators = pd.read_csv(CONF_DIR / "ipds" / "context_indicator_ids.csv")
 
-    def _build_pct(indicator, cent_scale=False):
+    def _build_pct(indicator):
         def inner(df):
-            num = df[f"count_{indicator}"] * (100 if cent_scale else 1)
+            num = df[f"count_{indicator}"]
             den = df[f"universe_{indicator}"]
-            return num / den
+            return 100 * num / den
         return inner
 
     aggregations = {}

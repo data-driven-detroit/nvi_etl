@@ -114,13 +114,13 @@ def estimate_median_gross_rent(row):
     return estimate_median_from_distribution(distribution)
 
 
-def build_pct_calculator(indicator, cent_scale=False):
+def build_pct_calculator(indicator):
     def inner(df):
-        numerator = df[f"count_{indicator}"] * (100 if cent_scale else 1)
+        numerator = df[f"count_{indicator}"]
         denominator = df[f"universe_{indicator}"]
 
         try:
-            return numerator / denominator
+            return 100 * numerator / denominator
         except ZeroDivisionError:
             return pd.NA
 
