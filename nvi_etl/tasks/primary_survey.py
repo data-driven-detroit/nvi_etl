@@ -256,8 +256,8 @@ def create_indicator_rows(frame, datadictionary, survey_date, summaries):
                 .assign(indicator_id=indicator["indicator_db_id"], year=SURVEY_YEAR)
                 for agg in summaries
             ]))
-        except KeyError:
-            errors.append((indicator["indicator_db_id"], "Universe returned no rows."))
+        except KeyError as e:
+            errors.append((indicator["indicator_db_id"], f"Column not found in survey data: {e}"))
 
     return pd.concat(result).assign(value_type_id=1), errors
 
