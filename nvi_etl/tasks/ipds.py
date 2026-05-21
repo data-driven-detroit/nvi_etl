@@ -13,7 +13,7 @@ from nvi_etl.registry import task, TaskResult
 from nvi_etl.reshape import elongate
 from nvi_etl.utilities import fix_parcel_id
 from nvi_etl.geo import pull_zones, pull_council_districts, pin_location
-from nvi_etl.schema import NVIValueTable, SURVEY_VALUES_TABLE
+from nvi_etl.upsert import upsert_values, upsert_context_values
 
 
 DATA_YEAR = 2025
@@ -205,9 +205,7 @@ def run(source: Engine, target: Engine) -> TaskResult:
         .assign(value_type_id=1, survey_id=1)
     )
 
-    validated = NVIValueTable.validate(query_tall)
-    validated.to_sql(SURVEY_VALUES_TABLE, target, index=False, if_exists="append")
-    total_rows += len(validated)
+    total_rows += upsert_values(target, query_tall)
 
     # Extract and transform foreclosures
     try:
@@ -221,9 +219,7 @@ def run(source: Engine, target: Engine) -> TaskResult:
             .assign(value_type_id=1, survey_id=1)
         )
 
-        validated_fc = NVIValueTable.validate(foreclosures_tall)
-        validated_fc.to_sql(SURVEY_VALUES_TABLE, target, index=False, if_exists="append")
-        total_rows += len(validated_fc)
+        total_rows += upsert_values(target, foreclosures_tall)
     except Exception as e:
         logger.warning(f"Foreclosures extraction failed (may need source file): {e}")
 
@@ -251,7 +247,6 @@ def run(source: Engine, target: Engine) -> TaskResult:
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
     )
 
-    context_tall.to_sql("context_values", target, if_exists="append", index=False)
-    total_rows += len(context_tall)
+    total_rows += upsert_context_values(target, context_tall)
 
     return TaskResult(task_name="ipds", rows_inserted=total_rows, success=True)

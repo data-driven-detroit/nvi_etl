@@ -15,7 +15,7 @@ from nvi_etl.config import CONF_DIR, DUA_FOLDER
 from nvi_etl.db import get_engine
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.geo import pull_council_districts, pull_zones
-from nvi_etl.schema import SURVEY_VALUES_TABLE
+from nvi_etl.upsert import upsert_values
 
 SURVEY_YEAR = 2025
 SURVEY_CONF = CONF_DIR.parent / "survey" / "conf"
@@ -328,11 +328,7 @@ def run(source: Engine, target: Engine) -> TaskResult:
         })
     )[VALUE_COLUMNS]
 
-    indicator_db.drop_duplicates(subset=[
-        "indicator_id", "location_id", "survey_id",
-        "survey_question_id", "survey_question_option_id",
-    ]).to_sql(SURVEY_VALUES_TABLE, target, if_exists="append", index=False)
-    total_rows += len(indicator_db)
+    total_rows += upsert_values(target, indicator_db)
 
     # Question aggregation
     logger.info("Creating question rows")
@@ -361,10 +357,6 @@ def run(source: Engine, target: Engine) -> TaskResult:
         })
     )[VALUE_COLUMNS]
 
-    question_db.drop_duplicates(subset=[
-        "indicator_id", "location_id", "survey_id",
-        "survey_question_id", "survey_question_option_id",
-    ]).to_sql(SURVEY_VALUES_TABLE, target, if_exists="append", index=False)
-    total_rows += len(question_db)
+    total_rows += upsert_values(target, question_db)
 
     return TaskResult(task_name="primary_survey", rows_inserted=total_rows, success=True)

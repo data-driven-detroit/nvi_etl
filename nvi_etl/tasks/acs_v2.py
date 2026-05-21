@@ -9,7 +9,7 @@ from nvi_etl.registry import task, TaskResult
 from nvi_etl.reshape import elongate
 from nvi_etl.aggregations import compile_indicators
 from nvi_etl.geo import pull_tracts_to_nvi_crosswalk, pin_location
-from nvi_etl.schema import CONTEXT_VALUES_TABLE
+from nvi_etl.upsert import upsert_context_values
 
 
 ACS_CONF_DIR = CONF_DIR.parent / "acs" / "conf"
@@ -100,6 +100,6 @@ def run(source: Engine, target: Engine) -> TaskResult:
     )
 
     # Load
-    context_tall.to_sql(CONTEXT_VALUES_TABLE, target, if_exists="append", index=False)
+    rows = upsert_context_values(target, context_tall)
 
-    return TaskResult(task_name="acs_v2", rows_inserted=len(context_tall), success=True)
+    return TaskResult(task_name="acs_v2", rows_inserted=rows, success=True)

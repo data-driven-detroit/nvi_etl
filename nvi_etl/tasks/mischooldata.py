@@ -10,7 +10,6 @@ from nvi_etl.config import CONF_DIR, SQL_DIR
 from nvi_etl.db import read_sql_file
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.reshape import elongate
-from nvi_etl.schema import NVIValueTable, SURVEY_VALUES_TABLE
 from nvi_etl.upsert import upsert_values
 
 START_DATE = date(2024, 7, 1)
@@ -51,9 +50,6 @@ def run(source: Engine, target: Engine) -> TaskResult:
     )
 
     # Load
-    validated = NVIValueTable.validate(tall)
-    validated.to_sql(
-        SURVEY_VALUES_TABLE, target, schema="public", if_exists="append", index=False
-    )
+    rows = upsert_values(target, tall)
 
-    return TaskResult(task_name="mischooldata", rows_inserted=len(validated), success=True)
+    return TaskResult(task_name="mischooldata", rows_inserted=rows, success=True)

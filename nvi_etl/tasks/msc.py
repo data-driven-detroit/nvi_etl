@@ -14,7 +14,7 @@ from nvi_etl.registry import task, TaskResult
 from nvi_etl.reshape import elongate, liquefy
 from nvi_etl.aggregations import compile_indicators
 from nvi_etl.geo import pin_location, pull_city_boundary, pull_council_districts, pull_zones
-from nvi_etl.schema import NVIValueTable, SURVEY_VALUES_TABLE
+from nvi_etl.upsert import upsert_values, upsert_context_values
 
 DATA_YEAR = 2025
 BIRTHS_YEAR = 2024
@@ -139,9 +139,7 @@ def run(source: Engine, target: Engine) -> TaskResult:
         .assign(value_type_id=1, survey_id=1)
     )
 
-    validated = NVIValueTable.validate(query_tall)
-    validated.to_sql(SURVEY_VALUES_TABLE, target, index=False, if_exists="append")
-    total_rows += len(validated)
+    total_rows += upsert_values(target, query_tall)
 
     # Context indicators from queries
     indicators = compile_indicators(context_indicators, logger)
@@ -152,15 +150,12 @@ def run(source: Engine, target: Engine) -> TaskResult:
         .merge(context_indicators, on=["indicator", "year"], how="inner")
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
     )
-    context_tall.to_sql("context_values", target, if_exists="append", index=False)
-    total_rows += len(context_tall)
+    total_rows += upsert_context_values(target, context_tall)
 
     # Births
     try:
         births_tall = _transform_births(source, logger)
-        births_validated = NVIValueTable.validate(births_tall)
-        births_validated.to_sql(SURVEY_VALUES_TABLE, target, index=False, if_exists="append")
-        total_rows += len(births_validated)
+        total_rows += upsert_values(target, births_tall)
     except Exception as e:
         logger.warning(f"Births processing failed (may need source file): {e}")
 

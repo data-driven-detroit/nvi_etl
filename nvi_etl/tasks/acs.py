@@ -8,10 +8,7 @@ from nvi_etl.registry import task, TaskResult
 from nvi_etl.reshape import elongate
 from nvi_etl.aggregations import compile_indicators
 from nvi_etl.geo import pull_tracts_to_nvi_crosswalk, pin_location
-from nvi_etl.schema import (
-    NVIValueTable, NVIContextValueTable,
-    SURVEY_VALUES_TABLE, CONTEXT_VALUES_TABLE,
-)
+from nvi_etl.upsert import upsert_values, upsert_context_values
 
 YEARS = [2013, 2018, 2023]
 
@@ -144,9 +141,7 @@ def run(source: Engine, target: Engine) -> TaskResult:
     primary_tall["year"] = 2024
     primary_tall["value_type_id"] = 1
 
-    validated_primary = NVIValueTable.validate(primary_tall)
-    validated_primary.to_sql(SURVEY_VALUES_TABLE, target, schema="nvi", index=False, if_exists="append")
-    total_rows += len(validated_primary)
+    total_rows += upsert_values(target, primary_tall, schema="nvi")
 
     # Context indicators
     context_tall = _build_indicator_tall(
@@ -155,8 +150,6 @@ def run(source: Engine, target: Engine) -> TaskResult:
         logger,
     )
 
-    validated_context = NVIContextValueTable.validate(context_tall)
-    validated_context.to_sql(CONTEXT_VALUES_TABLE, target, schema="nvi", index=False, if_exists="append")
-    total_rows += len(validated_context)
+    total_rows += upsert_context_values(target, context_tall, schema="nvi")
 
     return TaskResult(task_name="acs", rows_inserted=total_rows, success=True)

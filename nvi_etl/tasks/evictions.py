@@ -7,7 +7,8 @@ from nvi_etl.config import CONF_DIR, SQL_DIR
 from nvi_etl.db import get_engine, read_sql_file
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.geo import pin_location
-from nvi_etl.schema import CONTEXT_VALUE_COLUMNS, CONTEXT_VALUES_TABLE
+from nvi_etl.schema import CONTEXT_VALUE_COLUMNS
+from nvi_etl.upsert import upsert_context_values
 
 
 @task("evictions", phase=1, description="Eviction counts by geography and year")
@@ -58,6 +59,6 @@ def run(source: Engine, target: Engine) -> TaskResult:
     )
 
     # Load
-    result.to_sql(CONTEXT_VALUES_TABLE, target, if_exists="append", index=False)
+    rows = upsert_context_values(target, result)
 
-    return TaskResult(task_name="evictions", rows_inserted=len(result), success=True)
+    return TaskResult(task_name="evictions", rows_inserted=rows, success=True)
