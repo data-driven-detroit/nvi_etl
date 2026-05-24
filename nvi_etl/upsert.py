@@ -89,12 +89,12 @@ def _upsert(
         df[columns].to_sql("_staging", conn, if_exists="append", index=False)
 
         conn.execute(text(f"""
-            WITH deleted AS (
-                DELETE FROM {qualified_name} v
-                USING _staging s
-                WHERE {where_clauses}
-                RETURNING 1
-            )
+            DELETE FROM {qualified_name} v
+            USING _staging s
+            WHERE {where_clauses}
+        """))
+
+        conn.execute(text(f"""
             INSERT INTO {qualified_name} ({cols_csv})
             SELECT {cols_csv} FROM _staging
         """))
