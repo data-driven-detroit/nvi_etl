@@ -164,8 +164,12 @@ def create_question_rows(frame, datadictionary, survey_date, summaries):
     return pd.concat(tables)
 
 
-def compile_single_response_indicator(survey_data, datadictionary, indicator_id, group_var):
-    indicator_rows = datadictionary[datadictionary["indicator_db_id"] == indicator_id]
+def compile_single_response_indicator(survey_data, datadictionary, indicator_id, group_var, survey_date):
+    indicator_rows = datadictionary[
+        (datadictionary["indicator_db_id"] == indicator_id)
+        & (datadictionary["start_date"] <= survey_date)
+        & (datadictionary["end_date"] > survey_date)
+    ]
     relevant_columns = indicator_rows["full_column"].drop_duplicates()
     indicator_meta = indicator_rows.iloc[0]
 
@@ -197,9 +201,12 @@ def compile_single_response_indicator(survey_data, datadictionary, indicator_id,
     )
 
 
-def compile_multi_response_indicator(survey_data, datadictionary, indicator_id, group_var):
+def compile_multi_response_indicator(survey_data, datadictionary, indicator_id, group_var, survey_date):
     indicator_rows = datadictionary[
-        (datadictionary["indicator_db_id"] == indicator_id) & datadictionary["indicator_include"]
+        (datadictionary["indicator_db_id"] == indicator_id)
+        & datadictionary["indicator_include"]
+        & (datadictionary["start_date"] <= survey_date)
+        & (datadictionary["end_date"] > survey_date)
     ]
     indicator_meta = indicator_rows.iloc[0]
     relevant_columns = indicator_rows["full_column"].drop_duplicates()
@@ -251,7 +258,7 @@ def create_indicator_rows(frame, datadictionary, survey_date, summaries):
             continue
         try:
             result.append(pd.concat([
-                compiler(frame, datadictionary, indicator["indicator_db_id"], agg)
+                compiler(frame, datadictionary, indicator["indicator_db_id"], agg, survey_date)
                 .reset_index().rename(columns={agg: "location_id"})
                 .assign(indicator_id=indicator["indicator_db_id"], year=SURVEY_YEAR)
                 for agg in summaries
