@@ -106,7 +106,7 @@ def aggregate_question(frame, column_name, summary, labels):
 def roll_up_single(frame, groupdictionary, survey_date, summary):
     result = []
     for _, column in groupdictionary.drop_duplicates(subset="full_column").iterrows():
-        if (column["start_date"] >= survey_date) or (column["end_date"] < survey_date) or (not column["tabulate"]):
+        if (column["start_date"] > survey_date) or (column["end_date"] < survey_date) or (not column["tabulate"]):
             continue
         column_name = column["full_column"]
         labels = groupdictionary[groupdictionary["full_column"] == column_name][[
