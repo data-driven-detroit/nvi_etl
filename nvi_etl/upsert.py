@@ -115,6 +115,7 @@ def upsert_values(
         "survey_question_id",
         "survey_question_option_id",
         "year",
+        "value_type_id",
     ]
 
     df = _check_and_drop_duplicates(df, SURVEY_VALUES_TABLE, key_cols)

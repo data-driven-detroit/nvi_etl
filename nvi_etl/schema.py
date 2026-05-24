@@ -37,6 +37,7 @@ class NVIValueTable(pa.DataFrameModel):
             "survey_question_id",
             "survey_question_option_id",
             "year",
+            "value_type_id",
         ]
 
 
