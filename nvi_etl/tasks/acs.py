@@ -167,6 +167,7 @@ def run(source: Engine, target: Engine) -> TaskResult:
             ACS_CONF / "primary_indicator_ids.csv",
             logger,
         )
+        primary_tall["survey_id"] = 1
         primary_tall["value_type_id"] = 1
 
         total_rows += upsert_values(target, primary_tall, schema="nvi")
