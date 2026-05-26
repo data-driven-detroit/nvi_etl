@@ -74,7 +74,7 @@ def run(source: Engine, target: Engine) -> TaskResult:
     # Build geographies
     geography_counts = _build_geography_groups(assembled, source)
 
-    context_indicators = pd.read_csv(ACS_CONF_DIR / "context_indicator_ids.csv", index_col=False)
+    context_indicators = pd.read_csv(ACS_CONF_DIR / "acs_v2_context_indicator_ids.csv", index_col=False)
     indicators = compile_indicators(context_indicators, logger)
 
     wide_table = (
