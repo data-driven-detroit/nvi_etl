@@ -10,7 +10,7 @@ Survey year 2025: ACS5 2024 data, overtime years [2014, 2019, 2024]
 import pandas as pd
 from sqlalchemy import Engine
 
-from nvi_etl.config import CONF_DIR
+from nvi_etl.config import CONF_DIR, CENSUS_API_KEY
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.reshape import elongate
 from nvi_etl.aggregations import compile_indicators
@@ -62,6 +62,7 @@ def _extract_acs(acs_edition, overtime_years, logger):
             *OTHER_INDICATORS,
         ],
         edition,
+        api_key=CENSUS_API_KEY,
     ).assign(year=acs_edition)
 
     # Pull overtime indicators at each comparison year
@@ -73,6 +74,7 @@ def _extract_acs(acs_edition, overtime_years, logger):
             [DETROIT, WAYNE_TRACTS],
             OVERTIME_INDICATORS,
             edition,
+            api_key=CENSUS_API_KEY,
         ).assign(year=year)
         comparisons.append(profile)
 

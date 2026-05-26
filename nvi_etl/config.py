@@ -19,6 +19,8 @@ SQL_DIR = PACKAGE_DIR / "sql"
 DUA_FOLDER = Path(os.environ.get("NVI_DUA_FOLDER", "/mnt/q"))
 VAULT_FOLDER = Path(os.environ.get("NVI_VAULT_FOLDER", "/mnt/v"))
 
+CENSUS_API_KEY = os.environ.get("CENSUS_API_KEY", "")
+
 
 def db_url(db_name: str | None = None) -> str:
     """Build a SQLAlchemy connection URL for the given database."""

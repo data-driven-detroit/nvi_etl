@@ -7,7 +7,7 @@ import geopandas as gpd
 import pandas as pd
 from sqlalchemy import Engine, text
 
-from nvi_etl.config import CONF_DIR, SQL_DIR
+from nvi_etl.config import CONF_DIR, SQL_DIR, CENSUS_API_KEY
 from nvi_etl.db import get_engine
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.reshape import elongate
@@ -82,11 +82,13 @@ def _setup_population_reference(ipds_engine, logger):
             variables=[b01003001],
             geographies=[create_geography(state="26", county="163", tract="*")],
             edition=create_edition("acs5", 2024),
+            api_key=CENSUS_API_KEY,
         )
         pop_county_sub = build_profile(
             variables=[b01003001],
             geographies=[create_geography(state="26", county="163", county_subdivision="22000")],
             edition=create_edition("acs5", 2024),
+            api_key=CENSUS_API_KEY,
         )
         final = pd.concat([pop_tracts, pop_county_sub]).assign(year=2024)
         final.to_sql("b01003_moe", ipds_engine, schema="etl", if_exists="replace")
