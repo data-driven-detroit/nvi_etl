@@ -1,4 +1,11 @@
-"""ACS (American Community Survey) data via d3census -- primary ACS pipeline."""
+"""ACS (American Community Survey) data via d3census -- primary ACS pipeline.
+
+Pulls ACS 5-year estimates for all indicators at the current edition,
+plus overtime indicators (population, etc.) at multiple historical editions.
+
+Survey year 2024: ACS5 2023 data, overtime years [2013, 2018, 2023]
+Survey year 2025: ACS5 2024 data, overtime years [2014, 2019, 2024]
+"""
 
 import pandas as pd
 from sqlalchemy import Engine
@@ -10,10 +17,22 @@ from nvi_etl.aggregations import compile_indicators
 from nvi_etl.geo import pull_tracts_to_nvi_crosswalk, pin_location
 from nvi_etl.upsert import upsert_values, upsert_context_values
 
-YEARS = [2013, 2018, 2023]
+ACS_CONF = CONF_DIR.parent / "acs" / "conf"
+
+# Each survey year maps to an ACS edition and overtime comparison years
+SURVEY_YEARS = {
+    2024: {
+        "acs_edition": 2023,
+        "overtime_years": [2013, 2018, 2023],
+    },
+    2025: {
+        "acs_edition": 2024,
+        "overtime_years": [2014, 2019, 2024],
+    },
+}
 
 
-def _extract_acs(logger):
+def _extract_acs(acs_edition, overtime_years, logger):
     """Pull ACS data from Census API via d3census."""
     from d3census import create_geography, create_edition, build_profile
     from nvi_etl.acs.variables import (
@@ -29,8 +48,9 @@ def _extract_acs(logger):
     DETROIT = create_geography(state="26", county="163", county_subdivision="22000")
     WAYNE_TRACTS = create_geography(state="26", county="163", tract="*")
 
-    logger.info(f"Pulling all ACS data for {YEARS[-1]}")
-    edition = create_edition("acs5", YEARS[-1])
+    # Pull all indicators at the current edition
+    logger.info(f"Pulling all ACS data for edition {acs_edition}")
+    edition = create_edition("acs5", acs_edition)
     acs_present = build_profile(
         [DETROIT, WAYNE_TRACTS],
         [
@@ -42,10 +62,11 @@ def _extract_acs(logger):
             *OTHER_INDICATORS,
         ],
         edition,
-    ).assign(year=YEARS[-1])
+    ).assign(year=acs_edition)
 
+    # Pull overtime indicators at each comparison year
     comparisons = [acs_present]
-    for year in YEARS:
+    for year in overtime_years:
         logger.info(f"Pulling overtime data for {year}")
         edition = create_edition("acs5", year)
         profile = build_profile(
@@ -119,37 +140,42 @@ def _build_indicator_tall(geography_counts, indicators_csv, logger):
     )
 
 
-@task("acs", phase=1, description="ACS Census data via d3census (primary pipeline)")
+@task("acs", phase=1, description="ACS Census data via d3census")
 def run(source: Engine, target: Engine) -> TaskResult:
     import logging
     logger = logging.getLogger("nvi_etl")
 
     total_rows = 0
 
-    # Extract
-    wide_file = _extract_acs(logger)
+    for survey_year, config in SURVEY_YEARS.items():
+        acs_edition = config["acs_edition"]
+        overtime_years = config["overtime_years"]
 
-    # Aggregate to geographies
-    geography_counts = _build_geography_groups(wide_file, source)
+        logger.info(f"Processing ACS for survey year {survey_year} (ACS5 {acs_edition})")
 
-    # Primary indicators
-    primary_tall = _build_indicator_tall(
-        geography_counts,
-        CONF_DIR / "ipds" / "primary_indicator_ids.csv",  # shared indicator IDs
-        logger,
-    )
-    primary_tall["year"] = 2024
-    primary_tall["value_type_id"] = 1
+        # Extract
+        wide_file = _extract_acs(acs_edition, overtime_years, logger)
 
-    total_rows += upsert_values(target, primary_tall, schema="nvi")
+        # Aggregate to geographies
+        geography_counts = _build_geography_groups(wide_file, source)
 
-    # Context indicators
-    context_tall = _build_indicator_tall(
-        geography_counts,
-        CONF_DIR / "ipds" / "context_indicator_ids.csv",  # shared indicator IDs
-        logger,
-    )
+        # Primary indicators
+        primary_tall = _build_indicator_tall(
+            geography_counts,
+            ACS_CONF / "primary_indicator_ids.csv",
+            logger,
+        )
+        primary_tall["value_type_id"] = 1
 
-    total_rows += upsert_context_values(target, context_tall, schema="nvi")
+        total_rows += upsert_values(target, primary_tall, schema="nvi")
+
+        # Context indicators
+        context_tall = _build_indicator_tall(
+            geography_counts,
+            ACS_CONF / "context_indicator_ids.csv",
+            logger,
+        )
+
+        total_rows += upsert_context_values(target, context_tall, schema="nvi")
 
     return TaskResult(task_name="acs", rows_inserted=total_rows, success=True)
