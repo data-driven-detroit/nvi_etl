@@ -180,7 +180,7 @@ def run(source: Engine, target: Engine) -> TaskResult:
         primary_tall["survey_id"] = 1
         primary_tall["value_type_id"] = 1
 
-        total_rows += upsert_values(target, primary_tall, schema="nvi")
+        total_rows += upsert_values(target, primary_tall)
 
         # Context indicators
         context_tall = _build_indicator_tall(
@@ -189,6 +189,6 @@ def run(source: Engine, target: Engine) -> TaskResult:
             logger,
         )
 
-        total_rows += upsert_context_values(target, context_tall, schema="nvi")
+        total_rows += upsert_context_values(target, context_tall)
 
     return TaskResult(task_name="acs", rows_inserted=total_rows, success=True)
