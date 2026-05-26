@@ -78,7 +78,7 @@ def _extract_acs(acs_edition, overtime_years, logger):
         ).assign(year=year)
         comparisons.append(profile)
 
-    return pd.concat(comparisons)
+    return pd.concat(comparisons).copy()
 
 
 def _build_geography_groups(wide_file, source):
@@ -134,12 +134,22 @@ def _build_indicator_tall(geography_counts, indicators_csv, logger):
 
     tall = elongate(wide_table[necessary_columns])
 
-    return (
+    merged = (
         tall
         .merge(indicators_df, on=["indicator", "year"], how="right")
         .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
         .sort_values(["indicator_id", "location_id"])
     )
+
+    missing = merged["location_id"].isna()
+    if missing.any():
+        logger.warning(
+            f"{missing.sum()} rows dropped: no matching data for some "
+            f"indicator/year combinations in {indicators_csv.name}"
+        )
+        merged = merged.dropna(subset=["location_id"])
+
+    return merged
 
 
 @task("acs", phase=1, description="ACS Census data via d3census")
