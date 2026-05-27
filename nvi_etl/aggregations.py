@@ -136,7 +136,7 @@ def build_hierfindal_calc():
 
 def build_median_calc(strategy):
     def inner(df):
-        return df.apply(strategy, axis=1)
+        return df.apply(strategy, axis=1).round(0)
 
     return inner
 
