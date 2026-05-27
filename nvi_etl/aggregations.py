@@ -120,7 +120,7 @@ def build_pct_calculator(indicator):
         denominator = df[f"universe_{indicator}"]
 
         try:
-            return 100 * numerator / denominator
+            return (100 * numerator / denominator).round(0)
         except ZeroDivisionError:
             return pd.NA
 

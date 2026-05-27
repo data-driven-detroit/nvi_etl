@@ -56,7 +56,7 @@ def _aggregate_births(births_gdf, geo_layer, group_col, geo_type, source):
     merged = total.merge(adequate, on="geography", how="left")
     merged["percentage_adequate"] = (
         100 * merged["kessner_1_count"] / merged["total_births"]
-    )
+    ).round(0)
     return merged
 
 
