@@ -246,7 +246,7 @@ def run(source: Engine, target: Engine) -> TaskResult:
     context_tall = (
         elongate(context_wide)
         .merge(context_indicators, on=["indicator", "year"], how="inner")
-        .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
+        .drop(["indicator", "geo_type", "geography", "indicator_type", "year", "filter_type_id"], axis=1, errors="ignore")
     )
 
     total_rows += upsert_context_values(target, context_tall)

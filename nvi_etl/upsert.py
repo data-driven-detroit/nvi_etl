@@ -133,7 +133,6 @@ def upsert_context_values(
     key_cols = [
         "location_id",
         "indicator_id",
-        "filter_type_id",
         "filter_option_id",
         "source_id",
         "start_date",

@@ -66,7 +66,6 @@ class NVIContextValueTable(pa.DataFrameModel):
         unique=[
             "location_id",
             "indicator_id",
-            "filter_type_id",
             "filter_option_id",
             "source_id",
             "start_date",

@@ -95,7 +95,7 @@ def run(source: Engine, target: Engine) -> TaskResult:
     context_tall = (
         tall
         .merge(context_indicators, on=["indicator", "year"], how="right")
-        .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
+        .drop(["indicator", "geo_type", "geography", "indicator_type", "year", "filter_type_id"], axis=1, errors="ignore")
         .sort_values(["indicator_id", "location_id"])
     )
 
