@@ -52,8 +52,8 @@ def run(source: Engine, target: Engine) -> TaskResult:
         .assign(location_id=lambda df: df.apply(pin_location, axis=1))
         .merge(context_indicators, on=["year"])
         .assign(
-            universe=pd.NA, percentage=pd.NA, rate=pd.NA,
-            rate_per=pd.NA, dollars=pd.NA, index=pd.NA,
+            universe=float("nan"), percentage=float("nan"), rate=float("nan"),
+            rate_per=float("nan"), dollars=float("nan"), index=float("nan"),
         )
         [CONTEXT_VALUE_COLUMNS]
     )
