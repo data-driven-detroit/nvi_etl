@@ -187,7 +187,7 @@ def run(source: Engine, target: Engine) -> TaskResult:
             geography_counts,
             ACS_CONF / "context_indicator_ids.csv",
             logger,
-        )
+        ).drop(["year", "filter_type_id"], axis=1)
 
         total_rows += upsert_context_values(target, context_tall)
 
