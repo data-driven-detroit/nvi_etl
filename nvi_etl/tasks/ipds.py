@@ -1,9 +1,7 @@
 """IPDS (Infrastructure, Property, Development & Safety) data ETL task."""
 
-import configparser
 from datetime import date
 
-import geopandas as gpd
 import pandas as pd
 from sqlalchemy import Engine, text
 
@@ -11,8 +9,7 @@ from nvi_etl.config import CONF_DIR, SQL_DIR, CENSUS_API_KEY
 from nvi_etl.db import get_engine
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.reshape import elongate
-from nvi_etl.utilities import fix_parcel_id
-from nvi_etl.geo import pull_zones, pull_council_districts, pin_location
+from nvi_etl.geo import pin_location
 from nvi_etl.upsert import upsert_values, upsert_context_values
 
 
@@ -52,10 +49,7 @@ QUERY_FILES = [
     "land_use.sql",
     "building_vacancy.sql",
     "parcel_vacancy.sql",
-    "foreclosures_history.sql",
 ]
-
-EVERYTHING = lambda _: "Detroit"
 
 
 def _load_sql(filename: str) -> text:
@@ -114,59 +108,6 @@ def _setup_intermediate_table(ipds_engine, logger):
             db.execute(create_q)
 
 
-def _extract_foreclosures(ipds_engine, logger):
-    """Extract foreclosure data with spatial joins."""
-    config = configparser.ConfigParser()
-    config.read(CONF_DIR / "ipds" / ".conf")
-
-    raw = "SELECT * FROM {parcel_table}".format(**TABLE_MAP)
-    parcels = gpd.read_postgis(
-        text(raw), ipds_engine, geom_col='geom', crs="EPSG:4326"
-    ).to_crs(2898)
-
-    nvi_zones = pull_zones(ipds_engine, GEOM_DATE.year)
-    council_districts = pull_council_districts(ipds_engine, GEOM_DATE.year)
-
-    tax_foreclosures = (
-        pd.read_csv(config["source_files"]["foreclosures_file"])
-        .query("city_name == 'DETROIT'")
-        .dropna(subset=["parcel_id"])
-        .astype({"parcel_id": "str"})
-        .rename(columns={"parcel_id": "__parcel_id"})
-        .assign(parcel_id=lambda df: df["__parcel_id"].apply(fix_parcel_id))
-    )
-
-    stamped = (
-        parcels
-        .merge(tax_foreclosures, on="parcel_id", how="left")
-        .assign(not_in_foreclosure=lambda df: df["parcel_id"].isna())
-        .sjoin(council_districts[["district_number", "geometry"]], predicate="within", how="left")
-        .drop("index_right", axis=1)
-        .sjoin(nvi_zones[["zone_id", "geometry"]], predicate="within", how="left")
-        .drop("index_right", axis=1)
-    )
-
-    def calc_foreclosure_pct(df):
-        return (100 * df["count_non_foreclosures"] / df["universe_non_foreclosures"]).round(0)
-
-    group_strategies = [
-        ("citywide", EVERYTHING),
-        ("district", "district_number"),
-        ("zone", "zone_id"),
-    ]
-
-    return pd.concat([
-        stamped.groupby(strat).aggregate(
-            count_non_foreclosures=("not_in_foreclosure", "sum"),
-            universe_non_foreclosures=("not_in_foreclosure", "size"),
-        ).assign(
-            percentage_non_foreclosures=calc_foreclosure_pct,
-            geo_type=geo_type, year=DATA_YEAR,
-        )
-        for geo_type, strat in group_strategies
-    ]).reset_index().rename(columns={"index": "geography"})
-
-
 def _extract_from_queries(ipds_engine, logger):
     """Run SQL queries and combine into wide format."""
     combined_topics = []
@@ -208,22 +149,6 @@ def run(source: Engine, target: Engine) -> TaskResult:
     )
 
     total_rows += upsert_values(target, query_tall)
-
-    # Extract and transform foreclosures
-    try:
-        foreclosures_wide = _extract_foreclosures(ipds_engine, logger)
-        foreclosures_wide["location_id"] = foreclosures_wide.apply(pin_location, axis=1)
-
-        foreclosures_tall = (
-            elongate(foreclosures_wide)
-            .merge(primary_indicators, on=["indicator", "year"], how="left")
-            .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
-            .assign(value_type_id=1, survey_id=1)
-        )
-
-        total_rows += upsert_values(target, foreclosures_tall)
-    except Exception as e:
-        logger.warning(f"Foreclosures extraction failed (may need source file): {e}")
 
     # Context indicators
     context_indicators = pd.read_csv(CONF_DIR / "ipds" / "context_indicator_ids.csv")
