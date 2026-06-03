@@ -5,7 +5,7 @@ description = "The package for loading all NVI survey questions and secondary da
 authors = [{ name = "mikevatd3", email = "mike@datadrivendetroit.org" }]
 license = "MIT"
 readme = "README.md"
-requires-python = ">=3.10, <3.13"
+requires-python = ">=3.11, <3.13"
 dependencies = [
     "d3census",
     "geoalchemy2>=0.18.4",
@@ -18,6 +18,7 @@ dependencies = [
     "psycopg-binary>=3.3.3",
     "pytest>=9.0.2",
     "sqlalchemy>=2.0.48",
+    "tablecensus",
     "tomli>=2.4.0",
 ]
 
@@ -27,3 +28,4 @@ build-backend = "hatchling.build"
 
 [tool.uv.sources]
 d3census = { git = "https://github.com/mikevatd3/d3census.git" }
+tablecensus = { git = "https://github.com/data-driven-detroit/tablecensus.git" }

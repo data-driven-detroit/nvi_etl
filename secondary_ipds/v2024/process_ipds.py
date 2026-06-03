@@ -12,8 +12,8 @@ from nvi_etl import working_dir, make_engine_for, setup_logging
 from nvi_etl.utilities import fix_parcel_id
 from nvi_etl.geo_reference import pull_zones, pull_council_districts, pin_location
 from nvi_etl.reshape import elongate
-from nvi_etl.schema import NVIValueTable
-from nvi_etl.destinations import SURVEY_VALUES_TABLE
+from nvi_etl.schema import NVIValueTable, NVIContextValueTable
+from nvi_etl.destinations import SURVEY_VALUES_TABLE, CONTEXT_VALUES_TABLE
 
 from d3census import variable, Geography, create_geography, create_edition, build_profile
 
@@ -165,6 +165,8 @@ def extract_foreclosures(logger):
     print(pd.read_csv(config["source_files"]["foreclosures_file"]).head())
     print(pd.read_csv(config["source_files"]["foreclosures_file"]).columns)
 
+
+    # ---- COPIED TO HERE
     tax_foreclosures = (
         pd.read_csv(config["source_files"]["foreclosures_file"])
         .query("city_name == 'DETROIT'")
@@ -343,11 +345,18 @@ def transform_context(logger):
 # =============================================================================
 
 def load_from_queries(logger):
-    logger.warning("Loading IPDS query data into context values table.")
     db_engine = make_engine_for("nvi_test")
+
+    logger.warning("Loading IPDS query data into values table.")
     file = pd.read_csv(WORKING_DIR / "output" / "ipds_primary_tall_from_queries.csv")
     NVIValueTable.validate(file).to_sql(
         SURVEY_VALUES_TABLE, db_engine, index=False, if_exists="append"
+    )
+
+    logger.warning("Loading IPDS query data into context values table.")
+    file = pd.read_csv(WORKING_DIR / "output" / "ipds_context_tall_from_queries.csv")
+    NVIContextValueTable.validate(file).to_sql(
+        CONTEXT_VALUES_TABLE, db_engine, index=False, if_exists="append"
     )
 
 
@@ -380,8 +389,8 @@ def main():
     transform_context(logger)
 
     # LOAD
-    load_from_queries(logger)
-    load_foreclosures(logger)
+    # load_from_queries(logger)
+    # load_foreclosures(logger)
 
 
 if __name__ == "__main__":

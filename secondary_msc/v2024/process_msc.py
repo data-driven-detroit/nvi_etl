@@ -21,11 +21,11 @@ from nvi_etl.geo_reference import (
 )
 
 
-DATA_YEAR = 2025  
+PROFILE_YEAR = 2025  
 BIRTHS_YEAR = 2024
 GEOM_DATE = date(2026, 1, 1)
 TABLE_MAP = {
-    "crash_table": "semcog_crash_20250317",
+    "crash_table": "semcog_crash_20260108",
     "cdo_table": "shp.becdd_47cdoserviceareas_20220815",
     "crime_table": "rms_crime_20260108",
     "population_table": "public.b01003_moe",
@@ -74,22 +74,22 @@ def extract_births(logger):
 def extract_from_queries(logger):
     logger.warning("Extracting data based on sql query files.")
 
-    params = {
-        "data_year": DATA_YEAR,
-        "geom_date": GEOM_DATE
-    }
 
-    # filename, source_database
+    # filename, source_database, data_year
     filenames = [
-        ("auto_crash_combined.sql", "data"),
-        ("cdo_service_area_combined.sql", "data"),
-        ("ped_bike_crash_combined.sql", "data"),
-        ("violent_crime_all.sql", "data"),
-        ("redlining_all.sql", "data"),
+        ("auto_crash_combined.sql", "data", 2024),
+        ("cdo_service_area_combined.sql", "data", 2025),
+        ("ped_bike_crash_combined.sql", "data", 2024),
+        ("violent_crime_all.sql", "data", 2025),
+        ("redlining_all.sql", "data", 2025),
     ]
 
     result = defaultdict(list) 
-    for filename, db in filenames:
+    for filename, db, data_year in filenames:
+        params = {
+            "data_year": data_year,
+            "geom_date": GEOM_DATE
+        }
         logger.info(f"Running '{filename}'.")
 
         path = WORKING_DIR / "sql" / filename
@@ -110,12 +110,12 @@ def extract_from_queries(logger):
         result["_".join(title)].append(table)
 
     combined_topics = []
-    for clipped_stem, files in result.items():
+    for _, files in result.items():
         file = pd.concat(files).astype({"geography": "str"}).set_index(["geo_type", "geography"])
         combined_topics.append(file)
 
-    wide_format = pd.concat(combined_topics, axis=1).assign(year=DATA_YEAR)
-    wide_format.to_csv(WORKING_DIR / "input" / f"msc_wide_{DATA_YEAR}_from_queries.csv")
+    wide_format = pd.concat(combined_topics, axis=1).assign(year=PROFILE_YEAR)
+    wide_format.to_csv(WORKING_DIR / "input" / f"msc_wide_{PROFILE_YEAR}_from_queries.csv")
 
 
 
@@ -287,9 +287,9 @@ def transform_from_queries(logger):
 
     primary_indicators = pd.read_csv(WORKING_DIR / "conf" / "primary_indicator_ids.csv")
 
-    msc_wide = pd.read_csv(WORKING_DIR / "input" / f"msc_wide_{DATA_YEAR}_from_queries.csv")
+    msc_wide = pd.read_csv(WORKING_DIR / "input" / f"msc_wide_{PROFILE_YEAR}_from_queries.csv")
     msc_wide["location_id"] = msc_wide.apply(pin_location, axis=1)
-    msc_wide["year"] = DATA_YEAR
+    msc_wide["year"] = PROFILE_YEAR
 
     melted = (
         pd.wide_to_long(
@@ -314,7 +314,7 @@ def transform_from_queries(logger):
 
 def read_location_pinned_file():
     return (
-        pd.read_csv(WORKING_DIR / "input" / f"msc_wide_{DATA_YEAR}_from_queries.csv")
+        pd.read_csv(WORKING_DIR / "input" / f"msc_wide_{PROFILE_YEAR}_from_queries.csv")
         .assign(
             location_id=lambda df: df.apply(pin_location, axis=1)
         )

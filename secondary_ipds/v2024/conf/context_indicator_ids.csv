@@ -10,6 +10,17 @@ residential,percentage,1,2024,2025-01-01,2025-12-31,11,3,13
 vacant_parcels,percentage,1,2024,2025-01-01,2025-12-31,19,,
 vacant_res_blds,percentage,1,2024,2025-01-01,2025-12-31,20,,
 lb_owned,percentage,1,2024,2025-01-01,2025-12-31,18,,
+sq_mi,count,1,2025,2026-01-01,2026-12-31,2,,
+pop_density,rate,1,2025,2019-01-01,2024-12-31,3,,
+commercial,percentage,1,2025,2026-01-01,2026-12-31,11,3,12
+empty_lot,percentage,1,2025,2026-01-01,2026-12-31,11,3,11
+industrial,percentage,1,2025,2026-01-01,2026-12-31,11,3,14
+institutional,percentage,1,2025,2026-01-01,2026-12-31,11,3,15
+other,percentage,1,2025,2026-01-01,2026-12-31,11,3,16
+residential,percentage,1,2025,2026-01-01,2026-12-31,11,3,13
+vacant_parcels,percentage,1,2025,2026-01-01,2026-12-31,19,,
+vacant_res_blds,percentage,1,2025,2026-01-01,2026-12-31,20,,
+lb_owned,percentage,1,2025,2026-01-01,2026-12-31,18,,
 tax_foreclosures,count,1,2008,2008-01-01,2008-12-31,15,,
 tax_foreclosures,count,1,2009,2009-01-01,2009-12-31,15,,
 tax_foreclosures,count,1,2010,2010-01-01,2010-12-31,15,,

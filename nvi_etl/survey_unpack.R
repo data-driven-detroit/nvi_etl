@@ -62,7 +62,7 @@ prop.table(table(as_factor(frame$race_simplified)))
 
 prop.table(
   table(
-    as_factor(frame$var35),
+    as_factor(frame$var136),
     as_factor(frame$var443O1124)
   ), 
   margin = 1

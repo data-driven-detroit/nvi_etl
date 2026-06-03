@@ -125,7 +125,7 @@ def append_universe_and_percentages(table):
     )
 
     table["universe"] = total
-    table.loc[included, "percentage"] = table.loc[included, "count"] / total
+    table.loc[included, "percentage"] = (100 * table.loc[included, "count"] / total).round(2)
 
     return table
 
@@ -354,7 +354,7 @@ def compile_single_response_indicator(
         .aggregate(
             count=pd.NamedAgg(column="included", aggfunc=lambda c: c.sum()),
             universe=pd.NamedAgg(column="included", aggfunc=lambda c: c.count()),
-            percentage=pd.NamedAgg(column="included", aggfunc=lambda c: c.sum() / c.count()),
+            percentage=pd.NamedAgg(column="included", aggfunc=lambda c: (100 * c.sum() / c.count()).round(2)),
         )
     )
 
@@ -401,15 +401,20 @@ def compile_multi_response_indicator(
             f"for indicator {indicator_id}"
         )
 
+    universe_strategy = lambda _: 1 # df[relevant_columns].notna().all(axis=1)
+
     return (
         labeled
-        .assign(included=combo_strategy)
+        .assign(
+            included=combo_strategy,
+            in_universe=universe_strategy,
+        )
         .groupby(group_var)
         .aggregate(
-            count=pd.NamedAgg(column="included", aggfunc=lambda c: c.sum()),
-            universe=pd.NamedAgg(column="included", aggfunc=lambda c: c.count()),
-            percentage=pd.NamedAgg(column="included", aggfunc=lambda c: c.sum() / c.count()),
+            count=("included", "sum"),
+            universe=("in_universe", "sum"),
         )
+        .assign(percentage=lambda f: (100 * f["count"] / f["universe"]).round(2))
     )
 
 
@@ -649,7 +654,6 @@ def main():
     # -------------------------------------------------------------------------
     # CDO Aggregations
     # -------------------------------------------------------------------------
-
 
 
 if __name__ == "__main__":

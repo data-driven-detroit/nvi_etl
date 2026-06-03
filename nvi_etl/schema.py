@@ -44,18 +44,17 @@ class NVIContextValueTable(pa.DataFrameModel):
     """
     location_id: pd.Int64Dtype = pa.Field(coerce=True)
     indicator_id: pd.Int64Dtype = pa.Field(coerce=True)
-    filter_type_id: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
     filter_option_id: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
     source_id: pd.Int64Dtype = pa.Field(coerce=True)
     start_date: date = pa.Field(coerce=True)
     end_date: date = pa.Field(coerce=True)
     count: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
     universe: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
-    percentage: float = pa.Field(nullable=True)
-    rate: float = pa.Field(nullable=True)
-    rate_per: float = pa.Field(nullable=True)
-    dollars: float = pa.Field(nullable=True)
-    index: float = pa.Field(nullable=True)
+    percentage: pd.Float64Dtype = pa.Field(nullable=True, coerce=True)
+    rate: pd.Float64Dtype = pa.Field(nullable=True, coerce=True)
+    rate_per: pd.Float64Dtype = pa.Field(nullable=True, coerce=True)
+    dollars: pd.Float64Dtype = pa.Field(nullable=True, coerce=True)
+    index: pd.Float64Dtype = pa.Field(nullable=True, coerce=True)
 
     class Config:
         strict=True

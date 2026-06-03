@@ -1,7 +1,7 @@
 WITH 
 city_crash AS (
     SELECT count(*) AS ped_crash_count
-    FROM semcog_crash_20250317 AS cr
+    FROM semcog_crash_20260108 AS cr
     INNER JOIN shp.detroit_city_boundary_01182023 AS det
         ON st_intersects(det.geom, st_setsrid(st_point(cr.xcord::numeric, cr.ycord::numeric), 4326))
     WHERE right(cr.date_full, 4)::int = :data_year
@@ -17,7 +17,7 @@ detroit_council_districts AS (
 ),
 district_crash AS (
     SELECT districts.district_number, COUNT(*) AS crash_count
-    FROM semcog_crash_20250317 AS cr
+    FROM semcog_crash_20260108 AS cr
     INNER JOIN detroit_council_districts AS districts 
         ON st_intersects (districts.geometry, st_transform (st_setsrid (st_point (cr.xcord::NUMERIC, cr.ycord::NUMERIC), 4326), 2898))
     WHERE RIGHT(cr.date_full, 4) = '2023' AND (cr.pedestrian = '1' OR cr.bicycle = '1')
@@ -38,7 +38,7 @@ neighborhood_zones AS (
 ),
 zone_crash AS (
     SELECT zones.zone_id, COUNT(*) AS crash_count
-    FROM semcog_crash_20250317 AS cr
+    FROM semcog_crash_20260108 AS cr
     INNER JOIN neighborhood_zones zones
         ON st_within(st_transform(st_setsrid (st_point (cr.xcord::NUMERIC, cr.ycord::NUMERIC), 4326), 2898), zones.geometry)
     WHERE RIGHT(cr.date_full, 4)::int = :data_year AND (cr.pedestrian = '1' OR cr.bicycle = '1')

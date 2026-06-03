@@ -1,5 +1,5 @@
 WITH annotated AS (
-    SELECT pu.aggregate_to, zones.zone_id, zones.district_number, det.geom
+    SELECT pu.aggregate_to, zones.zone_id, zones.district_number, ST_TRANSFORM(det.geom, 2898) AS geom
     FROM {parcel_table} det
     JOIN nvi.neighborhood_zones zones
        ON ST_WITHIN(ST_TRANSFORM(det.geom, 2898), zones.geometry)
