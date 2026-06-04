@@ -11,7 +11,7 @@ from sqlalchemy import Engine, text
 from nvi_etl.config import CONF_DIR, SQL_DIR, DUA_FOLDER
 from nvi_etl.db import get_engine
 from nvi_etl.registry import task, TaskResult
-from nvi_etl.reshape import elongate, liquefy
+from nvi_etl.reshape import elongate
 from nvi_etl.aggregations import compile_indicators
 from nvi_etl.geo import pin_location, pull_city_boundary, pull_council_districts, pull_zones
 from nvi_etl.upsert import upsert_values, upsert_context_values
@@ -55,9 +55,9 @@ def _aggregate_births(births_gdf, geo_layer, group_col, geo_type, source):
 
     merged = total.merge(adequate, on="geography", how="left")
 
-    merged["count_adequate"] = merged["kessner_1_count"]
-    merged["universe_adequate"] = merged["total_births"]
-    merged["percentage_adequate"] = (
+    merged["count_births_adequate_care"] = merged["kessner_1_count"]
+    merged["universe_births_adequate_care"] = merged["total_births"]
+    merged["percentage_births_adequate_care"] = (
         100 * merged["kessner_1_count"] / merged["total_births"]
     ).round(0)
 
@@ -112,23 +112,9 @@ def _transform_births(source, logger):
 
     wide = pd.concat([city_wide, districts, zones])
     wide["location_id"] = wide.apply(pin_location, axis=1)
+    wide["year"] = BIRTHS_YEAR
 
-    tall = liquefy(wide)
-    tall["year"] = BIRTHS_YEAR
-    tall["value_type_id"] = 1
-    tall["survey_id"] = 1
-
-    tall = tall.astype({
-        "rate": pd.Float64Dtype(),
-        "count": pd.Float64Dtype(),
-        "universe": pd.Float64Dtype(),
-        "percentage": pd.Float64Dtype(),
-        "rate": pd.Float64Dtype(),
-        "dollars": pd.Float64Dtype(),
-        "rate_per": pd.Float64Dtype(),
-    })
-
-    return tall
+    return wide
 
 
 @task("msc", phase=2, description="Births, crashes, crime, CDO coverage, redlining")
@@ -167,7 +153,13 @@ def run(source: Engine, target: Engine) -> TaskResult:
 
     # Births
     try:
-        births_tall = _transform_births(source, logger)
+        births_wide = _transform_births(source, logger)
+        births_tall = (
+            elongate(births_wide)
+            .merge(primary_indicators, on=["indicator", "year"], how="inner")
+            .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
+            .assign(value_type_id=1, survey_id=1)
+        )
         total_rows += upsert_values(target, births_tall)
     except Exception as e:
         logger.warning(f"Births processing failed (may need source file): {e}")

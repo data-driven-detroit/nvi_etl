@@ -22,11 +22,11 @@ class NVIValueTable(pa.DataFrameModel):
     count: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
     universe: pd.Int64Dtype = pa.Field(nullable=True, coerce=True)
     percentage: float = pa.Field(nullable=True, coerce=True)
-    rate: float = pa.Field(nullable=True)
-    rate_per: float = pa.Field(nullable=True)
-    dollars: float = pa.Field(nullable=True)
-    index: float = pa.Field(nullable=True)
-    value_type_id: pd.Int64Dtype = pa.Field(nullable=False)
+    rate: float = pa.Field(nullable=True, coerce=True)
+    rate_per: float = pa.Field(nullable=True, coerce=True)
+    dollars: float = pa.Field(nullable=True, coerce=True)
+    index: float = pa.Field(nullable=True, coerce=True)
+    value_type_id: pd.Int64Dtype = pa.Field(nullable=False, coerce=True)
     
     class Config:
         strict=True
