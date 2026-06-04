@@ -154,8 +154,14 @@ def run(source: Engine, target: Engine) -> TaskResult:
     # Births
     try:
         births_wide = _transform_births(source, logger)
+        stub_names = ["count", "universe", "percentage", "rate", "per", "dollars", "index"]
+        births_cols = [
+            col for col in births_wide.columns
+            if col.split("_")[0] in stub_names
+            or col in ["location_id", "year", "geo_type", "geography"]
+        ]
         births_tall = (
-            elongate(births_wide)
+            elongate(births_wide[births_cols])
             .merge(primary_indicators, on=["indicator", "year"], how="inner")
             .drop(["indicator", "geo_type", "geography", "indicator_type"], axis=1)
             .assign(value_type_id=1, survey_id=1)
