@@ -8,7 +8,7 @@ import geopandas as gpd
 import pandas as pd
 from sqlalchemy import Engine, text
 
-from nvi_etl.config import CONF_DIR, SQL_DIR
+from nvi_etl.config import CONF_DIR, SQL_DIR, DUA_FOLDER
 from nvi_etl.db import get_engine
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.reshape import elongate, liquefy
@@ -54,9 +54,13 @@ def _aggregate_births(births_gdf, geo_layer, group_col, geo_type, source):
     adequate.columns = ["geography", "kessner_1_count"]
 
     merged = total.merge(adequate, on="geography", how="left")
+
+    merged["count_adequate"] = merged["kessner_1_count"]
+    merged["universe_adequate"] = merged["total_births"]
     merged["percentage_adequate"] = (
         100 * merged["kessner_1_count"] / merged["total_births"]
     ).round(0)
+
     return merged
 
 
@@ -85,9 +89,7 @@ def _extract_from_queries(logger):
 
 def _transform_births(source, logger):
     """Transform births data with spatial joins."""
-    config = configparser.ConfigParser()
-    config.read(CONF_DIR / "msc" / ".conf")
-    data_path = config.get("nvi_2024_config", "data_extract_path")
+    data_path = DUA_FOLDER / "2_Topics/Vital Records/2024/2024 Births File.csv"
 
     births_df = pd.read_csv(data_path, low_memory=False)
     births_gdf = gpd.GeoDataFrame(
@@ -115,6 +117,17 @@ def _transform_births(source, logger):
     tall["year"] = BIRTHS_YEAR
     tall["value_type_id"] = 1
     tall["survey_id"] = 1
+
+    tall = tall.astype({
+        "rate": pd.Float64Dtype(),
+        "count": pd.Float64Dtype(),
+        "universe": pd.Float64Dtype(),
+        "percentage": pd.Float64Dtype(),
+        "rate": pd.Float64Dtype(),
+        "dollars": pd.Float64Dtype(),
+        "rate_per": pd.Float64Dtype(),
+    })
+
     return tall
 
 
