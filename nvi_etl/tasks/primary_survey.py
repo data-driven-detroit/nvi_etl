@@ -152,12 +152,15 @@ def create_question_rows(frame, datadictionary, survey_date, summaries):
     groups = datadictionary.groupby("group")
     tables = []
     for _, group in groups:
+        q = group.iloc[0]["universe_query"]
+        filtered = frame if pd.isna(q) or q == "@ALL" else frame.query(q)
+
         for summary in summaries:
             response_type = group.iloc[0]["response_type"]
             if response_type in {"YES-NO", "SINGLE", "GROUPED-SINGLE"}:
-                table = roll_up_single(frame, group, survey_date, summary)
+                table = roll_up_single(filtered, group, survey_date, summary)
             elif response_type == "MULTI-SELECT":
-                table = roll_up_multiselect(frame, group, survey_date, summary)
+                table = roll_up_multiselect(filtered, group, survey_date, summary)
             else:
                 raise ValueError(f"{response_type} not valid.")
             tables.append(table)
