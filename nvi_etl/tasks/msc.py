@@ -17,7 +17,6 @@ from nvi_etl.geo import pin_location, pull_city_boundary, pull_council_districts
 from nvi_etl.upsert import upsert_values, upsert_context_values
 
 DATA_YEAR = 2025
-BIRTHS_YEAR = 2024
 GEOM_DATE = date(2026, 1, 1)
 
 TABLE_MAP = {
@@ -111,8 +110,9 @@ def _transform_births(source, logger):
     )
 
     wide = pd.concat([city_wide, districts, zones])
+    wide["geography"] = wide["geography"].astype(str)
     wide["location_id"] = wide.apply(pin_location, axis=1)
-    wide["year"] = BIRTHS_YEAR
+    wide["year"] = DATA_YEAR
 
     return wide
 

@@ -1,5 +1,5 @@
 indicator,indicator_type,indicator_id,survey_id,survey_question_id,survey_question_option_id,year
-births_adequate_care,percentage,13,,,,2024
+births_adequate_care,percentage,13,,,,2025
 auto_crash,rate,31,,,,2025
 ped_bike_crash,rate,32,,,,2025
 violent_crime,rate,30,,,,2025
