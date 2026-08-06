@@ -2,7 +2,11 @@
 
 Reads the same survey CSV + geocoded shapefile as primary_survey, but
 performs spatial joins to CDO service areas instead of council districts
-and zones.  Output is written to CSV, not the database.
+and zones.  Output is a single human-readable CSV with small-cell
+suppression (counts below 6 replaced with '*').
+
+Also produces citywide aggregation rows (from the full, unfiltered frame)
+so downstream workbook generation can compare CDO data to citywide.
 """
 
 import os
@@ -12,20 +16,20 @@ import geopandas as gpd
 import pandas as pd
 from sqlalchemy import Engine
 
-from nvi_etl.config import CONF_DIR, DUA_FOLDER
+from nvi_etl.config import DUA_FOLDER
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.geo import pull_cdo_boundaries
 from nvi_etl.tasks.primary_survey import (
     SURVEY_YEAR,
     SURVEY_CONF,
-    VALUE_COLUMNS,
-    OUTPUT_COLUMN_ORDER,
     combine_survey_and_geocoded,
     create_indicator_rows,
     create_question_rows,
 )
 
 OUTPUT_DIR = Path(__file__).resolve().parent.parent / "survey" / "output"
+
+SUPPRESSION_THRESHOLD = 6
 
 
 def add_cdo_boundaries(geocoded, cdo_boundaries):
@@ -45,6 +49,46 @@ def add_cdo_boundaries(geocoded, cdo_boundaries):
         .drop(columns="index_right")
         .drop_duplicates(subset=["response_id", "organization_name"])
     )
+
+
+def suppress_small_cells(df):
+    """Replace count, universe, and percentage with '*' where count < threshold."""
+    mask = df["count"] < SUPPRESSION_THRESHOLD
+    for col in ("count", "universe", "percentage"):
+        df[col] = df[col].astype(object)
+    df.loc[mask, ["count", "universe", "percentage"]] = "*"
+    return df
+
+
+def _build_indicator_block(frame, datadictionary, survey_date, summaries, geo_label_col):
+    """Run indicator aggregation and join text fields from the datadictionary."""
+    indicators, errors = create_indicator_rows(
+        frame, datadictionary, survey_date, summaries
+    )
+
+    indicator_text = (
+        datadictionary.dropna(subset="indicator_db_id")
+        .drop_duplicates(subset="indicator_db_id")
+        [["indicator_db_id", "topic_text", "question_text"]]
+    )
+    output = (
+        indicators.rename(columns={"location_id": geo_label_col})
+        .merge(
+            indicator_text,
+            left_on="indicator_id",
+            right_on="indicator_db_id",
+            how="left",
+        )
+        .assign(answer="[INDICATOR]", value_type="indicator")
+        .rename(columns={"indicator_id": "indicator_db_id"})
+    )
+    return output, errors
+
+
+def _build_question_block(frame, datadictionary, survey_date, summaries, geo_label_col):
+    """Run question aggregation."""
+    table = create_question_rows(frame, datadictionary, survey_date, summaries)
+    return table.rename(columns={"location": geo_label_col}).assign(value_type="question")
 
 
 @task("primary_survey_cdo", phase=2, description="Primary NVI survey -- CDO boundary aggregation")
@@ -76,61 +120,68 @@ def run(source: Engine, target: Engine) -> TaskResult:
     )
 
     geocoded = combine_survey_and_geocoded(frame, geoframe)
+    survey_date = pd.Timestamp(year=SURVEY_YEAR, month=1, day=1)
 
-    # Spatial join to CDO boundaries
+    # -- Citywide aggregation (full frame, no spatial filter) ---------------
+    logger.info("Running citywide aggregation for comparison")
+    citywide_frame = geocoded.assign(citywide="citywide")
+
+    cw_indicators, cw_errors = _build_indicator_block(
+        citywide_frame, datadictionary, survey_date, ["citywide"], "organization_name"
+    )
+    cw_questions = _build_question_block(
+        citywide_frame, datadictionary, survey_date, ["citywide"], "organization_name"
+    )
+    if cw_errors:
+        for err_id, err_msg in cw_errors:
+            logger.warning(f"Citywide indicator {err_id}: {err_msg}")
+
+    # -- CDO aggregation (spatially filtered frame) -------------------------
     logger.info("Pulling CDO boundaries for aggregation")
     cdo_boundaries = pull_cdo_boundaries(source)
-    complete_frame = add_cdo_boundaries(geocoded, cdo_boundaries)
+    cdo_frame = add_cdo_boundaries(geocoded, cdo_boundaries)
 
-    survey_date = pd.Timestamp(year=SURVEY_YEAR, month=1, day=1)
-    summaries = ["organization_name"]
-
-    # Indicator aggregation
     logger.info("Creating CDO indicator rows")
-    indicators, errors = create_indicator_rows(
-        complete_frame, datadictionary, survey_date, summaries
+    cdo_indicators, cdo_errors = _build_indicator_block(
+        cdo_frame, datadictionary, survey_date, ["organization_name"], "organization_name"
     )
-    if errors:
-        for err_id, err_msg in errors:
-            logger.warning(f"Indicator {err_id}: {err_msg}")
+    if cdo_errors:
+        for err_id, err_msg in cdo_errors:
+            logger.warning(f"CDO indicator {err_id}: {err_msg}")
 
-    indicator_output = (
-        indicators.rename(columns={"location_id": "location"})
-        .merge(location_dictionary, on="location", how="left")
-        .astype({"location_id": pd.Int64Dtype()})
-        .assign(
-            rate=float("nan"), rate_per=float("nan"), dollars=float("nan"),
-            survey_id=1, index=float("nan"),
-            survey_question_id=pd.NA, survey_question_option_id=pd.NA,
-        )
-        .dropna(subset=["location_id", "indicator_id"])
-        .astype({
-            "survey_question_id": pd.Int64Dtype(),
-            "survey_question_option_id": pd.Int64Dtype(),
-        })
-    )[VALUE_COLUMNS]
-
-    # Question aggregation
     logger.info("Creating CDO question rows")
-    table = create_question_rows(
-        complete_frame, datadictionary, survey_date, summaries
+    cdo_questions = _build_question_block(
+        cdo_frame, datadictionary, survey_date, ["organization_name"], "organization_name"
     )
-    question_output = (
-        table.merge(location_dictionary, on="location", how="left")
-        .astype({"location_id": pd.Int64Dtype(), "survey_code": pd.Int64Dtype()})
-    )[OUTPUT_COLUMN_ORDER]
 
-    # Write to CSV
+    # -- Combine all rows ---------------------------------------------------
+    shared_columns = [
+        "organization_name", "topic_text", "question_text", "answer",
+        "count", "universe", "percentage", "value_type",
+    ]
+    combined = pd.concat([
+        cdo_indicators[shared_columns],
+        cdo_questions[shared_columns],
+        cw_indicators[shared_columns],
+        cw_questions[shared_columns],
+    ], ignore_index=True)
+
+    # Merge location IDs for CDO rows
+    combined = combined.merge(
+        location_dictionary,
+        left_on="organization_name",
+        right_on="location",
+        how="left",
+    ).drop(columns="location", errors="ignore")
+
+    # Suppress small cells
+    combined = suppress_small_cells(combined)
+
+    # Write single CSV
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_path = OUTPUT_DIR / f"primary_survey_cdo_{SURVEY_YEAR}.csv"
+    combined.to_csv(output_path, index=False)
 
-    indicators_path = OUTPUT_DIR / f"primary_survey_cdo_indicators_{SURVEY_YEAR}.csv"
-    questions_path = OUTPUT_DIR / f"primary_survey_cdo_questions_{SURVEY_YEAR}.csv"
+    logger.info(f"Wrote {len(combined)} rows to {output_path}")
 
-    indicator_output.to_csv(indicators_path, index=False)
-    question_output.to_csv(questions_path, index=False)
-
-    total_rows = len(indicator_output) + len(question_output)
-    logger.info(f"Wrote {len(indicator_output)} indicator rows to {indicators_path}")
-    logger.info(f"Wrote {len(question_output)} question rows to {questions_path}")
-
-    return TaskResult(task_name="primary_survey_cdo", rows_inserted=total_rows, success=True)
+    return TaskResult(task_name="primary_survey_cdo", rows_inserted=len(combined), success=True)
