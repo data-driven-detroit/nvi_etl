@@ -2,19 +2,24 @@
 
 Each CDO gets its own .xlsx file with:
   - A data sheet comparing CDO responses to citywide responses
-  - A map sheet showing the CDO boundary within Detroit (requires folium + Pillow)
+  - A map sheet showing the CDO boundary within Detroit
 
 Reads the CSV produced by primary_survey_cdo and CDO geometries from the
 database.
 """
 
+import io
 from pathlib import Path
 
+import folium
 import geopandas as gpd
 import pandas as pd
+from folium import DivIcon
 from openpyxl import Workbook
+from openpyxl.drawing.image import Image as XlImage
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
+from PIL import Image as PILImage
 from sqlalchemy import Engine
 
 from nvi_etl.geo import pull_cdo_boundaries, pull_city_boundary
@@ -30,19 +35,11 @@ WRAP = Alignment(wrap_text=True, vertical="top")
 
 
 # ---------------------------------------------------------------------------
-# Map generation (optional — requires folium + Pillow)
+# Map generation
 # ---------------------------------------------------------------------------
 
 def _generate_cdo_map(cdo_geom, city_geom, cdo_name):
     """Render a CDO boundary on a Detroit base map and return PNG bytes."""
-    try:
-        import io
-        import folium
-        from folium import DivIcon
-        from PIL import Image as PILImage
-    except ImportError:
-        return None
-
     detroit_json = gpd.GeoSeries(city_geom.to_crs(4326)["geometry"]).simplify(0.001).to_json()
     cdo_json = gpd.GeoSeries(cdo_geom.to_crs(4326)["geometry"]).simplify(0.001).to_json()
     cdo_centroid = gpd.GeoSeries(cdo_geom.to_crs(4326)["geometry"]).simplify(0.001).centroid.iloc[0]
@@ -73,15 +70,12 @@ def _generate_cdo_map(cdo_geom, city_geom, cdo_name):
         icon=DivIcon(html=f'<div style="font-size:12px;font-weight:bold;">{cdo_name}</div>'),
     ).add_to(m)
 
-    try:
-        img_data = m._to_png(10)
-        img = PILImage.open(io.BytesIO(img_data))
-        buf = io.BytesIO()
-        img.save(buf, format="PNG")
-        buf.seek(0)
-        return buf
-    except Exception:
-        return None
+    img_data = m._to_png(10)
+    img = PILImage.open(io.BytesIO(img_data))
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+    return buf
 
 
 # ---------------------------------------------------------------------------
@@ -134,19 +128,14 @@ def _write_data_sheet(ws, cdo_data, citywide_data, cdo_name):
 
 def _write_map_sheet(ws, map_bytes, cdo_name):
     """Add a CDO map image to its own sheet."""
-    from openpyxl.drawing.image import Image as XlImage
-
     ws.column_dimensions["A"].width = 100
     ws["A1"] = f"{cdo_name} — Service Area Boundary"
     ws["A1"].font = Font(bold=True, size=14)
 
-    if map_bytes is not None:
-        img = XlImage(map_bytes)
-        img.width = 700
-        img.height = 450
-        ws.add_image(img, "A3")
-    else:
-        ws["A3"] = "(Map requires folium + Pillow + selenium)"
+    img = XlImage(map_bytes)
+    img.width = 700
+    img.height = 450
+    ws.add_image(img, "A3")
 
 
 def create_cdo_workbook(cdo_name, cdo_data, citywide_data, cdo_geom, city_geom):
@@ -160,7 +149,7 @@ def create_cdo_workbook(cdo_name, cdo_data, citywide_data, cdo_geom, city_geom):
 
     # Map sheet
     ws_map = wb.create_sheet("Boundary Map")
-    map_bytes = _generate_cdo_map(cdo_geom, city_geom, cdo_name) if cdo_geom is not None else None
+    map_bytes = _generate_cdo_map(cdo_geom, city_geom, cdo_name)
     _write_map_sheet(ws_map, map_bytes, cdo_name)
 
     return wb
@@ -202,8 +191,8 @@ def run(source: Engine, target: Engine) -> TaskResult:
         cdo_geom = cdo_boundaries[cdo_boundaries["organization_name"] == cdo_name]
 
         if cdo_geom.empty:
-            logger.warning(f"No geometry found for {cdo_name}, skipping map")
-            cdo_geom = None
+            logger.warning(f"No geometry found for {cdo_name}, skipping")
+            continue
 
         wb = create_cdo_workbook(
             cdo_name, cdo_rows, citywide_data, cdo_geom, city_boundary
