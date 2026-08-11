@@ -29,8 +29,10 @@ from nvi_etl.tasks.primary_survey import SURVEY_YEAR
 INPUT_DIR = Path(__file__).resolve().parent.parent / "survey" / "output"
 OUTPUT_DIR = INPUT_DIR / "cdo_workbooks"
 
-HEADER_FILL = PatternFill(start_color="87AF3F", end_color="87AF3F", fill_type="solid")
-HEADER_FONT = Font(bold=True, color="FFFFFF", size=11)
+HEADER_FILL = PatternFill(start_color="F2F2F2", end_color="F2F2F2", fill_type="solid")
+HEADER_FONT = Font(name="IBM Plex Sans", bold=True, size=11)
+BODY_FONT = Font(name="IBM Plex Sans", size=10)
+ZEBRA_FILL = PatternFill(start_color="F7F7F7", end_color="F7F7F7", fill_type="solid")
 WRAP = Alignment(wrap_text=True, vertical="top")
 
 
@@ -70,7 +72,7 @@ def _generate_cdo_map(cdo_geom, city_geom, cdo_name):
         icon=DivIcon(html=f'<div style="font-size:12px;font-weight:bold;">{cdo_name}</div>'),
     ).add_to(m)
 
-    img_data = m._to_png(10)
+    img_data = m._to_png(20)
     img = PILImage.open(io.BytesIO(img_data))
     buf = io.BytesIO()
     img.save(buf, format="PNG")
@@ -106,17 +108,19 @@ def _write_data_sheet(ws, cdo_data, citywide_data, cdo_name):
         key = (row["topic_text"], row["question_text"], row["answer"], row["value_type"])
         cw = cw_lookup.get(key)
 
-        ws.cell(row=row_num, column=1, value=row["topic_text"])
-        ws.cell(row=row_num, column=2, value=row["question_text"])
-        ws.cell(row=row_num, column=3, value=row["answer"])
-        ws.cell(row=row_num, column=4, value=row["count"])
-        ws.cell(row=row_num, column=5, value=row["universe"])
-        ws.cell(row=row_num, column=6, value=row["percentage"])
-
-        if cw is not None:
-            ws.cell(row=row_num, column=7, value=cw["count"])
-            ws.cell(row=row_num, column=8, value=cw["universe"])
-            ws.cell(row=row_num, column=9, value=cw["percentage"])
+        values = [
+            row["topic_text"], row["question_text"], row["answer"],
+            row["count"], row["universe"], row["percentage"],
+            cw["count"] if cw is not None else None,
+            cw["universe"] if cw is not None else None,
+            cw["percentage"] if cw is not None else None,
+        ]
+        fill = ZEBRA_FILL if row_num % 2 == 0 else None
+        for col_idx, val in enumerate(values, start=1):
+            cell = ws.cell(row=row_num, column=col_idx, value=val)
+            cell.font = BODY_FONT
+            if fill:
+                cell.fill = fill
 
         row_num += 1
 
@@ -130,11 +134,11 @@ def _write_map_sheet(ws, map_bytes, cdo_name):
     """Add a CDO map image to its own sheet."""
     ws.column_dimensions["A"].width = 100
     ws["A1"] = f"{cdo_name} — Service Area Boundary"
-    ws["A1"].font = Font(bold=True, size=14)
+    ws["A1"].font = Font(name="IBM Plex Sans", bold=True, size=14)
 
     img = XlImage(map_bytes)
-    img.width = 700
-    img.height = 450
+    img.width = 1000
+    img.height = 650
     ws.add_image(img, "A3")
 
 
