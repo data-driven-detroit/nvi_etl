@@ -50,7 +50,7 @@ def _generate_cdo_map(cdo_geom, city_geom, cdo_name):
     sw = [cdo_bounds[1], cdo_bounds[0]]
     ne = [cdo_bounds[3], cdo_bounds[2]]
 
-    m = folium.Map(tiles="CartoDB positron")
+    m = folium.Map(tiles="CartoDB positron", zoom_control=False)
     m.fit_bounds([sw, ne], padding=[20, 20])
 
     folium.GeoJson(
