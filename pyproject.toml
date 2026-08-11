@@ -20,6 +20,7 @@ dependencies = [
     "psycopg-binary>=3.3.3",
     "pytest>=9.0.2",
     "python-dotenv>=1.0.0",
+    "selenium>=4.47.0",
     "sqlalchemy>=2.0.48",
     "tablecensus",
 ]
