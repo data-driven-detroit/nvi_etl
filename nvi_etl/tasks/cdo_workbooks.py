@@ -46,11 +46,12 @@ def _generate_cdo_map(cdo_geom, city_geom, cdo_name):
     cdo_json = gpd.GeoSeries(cdo_geom.to_crs(4326)["geometry"]).simplify(0.001).to_json()
     cdo_centroid = gpd.GeoSeries(cdo_geom.to_crs(4326)["geometry"]).simplify(0.001).centroid.iloc[0]
 
-    m = folium.Map(
-        location=[cdo_centroid.y, cdo_centroid.x],
-        zoom_start=13,
-        tiles="CartoDB positron",
-    )
+    cdo_bounds = gpd.GeoSeries(cdo_geom.to_crs(4326)["geometry"]).total_bounds
+    sw = [cdo_bounds[1], cdo_bounds[0]]
+    ne = [cdo_bounds[3], cdo_bounds[2]]
+
+    m = folium.Map(tiles="CartoDB positron")
+    m.fit_bounds([sw, ne], padding=[20, 20])
 
     folium.GeoJson(
         detroit_json,
@@ -65,11 +66,6 @@ def _generate_cdo_map(cdo_geom, city_geom, cdo_name):
             "fillColor": "#87AF3F", "color": "#87AF3F",
             "weight": 2, "fillOpacity": 0.6,
         },
-    ).add_to(m)
-
-    folium.Marker(
-        [cdo_centroid.y + 0.012, cdo_centroid.x],
-        icon=DivIcon(html=f'<div style="font-size:12px;font-weight:bold;">{cdo_name}</div>'),
     ).add_to(m)
 
     img_data = m._to_png(20)
