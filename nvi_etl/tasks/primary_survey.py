@@ -91,7 +91,7 @@ def aggregate_question(frame, column_name, summary, labels):
             "db_question_code": reference["db_question_code"],
             "indicator_include": False, "universe_include": False,
             "indicator_db_id": reference["indicator_db_id"],
-            "location": "[NO ADDRESS PROVIDED]",
+            "location": "[NO ADDRESS PROVIDED]" if summary != "citywide" else "citywide",
         })
         .astype({
             "db_question_code": pd.Int64Dtype(), "db_answer_code": pd.Int64Dtype(),
