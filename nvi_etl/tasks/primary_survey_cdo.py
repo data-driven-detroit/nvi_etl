@@ -52,11 +52,37 @@ def add_cdo_boundaries(geocoded, cdo_boundaries):
 
 
 def suppress_small_cells(df):
-    """Replace count, universe, and percentage with '*' where count < threshold."""
-    mask = df["count"] < SUPPRESSION_THRESHOLD
+    """Apply small-cell suppression with complementary suppression.
+
+    When only one answer option within a question-location group falls
+    below the threshold, the next-smallest option is also suppressed so
+    the hidden value cannot be reconstructed from universe minus the
+    visible counts.
+    """
+    value_cols = {"answer", "count", "universe", "percentage"}
+    group_cols = [c for c in df.columns if c not in value_cols]
+
     for col in ("count", "universe", "percentage"):
         df[col] = df[col].astype(object)
-    df.loc[mask, ["count", "universe", "percentage"]] = "*"
+
+    suppress_mask = pd.Series(False, index=df.index)
+
+    for _, group in df.groupby(group_cols, dropna=False):
+        counts = pd.to_numeric(group["count"], errors="coerce")
+        small = counts < SUPPRESSION_THRESHOLD
+        n_small = small.sum()
+
+        if n_small == 0:
+            continue
+
+        suppress_mask.loc[small[small].index] = True
+
+        if n_small == 1:
+            not_small = ~small & counts.notna()
+            if not_small.any():
+                suppress_mask.loc[counts[not_small].idxmin()] = True
+
+    df.loc[suppress_mask, ["count", "universe", "percentage"]] = "*"
     return df
 
 
