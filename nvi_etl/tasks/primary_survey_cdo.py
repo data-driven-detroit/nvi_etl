@@ -105,6 +105,7 @@ def _build_indicator_block(frame, datadictionary, survey_date, summaries, geo_la
             right_on="indicator_db_id",
             how="left",
         )
+        .drop(columns="indicator_db_id")
         .assign(answer="[INDICATOR]", value_type="indicator")
         .rename(columns={"indicator_id": "indicator_db_id"})
     )
