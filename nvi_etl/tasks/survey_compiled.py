@@ -45,11 +45,11 @@ def run(source: Engine, target: Engine, **kwargs) -> TaskResult:
 
     survey_csv = os.environ.get(
         "NVI_SURVEY_CSV",
-        str(DUA_FOLDER / "3_Projects" / "NVI" / "2025" / "nvi_survey_data_2025_20260226.csv"),
+        str(DUA_FOLDER / "3_Projects" / "NVI" / "2025" / "DUA Data" / "nvi_survey_data_2025_20260226.csv"),
     )
     geocoded_shp = os.environ.get(
         "NVI_GEOCODED_SHP",
-        str(DUA_FOLDER / "3_Projects" / "NVI" / "2025" / "Final Shapefiles" / "Final2025NVIDataset_cleaned_20260304.shp"),
+        str(DUA_FOLDER / "3_Projects" / "NVI" / "2025" / "DUA Data" / "Final Shapefiles" / "Final2025NVIDataset_cleaned_20260304.shp"),
     )
 
     logger.info("Opening survey files for compiled document")
