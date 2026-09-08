@@ -60,7 +60,7 @@ def suppress_small_cells(df):
     return df
 
 
-def _build_indicator_block(frame, datadictionary, survey_date, summaries, geo_label_col):
+def _build_indicator_block(frame, datadictionary, survey_date, summaries, geo_label_col, indicator_names=None):
     """Run indicator aggregation and join text fields from the datadictionary."""
     indicators, errors = create_indicator_rows(
         frame, datadictionary, survey_date, summaries
@@ -82,17 +82,35 @@ def _build_indicator_block(frame, datadictionary, survey_date, summaries, geo_la
         .assign(answer="[INDICATOR]", value_type="indicator")
         .rename(columns={"indicator_id": "indicator_db_id"})
     )
+    if indicator_names is not None:
+        output = output.merge(indicator_names, on="indicator_db_id", how="left")
     return output, errors
 
 
-def _build_question_block(frame, datadictionary, survey_date, summaries, geo_label_col):
+def _build_question_block(frame, datadictionary, survey_date, summaries, geo_label_col, indicator_names=None):
     """Run question aggregation."""
     table = create_question_rows(frame, datadictionary, survey_date, summaries)
-    return table.rename(columns={"location": geo_label_col}).assign(value_type="question")
+    table = table.rename(columns={"location": geo_label_col}).assign(value_type="question")
+    if indicator_names is not None:
+        table = table.merge(
+            indicator_names,
+            left_on="indicator_db_id",
+            right_on="indicator_db_id",
+            how="left",
+        )
+    return table
+
+
+def pull_indicator_names(engine):
+    """Pull indicator id-to-name mapping from the NVI application database."""
+    return pd.read_sql(
+        "SELECT id AS indicator_db_id, name AS indicator_name FROM nvi.indicators",
+        engine,
+    )
 
 
 @task("primary_survey_cdo", phase=2, description="Primary NVI survey -- CDO boundary aggregation")
-def run(source: Engine, target: Engine) -> TaskResult:
+def run(source: Engine, target: Engine, **kwargs) -> TaskResult:
     import logging
     logger = logging.getLogger("nvi_etl")
 
@@ -122,15 +140,24 @@ def run(source: Engine, target: Engine) -> TaskResult:
     geocoded = combine_survey_and_geocoded(frame, geoframe)
     survey_date = pd.Timestamp(year=SURVEY_YEAR, month=1, day=1)
 
+    # -- Indicator names from NVI app database (optional) -------------------
+    nvi_db = kwargs.get("nvi_db")
+    indicator_names = None
+    if nvi_db is not None:
+        logger.info("Pulling indicator names from NVI database")
+        indicator_names = pull_indicator_names(nvi_db)
+
     # -- Citywide aggregation (full frame, no spatial filter) ---------------
     logger.info("Running citywide aggregation for comparison")
     citywide_frame = geocoded.assign(citywide="citywide")
 
     cw_indicators, cw_errors = _build_indicator_block(
-        citywide_frame, datadictionary, survey_date, ["citywide"], "organization_name"
+        citywide_frame, datadictionary, survey_date, ["citywide"], "organization_name",
+        indicator_names=indicator_names,
     )
     cw_questions = _build_question_block(
-        citywide_frame, datadictionary, survey_date, ["citywide"], "organization_name"
+        citywide_frame, datadictionary, survey_date, ["citywide"], "organization_name",
+        indicator_names=indicator_names,
     )
     if cw_errors:
         for err_id, err_msg in cw_errors:
@@ -143,7 +170,8 @@ def run(source: Engine, target: Engine) -> TaskResult:
 
     logger.info("Creating CDO indicator rows")
     cdo_indicators, cdo_errors = _build_indicator_block(
-        cdo_frame, datadictionary, survey_date, ["organization_name"], "organization_name"
+        cdo_frame, datadictionary, survey_date, ["organization_name"], "organization_name",
+        indicator_names=indicator_names,
     )
     if cdo_errors:
         for err_id, err_msg in cdo_errors:
@@ -151,14 +179,17 @@ def run(source: Engine, target: Engine) -> TaskResult:
 
     logger.info("Creating CDO question rows")
     cdo_questions = _build_question_block(
-        cdo_frame, datadictionary, survey_date, ["organization_name"], "organization_name"
+        cdo_frame, datadictionary, survey_date, ["organization_name"], "organization_name",
+        indicator_names=indicator_names,
     )
 
     # -- Combine all rows ---------------------------------------------------
     shared_columns = [
-        "organization_name", "topic_text", "question_text", "answer",
-        "count", "universe", "percentage", "value_type",
+        "organization_name", "indicator_name", "topic_text", "question_text",
+        "answer", "count", "universe", "percentage", "value_type",
     ]
+    if indicator_names is None:
+        shared_columns.remove("indicator_name")
     combined = pd.concat([
         cdo_indicators[shared_columns],
         cdo_questions[shared_columns],

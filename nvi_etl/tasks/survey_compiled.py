@@ -26,19 +26,20 @@ from nvi_etl.tasks.primary_survey import (
 from nvi_etl.tasks.primary_survey_cdo import (
     _build_indicator_block,
     _build_question_block,
+    pull_indicator_names,
     suppress_small_cells,
 )
 
 OUTPUT_DIR = Path(__file__).resolve().parent.parent / "survey" / "output"
 
 SHARED_COLUMNS = [
-    "location", "summary_level", "topic_text", "question_text", "answer",
-    "count", "universe", "percentage", "value_type",
+    "location", "summary_level", "indicator_name", "topic_text", "question_text",
+    "answer", "count", "universe", "percentage", "value_type",
 ]
 
 
 @task("survey_compiled", phase=2, description="Single compiled survey document -- all geographies, human-readable")
-def run(source: Engine, target: Engine) -> TaskResult:
+def run(source: Engine, target: Engine, **kwargs) -> TaskResult:
     import logging
     logger = logging.getLogger("nvi_etl")
 
@@ -62,6 +63,12 @@ def run(source: Engine, target: Engine) -> TaskResult:
 
     geocoded = combine_survey_and_geocoded(frame, geoframe)
 
+    nvi_db = kwargs.get("nvi_db")
+    indicator_names = None
+    if nvi_db is not None:
+        logger.info("Pulling indicator names from NVI database")
+        indicator_names = pull_indicator_names(nvi_db)
+
     logger.info("Pulling districts and zones for spatial join")
     districts = pull_council_districts(source, 2026)
     zones = pull_zones(source, 2026)
@@ -79,12 +86,15 @@ def run(source: Engine, target: Engine) -> TaskResult:
         "zone_id": "zone",
     }
 
+    columns = [c for c in SHARED_COLUMNS if c != "indicator_name" or indicator_names is not None]
+
     for summary in summaries:
         label = level_labels[summary]
         logger.info(f"Aggregating indicators for {label}")
 
         indicators, errors = _build_indicator_block(
-            complete_frame, datadictionary, survey_date, [summary], "location"
+            complete_frame, datadictionary, survey_date, [summary], "location",
+            indicator_names=indicator_names,
         )
         indicators = indicators.assign(summary_level=label)
         if errors:
@@ -93,12 +103,13 @@ def run(source: Engine, target: Engine) -> TaskResult:
 
         logger.info(f"Aggregating questions for {label}")
         questions = _build_question_block(
-            complete_frame, datadictionary, survey_date, [summary], "location"
+            complete_frame, datadictionary, survey_date, [summary], "location",
+            indicator_names=indicator_names,
         )
         questions = questions.assign(summary_level=label)
 
-        all_blocks.append(indicators[SHARED_COLUMNS])
-        all_blocks.append(questions[SHARED_COLUMNS])
+        all_blocks.append(indicators[columns])
+        all_blocks.append(questions[columns])
 
     combined = pd.concat(all_blocks, ignore_index=True)
     combined = suppress_small_cells(combined)

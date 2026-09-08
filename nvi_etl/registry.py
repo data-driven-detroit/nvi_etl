@@ -5,6 +5,7 @@ Tasks self-register at import time. The CLI uses this registry to
 discover and run tasks.
 """
 
+import inspect
 from dataclasses import dataclass
 from typing import Callable
 
@@ -19,7 +20,7 @@ class TaskResult:
     error: str | None = None
 
 
-TaskFunc = Callable[[Engine, Engine], TaskResult]
+TaskFunc = Callable[..., TaskResult]
 
 
 @dataclass
@@ -64,10 +65,19 @@ def list_tasks() -> list[TaskInfo]:
     return sorted(_REGISTRY.values(), key=lambda t: (t.phase, t.name))
 
 
-def run_task(name: str, source: Engine, target: Engine) -> TaskResult:
+def _accepts_kwargs(func: TaskFunc) -> bool:
+    return any(
+        p.kind == inspect.Parameter.VAR_KEYWORD
+        for p in inspect.signature(func).parameters.values()
+    )
+
+
+def run_task(name: str, source: Engine, target: Engine, **kwargs) -> TaskResult:
     """Run a single task by name."""
     info = get_task(name)
     try:
+        if kwargs and _accepts_kwargs(info.func):
+            return info.func(source, target, **kwargs)
         return info.func(source, target)
     except Exception as e:
         return TaskResult(
@@ -82,11 +92,12 @@ def run_all(
     source: Engine,
     target: Engine,
     phase: int | None = None,
+    **kwargs,
 ) -> list[TaskResult]:
     """Run all registered tasks, optionally filtered by phase."""
     results = []
     for info in list_tasks():
         if phase is not None and info.phase != phase:
             continue
-        results.append(run_task(info.name, source, target))
+        results.append(run_task(info.name, source, target, **kwargs))
     return results

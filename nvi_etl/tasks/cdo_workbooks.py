@@ -82,7 +82,12 @@ def _generate_cdo_map(cdo_geom, city_geom, cdo_name):
 
 def _write_data_sheet(ws, cdo_data, citywide_data, cdo_name):
     """Write the side-by-side CDO vs. citywide comparison sheet."""
+    has_indicator_name = "indicator_name" in cdo_data.columns
     headers = [
+        "Indicator", "Topic", "Question", "Answer",
+        f"{cdo_name}\nCount", f"{cdo_name}\nUniverse", f"{cdo_name}\n%",
+        "Citywide\nCount", "Citywide\nUniverse", "Citywide\n%",
+    ] if has_indicator_name else [
         "Topic", "Question", "Answer",
         f"{cdo_name}\nCount", f"{cdo_name}\nUniverse", f"{cdo_name}\n%",
         "Citywide\nCount", "Citywide\nUniverse", "Citywide\n%",
@@ -104,13 +109,23 @@ def _write_data_sheet(ws, cdo_data, citywide_data, cdo_name):
         key = (row["topic_text"], row["question_text"], row["answer"], row["value_type"])
         cw = cw_lookup.get(key)
 
-        values = [
-            row["topic_text"], row["question_text"], row["answer"],
-            row["count"], row["universe"], row["percentage"],
-            cw["count"] if cw is not None else None,
-            cw["universe"] if cw is not None else None,
-            cw["percentage"] if cw is not None else None,
-        ]
+        if has_indicator_name:
+            values = [
+                row.get("indicator_name"), row["topic_text"], row["question_text"],
+                row["answer"],
+                row["count"], row["universe"], row["percentage"],
+                cw["count"] if cw is not None else None,
+                cw["universe"] if cw is not None else None,
+                cw["percentage"] if cw is not None else None,
+            ]
+        else:
+            values = [
+                row["topic_text"], row["question_text"], row["answer"],
+                row["count"], row["universe"], row["percentage"],
+                cw["count"] if cw is not None else None,
+                cw["universe"] if cw is not None else None,
+                cw["percentage"] if cw is not None else None,
+            ]
         fill = ZEBRA_FILL if row_num % 2 == 0 else None
         for col_idx, val in enumerate(values, start=1):
             cell = ws.cell(row=row_num, column=col_idx, value=val)
@@ -121,7 +136,10 @@ def _write_data_sheet(ws, cdo_data, citywide_data, cdo_name):
         row_num += 1
 
     # Column widths
-    col_widths = [25, 40, 25, 12, 12, 12, 12, 12, 12]
+    if has_indicator_name:
+        col_widths = [25, 25, 40, 25, 12, 12, 12, 12, 12, 12]
+    else:
+        col_widths = [25, 40, 25, 12, 12, 12, 12, 12, 12]
     for i, w in enumerate(col_widths, start=1):
         ws.column_dimensions[get_column_letter(i)].width = w
 

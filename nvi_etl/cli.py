@@ -34,6 +34,11 @@ def main():
         default=None,
         help="Target database name (default: from NVI_DB_NAME env var)",
     )
+    run_parser.add_argument(
+        "--nvi-db",
+        default=None,
+        help="NVI application database name (for indicator names, etc.)",
+    )
 
     args = parser.parse_args()
 
@@ -55,22 +60,25 @@ def main():
     if args.command == "run":
         source = get_engine(args.source_db)
         target = get_engine(args.target_db)
+        extra = {}
+        if args.nvi_db:
+            extra["nvi_db"] = get_engine(args.nvi_db)
 
         if args.task:
             print(f"Running task: {args.task}")
-            result = run_task(args.task, source, target)
+            result = run_task(args.task, source, target, **extra)
             _print_result(result)
             sys.exit(0 if result.success else 1)
 
         elif args.phase is not None:
             print(f"Running all phase {args.phase} tasks")
-            results = run_all(source, target, phase=args.phase)
+            results = run_all(source, target, phase=args.phase, **extra)
             _print_results(results)
             sys.exit(0 if all(r.success for r in results) else 1)
 
         elif args.all:
             print("Running all tasks")
-            results = run_all(source, target)
+            results = run_all(source, target, **extra)
             _print_results(results)
             sys.exit(0 if all(r.success for r in results) else 1)
 
