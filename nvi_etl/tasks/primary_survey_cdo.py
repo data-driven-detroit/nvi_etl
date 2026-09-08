@@ -130,7 +130,7 @@ def _build_question_block(frame, datadictionary, survey_date, summaries, geo_lab
 def pull_indicator_names(engine):
     """Pull indicator id-to-name mapping from the NVI application database."""
     return pd.read_sql(
-        "SELECT id AS indicator_db_id, name AS indicator_name FROM nvi.indicators",
+        "SELECT id AS indicator_db_id, name AS indicator_name FROM indicator",
         engine,
     )
 
