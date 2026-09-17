@@ -19,6 +19,7 @@ from nvi_etl.upsert import upsert_values
 
 SURVEY_YEAR = 2025
 SURVEY_CONF = CONF_DIR.parent / "survey" / "conf"
+ANSWER_KEY = SURVEY_CONF / "nvi_answer_key_20260316.xlsx"
 
 VALUE_COLUMNS = [
     "year", "count", "universe", "percentage", "rate", "rate_per",
@@ -294,7 +295,7 @@ def run(source: Engine, target: Engine) -> TaskResult:
     geoframe = gpd.read_file(geocoded_shp).rename(
         columns={"Response_I": "response_id"}
     )
-    datadictionary = pd.read_excel(SURVEY_CONF / "nvi_answer_key_20260316.xlsx")
+    datadictionary = pd.read_excel(ANSWER_KEY)
     location_dictionary = pd.read_excel(
         SURVEY_CONF / "locations_20260312.xlsx",
         dtype={"location": str, "universe_include": bool},

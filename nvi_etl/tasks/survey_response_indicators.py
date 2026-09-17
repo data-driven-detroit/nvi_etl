@@ -16,6 +16,7 @@ from sqlalchemy import Engine
 from nvi_etl.config import DUA_FOLDER
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.tasks.primary_survey import (
+    ANSWER_KEY,
     SURVEY_YEAR,
     SURVEY_CONF,
     combine_survey_and_geocoded,
@@ -133,7 +134,7 @@ def run(source: Engine, target: Engine, **kwargs) -> TaskResult:
     geoframe = gpd.read_file(geocoded_shp).rename(
         columns={"Response_I": "response_id"}
     )
-    datadictionary = pd.read_excel(SURVEY_CONF / "nvi_answer_key_20260316.xlsx")
+    datadictionary = pd.read_excel(ANSWER_KEY)
 
     geocoded = combine_survey_and_geocoded(frame, geoframe)
     survey_date = pd.Timestamp(year=SURVEY_YEAR, month=1, day=1)
