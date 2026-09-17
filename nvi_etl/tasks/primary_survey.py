@@ -21,6 +21,15 @@ SURVEY_YEAR = 2025
 SURVEY_CONF = CONF_DIR.parent / "survey" / "conf"
 ANSWER_KEY = SURVEY_CONF / "nvi_answer_key_20260709.xlsx"
 
+
+def read_answer_key():
+    """Read the answer key and normalize boolean columns."""
+    dk = pd.read_excel(ANSWER_KEY)
+    for col in ("indicator_include", "universe_include", "tabulate"):
+        if col in dk.columns:
+            dk[col] = dk[col].fillna(False).astype(bool)
+    return dk
+
 VALUE_COLUMNS = [
     "year", "count", "universe", "percentage", "rate", "rate_per",
     "dollars", "indicator_id", "location_id", "survey_id",
@@ -295,7 +304,7 @@ def run(source: Engine, target: Engine) -> TaskResult:
     geoframe = gpd.read_file(geocoded_shp).rename(
         columns={"Response_I": "response_id"}
     )
-    datadictionary = pd.read_excel(ANSWER_KEY)
+    datadictionary = read_answer_key()
     location_dictionary = pd.read_excel(
         SURVEY_CONF / "locations_20260312.xlsx",
         dtype={"location": str, "universe_include": bool},

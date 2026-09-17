@@ -16,10 +16,10 @@ from sqlalchemy import Engine
 from nvi_etl.config import DUA_FOLDER
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.tasks.primary_survey import (
-    ANSWER_KEY,
     SURVEY_YEAR,
     SURVEY_CONF,
     combine_survey_and_geocoded,
+    read_answer_key,
 )
 from nvi_etl.tasks.primary_survey_cdo import pull_indicator_names
 
@@ -134,7 +134,7 @@ def run(source: Engine, target: Engine, **kwargs) -> TaskResult:
     geoframe = gpd.read_file(geocoded_shp).rename(
         columns={"Response_I": "response_id"}
     )
-    datadictionary = pd.read_excel(ANSWER_KEY)
+    datadictionary = read_answer_key()
 
     geocoded = combine_survey_and_geocoded(frame, geoframe)
     survey_date = pd.Timestamp(year=SURVEY_YEAR, month=1, day=1)

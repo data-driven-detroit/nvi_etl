@@ -16,13 +16,13 @@ from nvi_etl.config import DUA_FOLDER
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.geo import pull_council_districts, pull_zones
 from nvi_etl.tasks.primary_survey import (
-    ANSWER_KEY,
     SURVEY_YEAR,
     SURVEY_CONF,
     combine_survey_and_geocoded,
     add_districts_and_zones,
     create_indicator_rows,
     create_question_rows,
+    read_answer_key,
 )
 from nvi_etl.tasks.primary_survey_cdo import (
     _build_indicator_block,
@@ -60,7 +60,7 @@ def run(source: Engine, target: Engine, **kwargs) -> TaskResult:
     geoframe = gpd.read_file(geocoded_shp).rename(
         columns={"Response_I": "response_id"}
     )
-    datadictionary = pd.read_excel(ANSWER_KEY)
+    datadictionary = read_answer_key()
 
     geocoded = combine_survey_and_geocoded(frame, geoframe)
 

@@ -20,12 +20,12 @@ from nvi_etl.config import DUA_FOLDER
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.geo import pull_cdo_boundaries
 from nvi_etl.tasks.primary_survey import (
-    ANSWER_KEY,
     SURVEY_YEAR,
     SURVEY_CONF,
     combine_survey_and_geocoded,
     create_indicator_rows,
     create_question_rows,
+    read_answer_key,
 )
 
 OUTPUT_DIR = Path(__file__).resolve().parent.parent / "survey" / "output"
@@ -159,7 +159,7 @@ def run(source: Engine, target: Engine, **kwargs) -> TaskResult:
     geoframe = gpd.read_file(geocoded_shp).rename(
         columns={"Response_I": "response_id"}
     )
-    datadictionary = pd.read_excel(ANSWER_KEY)
+    datadictionary = read_answer_key()
     location_dictionary = pd.read_excel(
         SURVEY_CONF / "cdo_locations.xlsx",
         dtype={"location": str},
