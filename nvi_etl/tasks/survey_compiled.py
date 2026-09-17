@@ -34,7 +34,7 @@ OUTPUT_DIR = Path(__file__).resolve().parent.parent / "survey" / "output"
 
 SHARED_COLUMNS = [
     "location", "summary_level", "indicator_name", "topic_text", "question_text",
-    "answer", "count", "universe", "percentage", "value_type",
+    "answer", "count", "universe", "percentage",
 ]
 
 
@@ -77,16 +77,16 @@ def run(source: Engine, target: Engine, **kwargs) -> TaskResult:
     survey_date = pd.Timestamp(year=SURVEY_YEAR, month=1, day=1)
     summaries = ["citywide", "district_number", "zone_id"]
 
-    # Build indicator and question blocks per summary level so we can
-    # tag each with a clean summary_level label
-    all_blocks = []
+    indicator_blocks = []
+    question_blocks = []
     level_labels = {
         "citywide": "citywide",
         "district_number": "district",
         "zone_id": "zone",
     }
 
-    columns = [c for c in SHARED_COLUMNS if c != "indicator_name" or indicator_names is not None]
+    question_cols = [c for c in SHARED_COLUMNS if c != "indicator_name" or indicator_names is not None]
+    indicator_cols = [c for c in question_cols if c not in ("topic_text", "question_text", "answer")]
 
     for summary in summaries:
         label = level_labels[summary]
@@ -108,16 +108,22 @@ def run(source: Engine, target: Engine, **kwargs) -> TaskResult:
         )
         questions = questions.assign(summary_level=label)
 
-        all_blocks.append(indicators[columns])
-        all_blocks.append(questions[columns])
-
-    combined = pd.concat(all_blocks, ignore_index=True)
-    combined = suppress_small_cells(combined)
+        indicator_blocks.append(indicators[indicator_cols])
+        question_blocks.append(questions[question_cols])
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = OUTPUT_DIR / f"primary_survey_compiled_{SURVEY_YEAR}.csv"
-    combined.to_csv(output_path, index=False)
+    total_rows = 0
 
-    logger.info(f"Wrote {len(combined)} rows to {output_path}")
+    indicators_combined = suppress_small_cells(pd.concat(indicator_blocks, ignore_index=True))
+    indicators_path = OUTPUT_DIR / f"primary_survey_indicators_{SURVEY_YEAR}.csv"
+    indicators_combined.to_csv(indicators_path, index=False)
+    logger.info(f"Wrote {len(indicators_combined)} indicator rows to {indicators_path}")
+    total_rows += len(indicators_combined)
 
-    return TaskResult(task_name="survey_compiled", rows_inserted=len(combined), success=True)
+    questions_combined = suppress_small_cells(pd.concat(question_blocks, ignore_index=True))
+    questions_path = OUTPUT_DIR / f"primary_survey_questions_{SURVEY_YEAR}.csv"
+    questions_combined.to_csv(questions_path, index=False)
+    logger.info(f"Wrote {len(questions_combined)} question rows to {questions_path}")
+    total_rows += len(questions_combined)
+
+    return TaskResult(task_name="survey_compiled", rows_inserted=total_rows, success=True)
