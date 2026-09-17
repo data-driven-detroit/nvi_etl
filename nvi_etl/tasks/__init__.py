@@ -12,3 +12,4 @@ from nvi_etl.tasks import primary_survey  # noqa: F401
 from nvi_etl.tasks import primary_survey_cdo  # noqa: F401
 from nvi_etl.tasks import cdo_workbooks  # noqa: F401
 from nvi_etl.tasks import survey_compiled  # noqa: F401
+from nvi_etl.tasks import survey_response_indicators  # noqa: F401

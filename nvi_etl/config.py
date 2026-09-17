@@ -20,6 +20,7 @@ DUA_FOLDER = Path(os.environ.get("NVI_DUA_FOLDER", "/mnt/q"))
 VAULT_FOLDER = Path(os.environ.get("NVI_VAULT_FOLDER", "/mnt/v"))
 
 CENSUS_API_KEY = os.environ.get("CENSUS_API_KEY", "")
+STADIA_API_KEY = os.environ.get("STADIA_API_KEY", "")
 
 
 def db_url(db_name: str | None = None) -> str:

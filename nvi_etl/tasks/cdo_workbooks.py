@@ -22,6 +22,7 @@ from openpyxl.utils import get_column_letter
 from PIL import Image as PILImage
 from sqlalchemy import Engine
 
+from nvi_etl.config import STADIA_API_KEY
 from nvi_etl.geo import pull_cdo_boundaries, pull_city_boundary
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.tasks.primary_survey import SURVEY_YEAR
@@ -50,7 +51,11 @@ def _generate_cdo_map(cdo_geom, city_geom, cdo_name):
     sw = [cdo_bounds[1], cdo_bounds[0]]
     ne = [cdo_bounds[3], cdo_bounds[2]]
 
-    m = folium.Map(tiles="CartoDB positron", zoom_control=False)
+    if STADIA_API_KEY:
+        tiles = f"https://tiles.stadiamaps.com/tiles/alidade_smooth/{{z}}/{{x}}/{{y}}{{r}}.png?api_key={STADIA_API_KEY}"
+        m = folium.Map(tiles=tiles, attr="Stadia Maps, OpenMapTiles, OpenStreetMap", zoom_control=False)
+    else:
+        m = folium.Map(tiles="CartoDB positron", zoom_control=False)
     m.fit_bounds([sw, ne], padding=[20, 20])
 
     folium.GeoJson(
