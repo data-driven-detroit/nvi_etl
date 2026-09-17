@@ -34,3 +34,6 @@ config.toml
 
 # Jupyter checkpoints
 .ipynb_checkpoints/
+
+*.Identifier
+*.apple.*
