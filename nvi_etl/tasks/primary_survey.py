@@ -19,7 +19,7 @@ from nvi_etl.upsert import upsert_values
 
 SURVEY_YEAR = 2025
 SURVEY_CONF = CONF_DIR.parent / "survey" / "conf"
-ANSWER_KEY = SURVEY_CONF / "nvi_answer_key_20260316.xlsx"
+ANSWER_KEY = SURVEY_CONF / "nvi_answer_key_20260709.xlsx"
 
 VALUE_COLUMNS = [
     "year", "count", "universe", "percentage", "rate", "rate_per",
