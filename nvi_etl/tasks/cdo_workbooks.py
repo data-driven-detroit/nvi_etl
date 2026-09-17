@@ -30,7 +30,6 @@ from nvi_etl.tasks.primary_survey import SURVEY_CONF, SURVEY_YEAR
 INPUT_DIR = Path(__file__).resolve().parent.parent / "survey" / "output"
 OUTPUT_DIR = INPUT_DIR / "cdo_workbooks"
 TEMPLATE_PATH = SURVEY_CONF / "cdo_workbook_template.xlsx"
-LOGO_PATH = SURVEY_CONF / "logo.png"
 
 HEADER_FILL = PatternFill(start_color="F2F2F2", end_color="F2F2F2", fill_type="solid")
 HEADER_FONT = Font(name="IBM Plex Sans", bold=True, size=11)
@@ -157,6 +156,7 @@ def _fill_about_sheet(ws, cdo_name):
     subs = {
         "{cdo_name}": cdo_name,
         "{year}": str(SURVEY_YEAR),
+        "{survey_year_plus_one}": str(SURVEY_YEAR + 1),
     }
     for row in ws.iter_rows():
         for cell in row:
@@ -164,11 +164,6 @@ def _fill_about_sheet(ws, cdo_name):
                 for placeholder, value in subs.items():
                     if placeholder in cell.value:
                         cell.value = cell.value.replace(placeholder, value)
-                if cell.value == "{logo}" and LOGO_PATH.exists():
-                    cell.value = None
-                    img = XlImage(str(LOGO_PATH))
-                    img.anchor = cell.coordinate
-                    ws.add_image(img)
 
 
 def create_cdo_workbook(cdo_name, cdo_data, citywide_data, cdo_geom, city_geom):
