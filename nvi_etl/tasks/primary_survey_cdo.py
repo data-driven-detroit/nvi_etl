@@ -183,10 +183,6 @@ def run(source: Engine, target: Engine, **kwargs) -> TaskResult:
         citywide_frame, datadictionary, survey_date, ["citywide"], "organization_name",
         indicator_names=indicator_names,
     )
-    cw_questions = _build_question_block(
-        citywide_frame, datadictionary, survey_date, ["citywide"], "organization_name",
-        indicator_names=indicator_names,
-    )
     if cw_errors:
         for err_id, err_msg in cw_errors:
             logger.warning(f"Citywide indicator {err_id}: {err_msg}")
@@ -205,24 +201,16 @@ def run(source: Engine, target: Engine, **kwargs) -> TaskResult:
         for err_id, err_msg in cdo_errors:
             logger.warning(f"CDO indicator {err_id}: {err_msg}")
 
-    logger.info("Creating CDO question rows")
-    cdo_questions = _build_question_block(
-        cdo_frame, datadictionary, survey_date, ["organization_name"], "organization_name",
-        indicator_names=indicator_names,
-    )
-
-    # -- Combine all rows ---------------------------------------------------
+    # -- Combine indicator rows only ----------------------------------------
     shared_columns = [
-        "organization_name", "indicator_name", "topic_text", "question_text",
-        "answer", "count", "universe", "percentage", "value_type",
+        "organization_name", "indicator_name",
+        "count", "universe", "percentage",
     ]
     if indicator_names is None:
         shared_columns.remove("indicator_name")
     combined = pd.concat([
         cdo_indicators[shared_columns],
-        cdo_questions[shared_columns],
         cw_indicators[shared_columns],
-        cw_questions[shared_columns],
     ], ignore_index=True)
 
     # Merge location IDs for CDO rows

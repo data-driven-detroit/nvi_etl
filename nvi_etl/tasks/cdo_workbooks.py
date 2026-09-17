@@ -15,7 +15,7 @@ import folium
 import geopandas as gpd
 import pandas as pd
 from folium import DivIcon
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.drawing.image import Image as XlImage
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
@@ -25,10 +25,12 @@ from sqlalchemy import Engine
 from nvi_etl.config import STADIA_API_KEY
 from nvi_etl.geo import pull_cdo_boundaries, pull_city_boundary
 from nvi_etl.registry import task, TaskResult
-from nvi_etl.tasks.primary_survey import SURVEY_YEAR
+from nvi_etl.tasks.primary_survey import SURVEY_CONF, SURVEY_YEAR
 
 INPUT_DIR = Path(__file__).resolve().parent.parent / "survey" / "output"
 OUTPUT_DIR = INPUT_DIR / "cdo_workbooks"
+TEMPLATE_PATH = SURVEY_CONF / "cdo_workbook_template.xlsx"
+LOGO_PATH = SURVEY_CONF / "logo.png"
 
 HEADER_FILL = PatternFill(start_color="F2F2F2", end_color="F2F2F2", fill_type="solid")
 HEADER_FONT = Font(name="IBM Plex Sans", bold=True, size=11)
@@ -86,51 +88,44 @@ def _generate_cdo_map(cdo_geom, city_geom, cdo_name):
 # ---------------------------------------------------------------------------
 
 def _write_data_sheet(ws, cdo_data, citywide_data, cdo_name):
-    """Write the side-by-side CDO vs. citywide comparison sheet."""
+    """Write the side-by-side CDO vs. citywide indicator comparison sheet."""
     has_indicator_name = "indicator_name" in cdo_data.columns
-    headers = [
-        "Indicator", "Topic", "Question", "Answer",
-        f"{cdo_name}\nCount", f"{cdo_name}\nUniverse", f"{cdo_name}\n%",
-        "Citywide\nCount", "Citywide\nUniverse", "Citywide\n%",
-    ] if has_indicator_name else [
-        "Topic", "Question", "Answer",
-        f"{cdo_name}\nCount", f"{cdo_name}\nUniverse", f"{cdo_name}\n%",
-        "Citywide\nCount", "Citywide\nUniverse", "Citywide\n%",
-    ]
+    if has_indicator_name:
+        headers = [
+            "Indicator",
+            f"{cdo_name}\nCount", f"{cdo_name}\nUniverse", f"{cdo_name}\n%",
+            "Citywide\nCount", "Citywide\nUniverse", "Citywide\n%",
+        ]
+    else:
+        headers = [
+            "Indicator ID",
+            f"{cdo_name}\nCount", f"{cdo_name}\nUniverse", f"{cdo_name}\n%",
+            "Citywide\nCount", "Citywide\nUniverse", "Citywide\n%",
+        ]
     for col_idx, header in enumerate(headers, start=1):
         cell = ws.cell(row=1, column=col_idx, value=header)
         cell.fill = HEADER_FILL
         cell.font = HEADER_FONT
         cell.alignment = WRAP
 
-    # Build a lookup for citywide rows keyed on (topic, question, answer, value_type)
+    # Build a citywide lookup — key on indicator_name or indicator_db_id
     cw_lookup = {}
+    key_col = "indicator_name" if has_indicator_name else "indicator_db_id"
     for _, row in citywide_data.iterrows():
-        key = (row["topic_text"], row["question_text"], row["answer"], row["value_type"])
-        cw_lookup[key] = row
+        cw_lookup[row.get(key_col)] = row
 
     row_num = 2
     for _, row in cdo_data.iterrows():
-        key = (row["topic_text"], row["question_text"], row["answer"], row["value_type"])
-        cw = cw_lookup.get(key)
+        cw = cw_lookup.get(row.get(key_col))
+        label = row.get("indicator_name") if has_indicator_name else row.get("indicator_db_id")
 
-        if has_indicator_name:
-            values = [
-                row.get("indicator_name"), row["topic_text"], row["question_text"],
-                row["answer"],
-                row["count"], row["universe"], row["percentage"],
-                cw["count"] if cw is not None else None,
-                cw["universe"] if cw is not None else None,
-                cw["percentage"] if cw is not None else None,
-            ]
-        else:
-            values = [
-                row["topic_text"], row["question_text"], row["answer"],
-                row["count"], row["universe"], row["percentage"],
-                cw["count"] if cw is not None else None,
-                cw["universe"] if cw is not None else None,
-                cw["percentage"] if cw is not None else None,
-            ]
+        values = [
+            label,
+            row["count"], row["universe"], row["percentage"],
+            cw["count"] if cw is not None else None,
+            cw["universe"] if cw is not None else None,
+            cw["percentage"] if cw is not None else None,
+        ]
         fill = ZEBRA_FILL if row_num % 2 == 0 else None
         for col_idx, val in enumerate(values, start=1):
             cell = ws.cell(row=row_num, column=col_idx, value=val)
@@ -140,11 +135,7 @@ def _write_data_sheet(ws, cdo_data, citywide_data, cdo_name):
 
         row_num += 1
 
-    # Column widths
-    if has_indicator_name:
-        col_widths = [25, 25, 40, 25, 12, 12, 12, 12, 12, 12]
-    else:
-        col_widths = [25, 40, 25, 12, 12, 12, 12, 12, 12]
+    col_widths = [40, 12, 12, 12, 12, 12, 12]
     for i, w in enumerate(col_widths, start=1):
         ws.column_dimensions[get_column_letter(i)].width = w
 
@@ -161,13 +152,35 @@ def _write_map_sheet(ws, map_bytes, cdo_name):
     ws.add_image(img, "A3")
 
 
+def _fill_about_sheet(ws, cdo_name):
+    """Substitute placeholders in the About template sheet."""
+    subs = {
+        "{cdo_name}": cdo_name,
+        "{year}": str(SURVEY_YEAR),
+    }
+    for row in ws.iter_rows():
+        for cell in row:
+            if isinstance(cell.value, str):
+                for placeholder, value in subs.items():
+                    if placeholder in cell.value:
+                        cell.value = cell.value.replace(placeholder, value)
+                if cell.value == "{logo}" and LOGO_PATH.exists():
+                    cell.value = None
+                    img = XlImage(str(LOGO_PATH))
+                    img.anchor = cell.coordinate
+                    ws.add_image(img)
+
+
 def create_cdo_workbook(cdo_name, cdo_data, citywide_data, cdo_geom, city_geom):
     """Build a single CDO workbook and return the Workbook object."""
-    wb = Workbook()
+    if TEMPLATE_PATH.exists():
+        wb = load_workbook(TEMPLATE_PATH)
+        _fill_about_sheet(wb["About"], cdo_name)
+    else:
+        wb = Workbook()
 
     # Data sheet
-    ws_data = wb.active
-    ws_data.title = "Survey Data"
+    ws_data = wb.create_sheet("Survey Data")
     _write_data_sheet(ws_data, cdo_data, citywide_data, cdo_name)
 
     # Map sheet
