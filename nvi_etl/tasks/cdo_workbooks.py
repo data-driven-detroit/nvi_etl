@@ -89,23 +89,34 @@ def _generate_cdo_map(cdo_geom, city_geom, cdo_name):
 def _write_data_sheet(ws, cdo_data, citywide_data, cdo_name):
     """Write the side-by-side CDO vs. citywide indicator comparison sheet."""
     has_indicator_name = "indicator_name" in cdo_data.columns
-    if has_indicator_name:
-        headers = [
-            "Indicator",
-            f"{cdo_name}\nCount", f"{cdo_name}\nUniverse", f"{cdo_name}\n%",
-            "Citywide\nCount", "Citywide\nUniverse", "Citywide\n%",
-        ]
-    else:
-        headers = [
-            "Indicator ID",
-            f"{cdo_name}\nCount", f"{cdo_name}\nUniverse", f"{cdo_name}\n%",
-            "Citywide\nCount", "Citywide\nUniverse", "Citywide\n%",
-        ]
-    for col_idx, header in enumerate(headers, start=1):
-        cell = ws.cell(row=1, column=col_idx, value=header)
+    label_header = "Indicator" if has_indicator_name else "Indicator ID"
+    center_wrap = Alignment(horizontal="center", vertical="center", wrap_text=True)
+
+    # Row 1: merged group headers
+    cell = ws.cell(row=1, column=1, value=label_header)
+    cell.fill = HEADER_FILL
+    cell.font = HEADER_FONT
+    cell.alignment = center_wrap
+    ws.merge_cells("A1:A2")
+
+    cell = ws.cell(row=1, column=2, value=cdo_name)
+    cell.fill = HEADER_FILL
+    cell.font = HEADER_FONT
+    cell.alignment = center_wrap
+    ws.merge_cells("B1:D1")
+
+    cell = ws.cell(row=1, column=5, value="Citywide")
+    cell.fill = HEADER_FILL
+    cell.font = HEADER_FONT
+    cell.alignment = center_wrap
+    ws.merge_cells("E1:G1")
+
+    # Row 2: sub-headers
+    for col_idx, sub in enumerate(["Count", "Total Responses", "Percent", "Count", "Total Responses", "Percent"], start=2):
+        cell = ws.cell(row=2, column=col_idx, value=sub)
         cell.fill = HEADER_FILL
         cell.font = HEADER_FONT
-        cell.alignment = WRAP
+        cell.alignment = center_wrap
 
     # Build a citywide lookup — key on indicator_name or indicator_db_id
     cw_lookup = {}
@@ -113,12 +124,12 @@ def _write_data_sheet(ws, cdo_data, citywide_data, cdo_name):
     for _, row in citywide_data.iterrows():
         cw_lookup[row.get(key_col)] = row
 
-    row_num = 2
+    row_num = 3
     for _, row in cdo_data.iterrows():
         cw = cw_lookup.get(row.get(key_col))
         label = row.get("indicator_name") if has_indicator_name else row.get("indicator_db_id")
 
-        values = [
+        raw_values = [
             label,
             row["count"], row["universe"], row["percentage"],
             cw["count"] if cw is not None else None,
@@ -126,11 +137,24 @@ def _write_data_sheet(ws, cdo_data, citywide_data, cdo_name):
             cw["percentage"] if cw is not None else None,
         ]
         fill = ZEBRA_FILL if row_num % 2 == 0 else None
-        for col_idx, val in enumerate(values, start=1):
+        for col_idx, val in enumerate(raw_values, start=1):
+            if isinstance(val, str) and val != "*":
+                try:
+                    val = int(val)
+                except ValueError:
+                    try:
+                        val = float(val)
+                    except ValueError:
+                        pass
             cell = ws.cell(row=row_num, column=col_idx, value=val)
             cell.font = BODY_FONT
             if fill:
                 cell.fill = fill
+            if col_idx in (4, 7) and isinstance(val, (int, float)):
+                cell.value = val / 100
+                cell.number_format = "0%"
+            elif col_idx >= 2 and isinstance(val, (int, float)):
+                cell.number_format = "#,##0"
 
         row_num += 1
 
@@ -230,7 +254,7 @@ def run(source: Engine, target: Engine) -> TaskResult:
         )
 
         safe_name = cdo_name.replace("/", "-").replace("\\", "-")
-        wb.save(OUTPUT_DIR / f"{safe_name}.xlsx")
+        wb.save(OUTPUT_DIR / f"{safe_name}_{SURVEY_YEAR}.xlsx")
         workbooks_created += 1
 
     logger.info(f"Created {workbooks_created} CDO workbooks in {OUTPUT_DIR}")

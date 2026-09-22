@@ -130,9 +130,19 @@ def _build_question_block(frame, datadictionary, survey_date, summaries, geo_lab
 
 
 def pull_indicator_names(engine):
-    """Pull indicator id-to-name mapping from the NVI application database."""
+    """Pull indicator id-to-name mapping with category and sort order."""
     return pd.read_sql(
-        "SELECT id AS indicator_db_id, name AS indicator_name FROM indicator",
+        """
+        SELECT i.id AS indicator_db_id,
+               i.name AS indicator_name,
+               c.name AS category_name,
+               c.sort_order AS category_sort_order,
+               i.sort_order AS indicator_sort_order
+        FROM indicator i
+        JOIN indicator_category ic ON i.id = ic.indicator_id
+        JOIN category c ON c.id = ic.category_id
+        ORDER BY c.sort_order, i.sort_order
+        """,
         engine,
     )
 
@@ -208,10 +218,13 @@ def run(source: Engine, target: Engine, **kwargs) -> TaskResult:
     ]
     if indicator_names is None:
         shared_columns.remove("indicator_name")
+    sort_columns = [c for c in ("category_sort_order", "indicator_sort_order") if c in cdo_indicators.columns]
     combined = pd.concat([
-        cdo_indicators[shared_columns],
-        cw_indicators[shared_columns],
+        cdo_indicators[shared_columns + sort_columns],
+        cw_indicators[shared_columns + sort_columns],
     ], ignore_index=True)
+    if sort_columns:
+        combined = combined.sort_values(["organization_name"] + sort_columns).drop(columns=sort_columns)
 
     # Merge location IDs for CDO rows
     combined = combined.merge(
