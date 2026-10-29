@@ -10,6 +10,7 @@ so downstream workbook generation can compare CDO data to citywide.
 """
 
 import os
+from datetime import date
 from pathlib import Path
 
 import geopandas as gpd
@@ -199,7 +200,8 @@ def run(source: Engine, target: Engine, **kwargs) -> TaskResult:
 
     # -- CDO aggregation (spatially filtered frame) -------------------------
     logger.info("Pulling CDO boundaries for aggregation")
-    cdo_boundaries = pull_cdo_boundaries(source)
+    # Uses the boundaries active on the run date, not the survey date.
+    cdo_boundaries = pull_cdo_boundaries(source, as_of=date.today())
     cdo_frame = add_cdo_boundaries(geocoded, cdo_boundaries)
 
     logger.info("Creating CDO indicator rows")

@@ -6,12 +6,12 @@ CDO zones, and HOLC maps into the PostGIS database.
 
 import json
 import configparser
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
-from sqlalchemy import Engine
+from sqlalchemy import Engine, text
 
 from nvi_etl.config import BASE_DIR
 from nvi_etl.registry import task, TaskResult
@@ -124,21 +124,48 @@ def run_tract_crosswalk(source: Engine, target: Engine) -> TaskResult:
 
 @task("geography_cdo_zones", phase=1, description="Load CDO service area boundaries")
 def run_cdo_zones(source: Engine, target: Engine) -> TaskResult:
+    """Load a vintage of CDO boundaries, keeping earlier vintages as history.
+
+    The vintage's start_date comes from ``[dates] effective_date`` in the
+    cdo_zones conf. Any rows already loaded with that start_date are replaced,
+    and whatever vintage was active on that date is closed out the day before.
+    Readers pick the active vintage with ``pull_cdo_boundaries(engine, as_of)``.
+    """
     geo_dir = GEO_BASE / "cdo_zones"
     config = _read_conf(geo_dir)
     field_ref = _read_field_ref(geo_dir)
+
+    effective_date = date.fromisoformat(config["dates"]["effective_date"])
+    params = {
+        "effective_date": effective_date,
+        "prior_end_date": effective_date - timedelta(days=1),
+    }
 
     file = (
         gpd.read_file(config["source_files"]["cdo_boundaries"])
         .rename(columns=field_ref["renames"])
         [field_ref["column_order"]]
         .assign(
-            start_date=pd.to_datetime("2025-01-01"),
+            start_date=pd.to_datetime(effective_date),
             end_date=pd.to_datetime("2199-01-01"),
         )
     )
 
-    file.to_postgis("cdo_boundaries", target, schema="nvi", if_exists="append", index=False)
+    with target.begin() as conn:
+        conn.execute(
+            text("DELETE FROM nvi.cdo_boundaries WHERE start_date = :effective_date"),
+            params,
+        )
+        conn.execute(
+            text("""
+                UPDATE nvi.cdo_boundaries
+                SET end_date = :prior_end_date
+                WHERE start_date < :effective_date
+                  AND end_date >= :effective_date
+            """),
+            params,
+        )
+        file.to_postgis("cdo_boundaries", conn, schema="nvi", if_exists="append", index=False)
 
     return TaskResult(task_name="geography_cdo_zones", rows_inserted=len(file), success=True)
 

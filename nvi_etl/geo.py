@@ -58,15 +58,24 @@ def pull_council_districts(engine: Engine, year: int):
         )
 
 
-def pull_cdo_boundaries(engine: Engine):
+def pull_cdo_boundaries(engine: Engine, as_of: datetime.date):
+    """Pull the CDO boundaries that were active on ``as_of``.
+
+    NOTE: callers currently pass the run date (``datetime.date.today()``), so
+    survey results are aggregated to whichever CDO boundaries are active when
+    the ETL runs, not the ones in effect when the survey was fielded.
+    """
     q = text("""
     SELECT *
     FROM nvi.cdo_boundaries
-    WHERE start_date = DATE '2025-01-01';
+    WHERE start_date <= :as_of
+      AND end_date >= :as_of;
     """)
 
     try:
-        return gpd.read_postgis(q, engine, geom_col="geometry")
+        return gpd.read_postgis(
+            q, engine, params={"as_of": as_of}, geom_col="geometry"
+        )
     except OperationalError:
         raise NotImplementedError(
             "Run geography loading tasks first"

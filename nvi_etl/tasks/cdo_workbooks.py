@@ -9,6 +9,7 @@ database.
 """
 
 import io
+from datetime import date
 from pathlib import Path
 
 import folium
@@ -234,7 +235,8 @@ def run(source: Engine, target: Engine) -> TaskResult:
 
     # Pull geometries for maps
     logger.info("Pulling geometries for map generation")
-    cdo_boundaries = pull_cdo_boundaries(source)
+    # Uses the boundaries active on the run date, not the survey date.
+    cdo_boundaries = pull_cdo_boundaries(source, as_of=date.today())
     city_boundary = pull_city_boundary(source)
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

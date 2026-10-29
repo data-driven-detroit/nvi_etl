@@ -62,6 +62,10 @@ Tasks are organized into phases:
 - `acs_v2` -- ACS part 2 via tablecensus Excel definitions
 - `evictions` -- Eviction counts by geography and year
 - `geography_*` -- Geographic boundary loading (zones, districts, boundary, crosswalk, CDO, HOLC)
+  - CDO boundaries are versioned: `effective_date` in `aux_geography/2024/cdo_zones/conf/.conf`
+    sets the vintage's `start_date`, re-runs replace that vintage, and the previous vintage gets
+    `end_date = effective_date - 1`. `primary_survey_cdo` and `cdo_workbooks` currently pull the
+    boundaries active on the **run date**, not the survey date.
 - `ipds` -- Infrastructure, property, development & safety indicators
 - `mischooldata` -- 3rd grade ELA proficiency from MI school data
 - `msc` -- Births, crashes, crime, CDO coverage, redlining
