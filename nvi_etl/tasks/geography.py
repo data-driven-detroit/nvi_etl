@@ -13,7 +13,7 @@ import geopandas as gpd
 import pandas as pd
 from sqlalchemy import Engine, text
 
-from nvi_etl.config import BASE_DIR
+from nvi_etl.config import BASE_DIR, VAULT_FOLDER
 from nvi_etl.registry import task, TaskResult
 from nvi_etl.utilities import calculate_square_miles
 
@@ -142,7 +142,7 @@ def run_cdo_zones(source: Engine, target: Engine) -> TaskResult:
     }
 
     file = (
-        gpd.read_file(config["source_files"]["cdo_boundaries"])
+        gpd.read_file(VAULT_FOLDER / config["source_files"]["cdo_boundaries"])
         .rename(columns=field_ref["renames"])
         [field_ref["column_order"]]
         .assign(
