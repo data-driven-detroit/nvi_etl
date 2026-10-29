@@ -141,8 +141,11 @@ def run_cdo_zones(source: Engine, target: Engine) -> TaskResult:
         "prior_end_date": effective_date - timedelta(days=1),
     }
 
+    raw = gpd.read_file(VAULT_FOLDER / config["source_files"]["cdo_boundaries"])
+    print(f"CDO boundary source columns: {list(raw.columns)}")
+
     file = (
-        gpd.read_file(VAULT_FOLDER / config["source_files"]["cdo_boundaries"])
+        raw
         .rename(columns=field_ref["renames"])
         [field_ref["column_order"]]
         .assign(
