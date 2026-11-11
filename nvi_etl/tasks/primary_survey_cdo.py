@@ -179,12 +179,15 @@ def run(source: Engine, target: Engine, **kwargs) -> TaskResult:
     geocoded = combine_survey_and_geocoded(frame, geoframe)
     survey_date = pd.Timestamp(year=SURVEY_YEAR, month=1, day=1)
 
-    # -- Indicator names from NVI app database (optional) -------------------
+    # -- Indicator names from NVI app database -------------------------------
     nvi_db = kwargs.get("nvi_db")
-    indicator_names = None
-    if nvi_db is not None:
-        logger.info("Pulling indicator names from NVI database")
-        indicator_names = pull_indicator_names(nvi_db)
+    if nvi_db is None:
+        raise ValueError(
+            "primary_survey_cdo requires --nvi-db to pull indicator names; "
+            "without it the CDO workbooks have no indicator text"
+        )
+    logger.info("Pulling indicator names from NVI database")
+    indicator_names = pull_indicator_names(nvi_db)
 
     # -- Citywide aggregation (full frame, no spatial filter) ---------------
     logger.info("Running citywide aggregation for comparison")
