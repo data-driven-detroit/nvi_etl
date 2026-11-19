@@ -37,7 +37,7 @@ detroit_council_districts AS (
 ),
 district_crash AS (
     SELECT districts.district_number, COUNT(*) AS crash_count
-    FROM semcog_crash_20250317 AS cr
+    FROM {crash_table} AS cr
     INNER JOIN detroit_council_districts AS districts 
         ON st_intersects (districts.geometry, st_transform (st_setsrid (st_point (cr.xcord::NUMERIC, cr.ycord::NUMERIC), 4326), 2898))
     WHERE RIGHT(cr.date_full, 4)::int =  :data_year
@@ -49,7 +49,7 @@ district_crosswalk AS (
 ),
 district_population AS (
     SELECT dc.district_number, SUM(b01003001) AS total_pop
-    FROM public.b01003_moe AS acs
+    FROM {population_table} AS acs
     INNER JOIN district_crosswalk dc ON acs.geoid = dc.tract_geoid
     GROUP BY dc.district_number
 )
